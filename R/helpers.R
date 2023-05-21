@@ -1,18 +1,27 @@
 ## diverse helper functions
-#' Short description
+
+#' Get string information for Maintainer
+#' @param email A character vector for email address to contact maintainer
+#' @param github A character vector for github repository to submit issue/feature requests
+#' @return A character vector with Maintainer information
+#' @export
+get_maintainer <- function(email='davidgz.science@gmail.com', github='https://github.com/DavidGZ1/HowDirty'){
+  sprintf('%s (%s)\n', email, utils::URLdecode(github))
+}
+
+
+#' Minima without zero
 #'
-#' description
+#' Returns the minima of the input values while ignoring zero values.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param x numeric vector.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return numeric vector.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' min_no_zero(c(0,1,2,3,10))
+#'
 #' @export
-bmi3 <- function(x) {
-  bmi.groups <- cut(x, breaks = c(0, 25, 30, Inf), right = FALSE)
-  return(bmi.groups)
+min_no_zero <- function(x, na.rm = TRUE){
+  min(x[x != 0], na.rm = na.rm)
 }
