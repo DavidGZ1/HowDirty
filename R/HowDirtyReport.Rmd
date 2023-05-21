@@ -135,7 +135,22 @@ count_factor_columns <- function(df){
     rename("Count" = 1) %>% 
     rownames_to_column("Variable")
 }
+scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
+  # options = "RdOrBlu", "plasma"
+  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
+  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
+  if(direction == 1){colors_risk = colors_risk}
+  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
 
+  ggplot2:::manual_scale(
+    'fill',
+    values = setNames(colors_risk,
+                      c("1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference")),
+    ...
+  )
+}
 ```
 
 ```{r functions_in_progress}
@@ -303,18 +318,22 @@ conta_summ_sample_risk <-
 conta_summ_sampleset <-
   conta_summ_sample %>%
   count(Risk, name = "Count") %>%
-    mutate(Fraction = paste0(Count, "/", sum(Count)) ,
-      Freq =  round(Count/sum(Count), 2),
-      Perc = label_percent()(Freq),
-      Tag = paste0(Risk, ": ", Perc, " (", Fraction, ")")) %>%
+  mutate(Fraction = paste0(Count, "/", sum(Count)) ,
+         Freq =  round(Count/sum(Count), 2),
+         Perc = label_percent()(Freq),
+         Tag = paste0(Risk, ": ", Perc, " (", Fraction, ")")) 
+conta_summ_sampleset_verbose <- 
+  conta_summ_sampleset %>% 
   summarise(Risk  =  paste0(Tag, collapse = "; "), .groups = "drop")
 # Verbose summary of the data set
 max_risklevel <- max(as.numeric(conta_summ_sample$RiskLevel))
-summ_msg <- c("You don't like getting soappy, your samples are super clean!",
-              "You are clean to go!",
-              "Be careful, you have some medium dirty samples",
-              "WARNING: You have some dirty samples!",
-              "WARNING: You have some dirty diiirty samples!")[max_risklevel]
+summ_msg_options <- c("Something may be wrong, all Abundances were = 0"  ,
+                      "You don't like getting soappy, your samples are super clean!",
+                      "You are clean to go!",
+                      "Be careful, you have some medium dirty samples",
+                      "WARNING: You have some dirty samples!",
+                      "WARNING: You have some very dirty samples!!!")
+summ_msg <- summ_msg_options[max_risklevel]
 summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
 summ_color <- summ_color_scale[max_risklevel]
 
@@ -326,7 +345,217 @@ conta_summ_analytegroup_sample <-
 ```
 
 
-# Results: 
+# Results: Summary risk evaluation and top contaminants
+
+## Global summary
+
+`r colorize_text(summ_msg, summ_color)`
+
+The data set contained the following percentages of samples associated to each risk level (also saved in `r filedir_report` --> conta_summ_sampleset)
+
+```{r plot_conta_summ_sampleset, fig.width= 4, fig.height=4}
+conta_summ_sampleset %>% 
+  arrange(desc(Risk)) %>% 
+  mutate(ypos = cumsum(Freq) - 0.5*Freq) %>% 
+  ggplot(aes(x = "", y= Freq , fill= Risk)) +
+  geom_bar(stat = "identity", color = "white") +
+  coord_polar("y", start=0) +
+  geom_text(aes(y = ypos, label = Perc), color = "white", size=4) +
+  theme_void()  +
+  scale_fill_risk_level()
+```
+
+## Sample summary {.tabset}
+
+* Below is shown the summary of contaminant risk evaluation for each sample in plot and table formats
+* The table can also be found in `r filedir_report` --> conta_summ_sample.
+
+### Plot: Total contamination per sample
+
+```{r input_conta_summ_sample_risk, echo=FALSE}
+# user input for plots
+fluidRow(
+  column(3,radioButtons(inputId =  "abundance_scale_sample_total",
+                        label = "Scale",
+                        choices = c("linear", "log10"),
+                        selected = "linear",
+                        inline = FALSE, 
+                        width = "30%")
+  ),
+  column(5, radioButtons(inputId =  "order_sample_total",
+                         label = "Order_x",
+                         choices = c("Sample", "Abundance"),
+                         selected = "Abundance",
+                         inline = FALSE, 
+                         width = "30%")
+  ),
+  column(4, checkboxInput(inputId =  "facet_condition_total",
+                        label = "Facet by Condition",
+                        value  = TRUE,
+                        width = "30%")
+  )
+)
+
+# filter data
+conta_summ_sample2plot <- reactive({
+  conta_summ_sample
+})
+```
+
+```{r plot_conta_summ_sample_risk, echo=FALSE, warning=FALSE}
+renderPlotly({
+  dot_plot_sample_risk_total <-
+        # plot_sample_risk_total(conta_summ_sample) # for troubleshooting only
+  plot_sample_risk_total(conta_summ_sample2plot(),
+                         order_x  = input$order_sample_total,
+                         scale = input$abundance_scale_sample_total)
+  if(input$facet_condition_total == TRUE){
+    dot_plot_sample_risk_total <-
+      dot_plot_sample_risk_total + 
+      facet_wrap(~Condition, scales = "free_x")
+  }
+  
+  ggplotly(dot_plot_sample_risk_total,
+           height = 400, width = 1000)  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
+  # layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
+  
+})
+```
+
+
+### Table: Summary
+
+* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
+
+```{r echo=FALSE, warning=FALSE}
+conta_summ_sample %>% 
+  select(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel) %>% 
+  rename_with(~gsub(patt = "TotalAbundance_", rep = "", .x)) %>% 
+  datatable(filter = 'top', options = list(
+    pageLength = 10, autoWidth = TRUE))  %>% 
+  formatStyle('RiskLevel',
+              backgroundColor = styleEqual(c(0:6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))),
+              backgroundSize = '50% 0%',
+              backgroundRepeat = 'no-repeat',
+              backgroundPosition = 'left')
+
+MedianMin2Plot_ag = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median)
+```
+
+
+
+### Plot: Summary by Sample
+
+```{r plot_AnalyteGroupSample, echo=FALSE}
+#dotplot
+## AnalyteGroup 
+dot_plot_conta_summ_sample_risk_analytegroup <-
+  conta_summ_sample_risk %>% 
+  plot_sample_risk_analyte(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
+
+ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
+         height = 600, width = 1000) 
+  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
+
+```
+
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
+### Plot: Summary by Condition
+
+
+
+```{r plot_AnalyteGroupCondition, echo=FALSE}
+#dotplot
+## AnalyteGroup 
+dot_plot_conta_summ_condition_risk_analytegroup <-
+  conta_summ_sample_risk %>% 
+  plot_condition_risk_analyte(order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
+
+ggplotly(dot_plot_conta_summ_condition_risk_analytegroup,
+         height = 600, width = 1000) 
+  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
+```
+
+
+### Plot: Summary by groups
+
+```{r echo=FALSE, fig.height=8, fig.width=10, warning=FALSE}
+# conta_summ_sample <-
+#   full_join(samples_annot %>%
+#               mutate(RawFile = ReplicateName,
+#                      ReplicateName = Sample), conta_summ_sample, by = "ReplicateName") #Pending: rename Sample and replicatename in samples_annot
+
+#Summary (sum) of contaminants
+# plot_summ_cond_cgp <-
+#   conta_summ_sample %>%  
+#   select(-TotalAbundance) %>% 
+#   select(Condition, starts_with("TotalAbundance_")) %>% 
+#   pivot_longer(cols = starts_with("Total"),
+#                names_to = "AnalyteGroup",
+#                names_prefix = "TotalAbundance_",
+#                values_to = "Abundance_median") %>%  
+#   left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>% 
+#   mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
+#                                Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
+#                                (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,   
+#                                (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
+#                                (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
+#                                (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
+#                                TRUE ~ 6),
+#          Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+#                       rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>% 
+#   mutate(Risk = as.factor(Risk)) %>% 
+#   select(-starts_with("Tshd_")) %>% 
+#   ggbarplot(y = "Abundance_median", x = "Condition", 
+#             fill="Risk",
+#             facet.by = "AnalyteGroup", scales = "free_y", ncol =1,
+#             position = position_dodge2(), alpha = 0.6) +
+#   scale_fill_viridis_d(end=0.8, option =  "plasma", direction = 1) +
+#   ylab("Total Normalized Abundance") +
+#   xlab("Replicate Name")+
+#   theme_hd +
+#   theme(axis.text.y = element_text(size=4)) +
+#   rotate_x_text(angle=20) +
+#   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf) #This re-add the y axes to the faceted plots
+# #Total Summary per sample
+# plot_summ_cond <-
+#   conta_summ_sample  %>%
+#   mutate(Condition = Condition,
+#          Dummy = "TOTAL") %>% 
+#   ggbarplot(y = "TotalAbundance", x = "Condition", fill="Risk", 
+#             facet.by = "Dummy",
+#             position = position_dodge2(), alpha = 0.6) +
+#   scale_fill_viridis_d(end=0.8, option =  "plasma", direction = 1) +
+#   ylab("Total Normalized Abundance (Sum(Area/TICA))") +
+#   xlab("Replicate Name")+
+#   theme_hd +
+#   theme(axis.text.y = element_text(size=4),
+#         strip.text.x = element_text(size = 10, colour = "darkred")) +
+#   rotate_x_text(angle=20)
+# 
+# #Merged plot
+# plot_summary_risk_top_conta_groups_cond <-
+#   ggarrange(plot_summ_cond_cgp+ rremove("x.text"), 
+#             plot_summ_cond,
+#             ncol= 1,
+#             common.legend = TRUE, heights = c(0.75, 0.25), align = "hv",
+#             labels = c("A)", "B)"),
+#             label.x = 0.05,
+#             font.label = list(size = 12)) %>% 
+#   annotate_figure(paste0("A) Top ", params$nTopContaminants, "contaminant groups Total Normalized Abundance \n",
+#                          "B) Summary risk evaluation)"))
+# plot_summary_risk_top_conta_groups_cond
+# # if(params$PlotsSave){
+# #   rawr_ggsave(plot_summary_risk_top_conta_groups_cond, "plot_summary_risk_top_conta_groups_cond")
+# # }
+
+```
+
 
 ## List of possible contaminants detected in the samples
 
@@ -438,188 +667,6 @@ renderPlotly({
 <br><br>
 <br><br>
 
-# Summary risk evaluation and top contaminants
-
-## Global summary 
-
-* In summary, the sample set contained the following percentages of samples associated to each risk level (also saved in `r filedir_report` --> conta_summ_sampleset):
-  * `r colorize_text(conta_summ_sampleset$Risk, summ_color)`
-  * `r colorize_text(summ_msg, summ_color)`
-
-## Sample summary {.tabset}
-
-* Below is shown the summary of contaminant risk evaluation for each sample in table and plot formats, including the Total (summed) Normalized Abundance of the top `r params$nTopContaminants` contaminants.
-* The table can also be found in `r filedir_report` --> conta_summ_sample.
-* a = 0.1% FA, b = ACN, c = MeOH
-
-### Table: Summary
-
-* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
-
-```{r echo=FALSE, warning=FALSE}
-conta_summ_sample %>% 
-  select(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel) %>% 
-  rename_with(~gsub(patt = "TotalAbundance_", rep = "", .x)) %>% 
-  datatable(filter = 'top', options = list(
-    pageLength = 10, autoWidth = TRUE))  %>% 
-  formatStyle('RiskLevel',
-              backgroundColor = styleEqual(c(0:6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))),
-              backgroundSize = '50% 0%',
-              backgroundRepeat = 'no-repeat',
-              backgroundPosition = 'left')
-
-MedianMin2Plot_ag = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median)
-```
-
-### Plot: Summary Total
-
-```{r input_conta_summ_sample_risk, echo=FALSE}
-# user input for plots
-fluidRow(
-  column(3,radioButtons(inputId =  "abundance_scale_sample_total",
-                        label = "Scale",
-                        choices = c("linear", "log10"),
-                        selected = "linear",
-                        inline = FALSE, 
-                        width = "30%")
-  ),
-  column(6, radioButtons(inputId =  "order_sample_total",
-                         label = "Order_x",
-                         choices = c("Sample", "Abundance"),
-                         selected = "Sample",
-                         inline = FALSE, 
-                         width = "30%")
-  )
-)
-
-# filter data
-conta_summ_sample2plot <- reactive({
-  conta_summ_sample
-})
-```
-
-```{r plot_conta_summ_sample_risk, echo=FALSE, warning=FALSE}
-renderPlotly({ 
-  ggplotly(plot_sample_risk_total(conta_summ_sample2plot(),
-                                  order_x  = input$order_sample_total, 
-                                  scale = input$abundance_scale_sample_total),
-           height = 400, width = 1000)  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
-    # layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
-    # layout(height = 400, width = 1000) 
-})
-```
-
-### Plot: Summary by Sample
-
-```{r plot_AnalyteGroupSample, echo=FALSE}
-#dotplot
-## AnalyteGroup 
-dot_plot_conta_summ_sample_risk_analytegroup <-
-  conta_summ_sample_risk %>% 
-  plot_sample_risk_analyte(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
-
-ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
-         height = 600, width = 1000) 
-  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
-
-```
-
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-
-### Plot: Summary by Condition
-
-
-
-```{r plot_AnalyteGroupCondition, echo=FALSE}
-#dotplot
-## AnalyteGroup 
-dot_plot_conta_summ_condition_risk_analytegroup <-
-  conta_summ_sample_risk %>% 
-  plot_condition_risk_analyte(order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
-
-ggplotly(dot_plot_conta_summ_condition_risk_analytegroup,
-         height = 600, width = 1000) 
-  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
-```
-
-
-### Plot: Summary by groups
-
-```{r echo=FALSE, fig.height=8, fig.width=10, warning=FALSE}
-# conta_summ_sample <-
-#   full_join(samples_annot %>%
-#               mutate(RawFile = ReplicateName,
-#                      ReplicateName = Sample), conta_summ_sample, by = "ReplicateName") #Pending: rename Sample and replicatename in samples_annot
-
-#Summary (sum) of contaminants
-plot_summ_cond_cgp <-
-  conta_summ_sample %>%  
-  select(-TotalAbundance) %>% 
-  select(Condition, starts_with("TotalAbundance_")) %>% 
-  pivot_longer(cols = starts_with("Total"),
-               names_to = "AnalyteGroup",
-               names_prefix = "TotalAbundance_",
-               values_to = "Abundance_median") %>%  
-  left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>% 
-  mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
-                               Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
-                               (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,   
-                               (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
-                               (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
-                               (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
-                               TRUE ~ 6),
-         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>% 
-  mutate(Risk = as.factor(Risk)) %>% 
-  select(-starts_with("Tshd_")) %>% 
-  ggbarplot(y = "Abundance_median", x = "Condition", 
-            fill="Risk",
-            facet.by = "AnalyteGroup", scales = "free_y", ncol =1,
-            position = position_dodge2(), alpha = 0.6) +
-  scale_fill_viridis_d(end=0.8, option =  "plasma", direction = 1) +
-  ylab("Total Normalized Abundance") +
-  xlab("Replicate Name")+
-  theme_hd +
-  theme(axis.text.y = element_text(size=4)) +
-  rotate_x_text(angle=20) +
-  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf) #This re-add the y axes to the faceted plots
-#Total Summary per sample
-plot_summ_cond <-
-  conta_summ_sample  %>%
-  mutate(Condition = Condition,
-         Dummy = "TOTAL") %>% 
-  ggbarplot(y = "TotalAbundance", x = "Condition", fill="Risk", 
-            facet.by = "Dummy",
-            position = position_dodge2(), alpha = 0.6) +
-  scale_fill_viridis_d(end=0.8, option =  "plasma", direction = 1) +
-  ylab("Total Normalized Abundance (Sum(Area/TICA))") +
-  xlab("Replicate Name")+
-  theme_hd +
-  theme(axis.text.y = element_text(size=4),
-        strip.text.x = element_text(size = 10, colour = "darkred")) +
-  rotate_x_text(angle=20)
-
-#Merged plot
-plot_summary_risk_top_conta_groups_cond <-
-  ggarrange(plot_summ_cond_cgp+ rremove("x.text"), 
-            plot_summ_cond,
-            ncol= 1,
-            common.legend = TRUE, heights = c(0.75, 0.25), align = "hv",
-            labels = c("A)", "B)"),
-            label.x = 0.05,
-            font.label = list(size = 12)) %>% 
-  annotate_figure(paste0("A) Top ", params$nTopContaminants, "contaminant groups Total Normalized Abundance \n",
-                         "B) Summary risk evaluation)"))
-plot_summary_risk_top_conta_groups_cond
-# if(params$PlotsSave){
-#   rawr_ggsave(plot_summary_risk_top_conta_groups_cond, "plot_summary_risk_top_conta_groups_cond")
-# }
-
-```
 
 # Appendixes
 
