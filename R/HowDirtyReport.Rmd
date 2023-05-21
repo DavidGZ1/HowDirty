@@ -132,22 +132,7 @@ count_factor_columns <- function(df){
     rename("Count" = 1) %>% 
     rownames_to_column("Variable")
 }
-scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
-  # options = "RdOrBlu", "plasma"
-  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
-  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
-  if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
-  if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
 
-  ggplot2:::manual_scale(
-    'fill',
-    values = setNames(colors_risk,
-                      c("1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference")),
-    ...
-  )
-}
 ```
 
 ```{r functions_in_progress}
@@ -342,9 +327,9 @@ conta_summ_analytegroup_sample <-
 ```
 
 
-# Summary risk evaluation (total contamination = sum(Abundance)) {.tabset}
+# Summary risk evaluation (total contamination) {.tabset}
 
-`r colorize_text(summ_msg, summ_color)`
+  `r colorize_text(summ_msg, summ_color)`
 
 * Evaluation based on the total contaminant abundance
 * The results are summarized at different levels below as plots and tables
@@ -422,7 +407,7 @@ renderPlotly({
   
   ggplotly(dot_plot_sample_risk_total,
            height = 400, width = 1000) %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
-  layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
+  layout_ggplotly_label_margin( x = -0.02, y = -0.02) #fixes label margin problem
   
 })
 ```
