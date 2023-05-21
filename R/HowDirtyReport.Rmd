@@ -79,10 +79,6 @@ This report was generated with a prototype version of *HowDirty*. This is meant 
 
 **Version:** 0.04
 
-## Warning
-
-The algorithm used for peak picking in Skyline is simple and based only in m/z and charge (z). Thus, some true analyte peaks (e.g. peptides) could be incorrectly assigned to contaminants (i.e. false positives). Therefore, it is recommended to also look into the Skyline file to evaluate other factors, such as patterns of contaminant groups elution across the retention time. 
-
 ## Objectives
 
 * Evaluate the risk of possible contamination with polymers and small molecules in the samples from the data set.
@@ -130,6 +126,22 @@ filedir_report <- file.path(params$OutputDirectory,
 filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo.txt", filedir_report)
 ```
 
+```{r functions2move}
+count_factor_columns <- function(df){
+  df  %>% 
+    summarise(across(where(is.factor), ~n_distinct(.x))) %>% 
+    t() %>% 
+    as.data.frame() %>% 
+    rename("Count" = 1) %>% 
+    rownames_to_column("Variable")
+}
+
+```
+
+```{r functions_in_progress}
+
+```
+
 ```{r}
 # Other functions
 # rawr_ggsave <-function(input, file, width = 20, height = 24) {
@@ -138,14 +150,19 @@ filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo
 # }
 ```
 
-# Procedures
+# Procedure
 
-**Raw data**
+## Data analysis
 
-* Raw data was imported into Skyline using the Contaminant List template.
-* The feature area of extracted ion chromatograms was imported in *HowDirty*.
+* Raw data was imported into Skyline to extract the features corresponding to possible contaminants (ToDo: add references)
+* For this purpose,the Molecular Contaminant List template was used (Gomez-Zepeda *et al.*, 2023; modified from Rardin, 2018)
+* The feature area of extracted ion chromatograms was processed using *HowDirty* to generate this report (Gomez-Zepeda *et al.*, 2023)
 
-**Calculations**
+## Warning
+
+The algorithm used for peak picking in Skyline is simple and based only in m/z and charge (z). Thus, some true analyte peaks (e.g. peptides) could be incorrectly assigned to contaminants (i.e. false positives). Therefore, it is recommended to also look into the Skyline file to evaluate other factors, such as patterns of contaminant groups elution across the retention time.
+
+## Calculations within *HowDirty*
 
 * TICA = Total Ion Current Area
 * Abundance (Normalized abundance) = TotalAreaMS1 / TICA
@@ -154,6 +171,8 @@ filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo
 * Contaminant-specific Risk level assessment was performed by comparing the Abundance of the possible contaminants in each one of the test samples (current data set) against thresholds previously extrapolated from a reference data set (~ 1000s runs). These thresholds are reported in `r filedir_report`--> ref_conta_tshd.
 * Sample level summary contaminant group assessment was performed by comparing the TotalAbundance_ContaminantGroup against the summed thresholds from each contaminant.
 * Sample level summary contaminant risk assessment was performed by comparing the TotalAbundance against the sample-level quantile thresholds from the reference dataset. These thresholds are reported in `r filedir_report`--> ref_conta_tshd_sample.
+
+# Input
 
 ```{r read_data}
 # Load thresholds
@@ -184,20 +203,15 @@ conta <- conta_raw %>%
   annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
                          multiply_dilution_factor = params$MultiplyDilutionFactor) %>% 
   annotate_conta_thresholds(., ref_conta_tshd) # assign RiskLevel
-
 ```
 
-```{r functions2move}
+The data set contained the following:
 
-
-
-
-
-
-```
-
-```{r functions_in_progress}
-
+```{r summary_input}
+count_factor_columns(conta) %>% 
+  filter(!Variable %in% c("Risk", "RiskLevel")) %>% 
+  mutate(Variable = paste0(Variable, "s")) %>% 
+  kable() 
 ```
 
 ```{r summaries}
@@ -230,10 +244,89 @@ conta_summ_analyte <-
                         max = ~max(.x, na.rm = TRUE))),
             .groups = "drop")  %>% 
   mutate(across(where(is.numeric), ~signif(.x, 4)))
+
+## top contaminants
+analytegroups_area_ordered <- 
+  conta_summ_analytegroup %>% 
+  select(AnalyteGroup, Abundance_median) %>% 
+  unique() %>% 
+  arrange(desc(Abundance_median))
+
+## Sample level
+conta_summ_sample <-
+  conta %>%
+  group_by(Condition, Sample, ReplicateName) %>%
+  summarise(TotalAbundance = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
+  mutate(Risk =
+           cut(x = TotalAbundance,
+               breaks = ref_conta_tshd_sample$Break,
+               labels = ref_conta_tshd_sample$Labels[-1]))  %>%
+  drop_na %>%
+  mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
+         RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
+  relocate(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel, Risk) %>%
+  # Join with median from top 8 contaminants
+  full_join(.,
+            conta %>%
+              # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
+              pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
+                          values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
+            by = "ReplicateName")
+
+#Summary (sum) of contaminants
+conta_summ_sample_risk <-
+  conta_summ_sample %>%
+  select(-TotalAbundance) %>%
+    # rename(TotalAbundance_Total = TotalAbundance) %>%
+  select(Condition, Sample, starts_with("TotalAbundance_")) %>%
+  pivot_longer(cols = starts_with("Total"),
+               names_to = "AnalyteGroup",
+               names_prefix = "TotalAbundance_",
+               values_to = "Abundance_median") %>%
+  left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>%
+  mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
+                               Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
+                               (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,
+                               (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
+                               (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
+                               (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
+                               TRUE ~ 6),
+         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>%
+  mutate(Risk = as.factor(Risk),
+         RiskLevel = as.factor(RiskLevel),
+         AnalyteGroup = factor(AnalyteGroup, levels = rev(analytegroups_area_ordered$AnalyteGroup)), # order from lowest to highest Abundance_median  (shown inversed in plot)
+         Sample = Sample) %>%
+  select(-starts_with("Tshd_"))
+
+#Dataset level
+conta_summ_sampleset <-
+  conta_summ_sample %>%
+  count(Risk, name = "Count") %>%
+    mutate(Fraction = paste0(Count, "/", sum(Count)) ,
+      Freq =  round(Count/sum(Count), 2),
+      Perc = label_percent()(Freq),
+      Tag = paste0(Risk, ": ", Perc, " (", Fraction, ")")) %>%
+  summarise(Risk  =  paste0(Tag, collapse = "; "), .groups = "drop")
+# Verbose summary of the data set
+max_risklevel <- max(as.numeric(conta_summ_sample$RiskLevel))
+summ_msg <- c("You don't like getting soappy, your samples are super clean!",
+              "You are clean to go!",
+              "Be careful, you have some medium dirty samples",
+              "WARNING: You have some dirty samples!",
+              "WARNING: You have some dirty diiirty samples!")[max_risklevel]
+summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
+summ_color <- summ_color_scale[max_risklevel]
+
+conta_summ_analytegroup_sample <- 
+  conta %>% 
+  group_by(Condition, Sample, ReplicateName, AnalyteGroup) %>% 
+  summarise( Abundance= sum(Abundance), .groups = "drop") 
+
 ```
 
 
-# Results: possible contaminants
+# Results: 
 
 ## List of possible contaminants detected in the samples
 
@@ -241,7 +334,7 @@ conta_summ_analyte <-
 * An extended version of this table containing the Area and Total-Ion-Count-Area (TICA) can also be found in `r filedir_report` --> conta.
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
 
-```{r echo=FALSE, warning=FALSE}
+```{r table_conta, echo=FALSE, warning=FALSE}
 conta %>% 
   select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
   arrange(desc(Abundance)) %>% 
@@ -253,26 +346,7 @@ conta %>%
 
 ## Summary per contaminat groups{.tabset}
 
-* A summary of the Abundance was calculated and is reported in the annexed report (`r filedir_report` --> conta_summ_analytegroup).
-
-### Table: Top contaminants
-
-```{r echo=FALSE, warning=FALSE}
-
-analytegroups_area_ordered <- 
-  conta_summ_analytegroup %>% 
-  select(AnalyteGroup, Abundance_median) %>% 
-  unique() %>% 
-  arrange(desc(Abundance_median))
-  
-# datatable(analytegroups_area_ordered , filter = 'top', options = list(
-#     pageLength = 10, autoWidth = TRUE))
-
-
-```
-
-## Plots per contaminant group{.tabset}
-
+* A summary of the Abundance per AnalyteGroup was calculated and is reported in the annexed report (`r filedir_report` --> conta_summ_analytegroup).
 * The Abundance of the contaminants are reported in the plots below for all the samples in the data set.
 * The Pseudochromatograms represent the Abundance in function of the RentetionTime (Apex of the peak). Those can be useful to evaluate the presence of the usual patterns of polymers, i.e. from small to larger molecules; as well as the reproducibility of the RentetionTime across replicates.
 
@@ -303,7 +377,7 @@ fluidRow(
                      width = "70%")
   )
 )
-# select layers (#2DO maybe)
+# select layers (#ToDo maybe)
 # selectInput(inputId = "Layers2Show",
 #             "Select layers to show in the plot",
 #             choices = c("Points", "Boxplot"),
@@ -315,6 +389,20 @@ conta_area2plot <- reactive({
     filter(AnalyteGroup %in% input$AnalyteGroup2Plot) %>% 
     filter(Analyte %in% as.character(pull(filter(conta_summ_analyte, Abundance_median > input$MedianMin2Plot_ag), Analyte)))
 })
+```
+
+### Total per Contaminant Group 
+
+```{r}
+conta_summ_analytegroup_sample %>% 
+  ggplot(aes(y = AnalyteGroup, x = Abundance)) +
+    geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
+  geom_boxplot( alpha = 0.4, width = 0.2, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
+  # scale_y_continuous(n.breaks = 5) +
+  xlab("Abundance") +
+  ylab("Contaminant") +
+  theme_hd +
+  ggtitle("Total (sum) abundance of contaminants") 
 ```
 
 ### Normalized abundance
@@ -354,50 +442,6 @@ renderPlotly({
 
 ## Global summary 
 
-```{r echo=FALSE, warning=FALSE}
-# summaries
-## Sample level
-conta_summ_sample <-
-  conta %>%
-  group_by(Condition, Sample, ReplicateName) %>%
-  summarise(TotalAbundance = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
-  mutate(Risk =
-           cut(x = TotalAbundance,
-               breaks = ref_conta_tshd_sample$Break,
-               labels = ref_conta_tshd_sample$Labels[-1]))  %>%
-  drop_na %>%
-  mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
-         RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
-  relocate(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel, Risk) %>%
-  # Join with median from top 8 contaminants
-  full_join(.,
-            conta %>%
-              # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
-              pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
-                          values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
-            by = "ReplicateName")
-
-#Dataset level
-conta_summ_sampleset <-
-  conta_summ_sample %>%
-  count(Risk, name = "Count") %>%
-    mutate(Fraction = paste0(Count, "/", sum(Count)) ,
-      Freq =  round(Count/sum(Count), 2),
-      Perc = label_percent()(Freq),
-      Tag = paste0(Risk, ": ", Perc, " (", Fraction, ")")) %>%
-  summarise(Risk  =  paste0(Tag, collapse = "; "), .groups = "drop")
-# Verbose summary of the data set
-max_risklevel <- max(as.numeric(conta_summ_sample$RiskLevel))
-summ_msg <- c("You don't like getting soappy, your samples are super clean!",
-              "You are clean to go!",
-              "Be careful, you have some medium dirty samples",
-              "WARNING: You have some dirty samples!",
-              "WARNING: You have some dirty diiirty samples!")[max_risklevel]
-summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
-summ_color <- summ_color_scale[max_risklevel]
-```
-
-
 * In summary, the sample set contained the following percentages of samples associated to each risk level (also saved in `r filedir_report` --> conta_summ_sampleset):
   * `r colorize_text(conta_summ_sampleset$Risk, summ_color)`
   * `r colorize_text(summ_msg, summ_color)`
@@ -425,33 +469,6 @@ conta_summ_sample %>%
               backgroundPosition = 'left')
 
 MedianMin2Plot_ag = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median)
-
-#Summary (sum) of contaminants
-conta_summ_sample_risk <-
-  conta_summ_sample %>%
-  select(-TotalAbundance) %>%
-    # rename(TotalAbundance_Total = TotalAbundance) %>%
-  select(Condition, Sample, starts_with("TotalAbundance_")) %>%
-  pivot_longer(cols = starts_with("Total"),
-               names_to = "AnalyteGroup",
-               names_prefix = "TotalAbundance_",
-               values_to = "Abundance_median") %>%
-  left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>%
-  mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
-                               Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
-                               (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,
-                               (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
-                               (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
-                               (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
-                               TRUE ~ 6),
-         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>%
-  mutate(Risk = as.factor(Risk),
-         RiskLevel = as.factor(RiskLevel),
-         AnalyteGroup = factor(AnalyteGroup, levels = rev(analytegroups_area_ordered$AnalyteGroup)), # order from lowest to highest Abundance_median  (shown inversed in plot)
-         Sample = Sample) %>%
-  select(-starts_with("Tshd_"))
-
 ```
 
 ### Plot: Summary Total
@@ -623,4 +640,6 @@ writeLines(capture.output(sessionInfo()), filedir_sessioninfo)
 ```
 
 
-# END
+# References
+- Gomez-Zepeda *et al.*. HowDirty. Under preparation. (2023).
+- Rardin, M. J. Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline. J. Am. Soc. Mass Spectrom. 29, 1327–1330 (2018).
