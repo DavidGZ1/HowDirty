@@ -104,7 +104,7 @@ scale_color_risk <- function(..., option = "RdOrBlu", direction = 1, verbose = F
 #'
 #' @export
 plot_abundance <- function(input_conta, scale = "linear"){
-  # plot the normalized abundance
+  # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
     ggplot(input_conta, aes(x = Analyte, y = Abundance)) +
@@ -114,17 +114,17 @@ plot_abundance <- function(input_conta, scale = "linear"){
     scale_color_risk(verbose = TRUE) +
     facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
     scale_y_continuous(n.breaks = 5) +
-    ylab("Normalized Abundance = Area/TICA") +
+    ylab("Abundance = Area/TICA") +
     xlab("Contaminant")+
     theme_hd +
-    ggtitle("Normalized Abundance of contaminants") +
+    ggtitle("Abundance of contaminants") +
     rotate()
 
   if(scale == "linear"){return(output)}
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 5) +
-      ylab("Normalized Abundance = log10(Area/TICA)")
+      ylab("Abundance = log10(Area/TICA)")
     return(output)}
 }
 
@@ -142,7 +142,7 @@ plot_abundance <- function(input_conta, scale = "linear"){
 #'
 #' @export
 plot_pseudochromatogram <- function(input_conta, scale = "linear"){
-  # plot the normalized abundance
+  # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
     ggplot(input_conta, aes(x = PeptideRetentionTime, y = Abundance, color = Sample)) +
@@ -153,16 +153,16 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
     scale_x_continuous(n.breaks = 10,
                        limits = c(0,round(max(input_conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
-    ylab("Normalized Abundance = Area/TICA") +
+    ylab("Abundance = Area/TICA") +
     xlab("Retention time (min)")+
     theme_hd +
-    ggtitle("Normalized abundance vs. RT")
+    ggtitle("abundance vs. RT")
 
   if(scale == "linear"){return(output)}
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 5) +
-      ylab("Normalized Abundance = log10(Area/TICA)")
+      ylab("Abundance = log10(Area/TICA)")
     return(output)}
 }
 
@@ -180,7 +180,7 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
 #'
 #' @export
 plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", scale = "linear"){
-  # plot Total Normalized Abundance vs Replicate Name
+  # plot Total Abundance vs Replicate Name
   # order = c("Sample", "Abundance")
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   # arrange in function of Sample or TotalAbundance, !!input$order_sample_total didn't work
@@ -209,7 +209,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     geom_point(alpha = 1) +
     scale_y_continuous(n.breaks = 10) +
     scale_color_risk() +
-    ylab("Total Normalized Abundance = sum(Area/TICA)") +
+    ylab("Total Abundance = sum(Area/TICA)") +
     xlab("Sample")+
     theme_hd +
     rotate_x_text(angle=45)
@@ -218,7 +218,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 10) +
-      ylab("Total Normalized Abundance = log10(sum(Area/TICA))")
+      ylab("Total Abundance = log10(sum(Area/TICA))")
     return(output)}
 }
 
