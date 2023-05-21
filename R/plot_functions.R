@@ -151,7 +151,7 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
     scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
     facet_wrap(~AnalyteGroup, scales = "free", ncol = 1) +
     scale_x_continuous(n.breaks = 10,
-                       limits = c(0,round(max(conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
+                       limits = c(0,round(max(input_conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
     ylab("Normalized Abundance = Area/TICA") +
     xlab("Retention time (min)")+
