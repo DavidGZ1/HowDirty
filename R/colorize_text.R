@@ -9,7 +9,6 @@
 #'
 #' @examples
 #' colorize_text("this text is red", "red)
-#' bmi3(bmi.vals)
 #'
 #' @export
 colorize_text <- function(x, color) {

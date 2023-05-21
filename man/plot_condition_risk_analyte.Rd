@@ -7,7 +7,7 @@
 plot_condition_risk_analyte(
   input_conta_summ_sample_risk,
   order_x = "Condition",
-  order_y = "NormAbundance",
+  order_y = "Abundance",
   show_zeros = FALSE
 )
 }

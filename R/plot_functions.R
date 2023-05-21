@@ -103,7 +103,7 @@ scale_color_risk <- function(..., option = "RdOrBlu", direction = 1, verbose = F
 #' bmi3(bmi.vals)
 #'
 #' @export
-plot_Abundance <- function(input_conta, scale = "linear"){
+plot_abundance <- function(input_conta, scale = "linear"){
   # plot the normalized abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
