@@ -112,7 +112,7 @@ plot_abundance <- function(input_conta, scale = "linear"){
     geom_boxplot( alpha = 0.4, width = 0.2, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
     # scale_color_viridis_d(end=0.8, option =  "plasma", direction = 1) +
     scale_color_risk(verbose = TRUE) +
-    facet_wrap(~AnalyteGroupSimple, scales = "free", nrow = 1) +
+    facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
     scale_y_continuous(n.breaks = 5) +
     ylab("Normalized Abundance = Area/TICA") +
     xlab("Contaminant")+
@@ -149,7 +149,7 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
     geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample,
                                 "\nContaminant: ", Analyte, "\nRisk: ", Risk)), alpha = 0.8, size = 1)  +
     scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
-    facet_wrap(~AnalyteGroupSimple, scales = "free", ncol = 1) +
+    facet_wrap(~AnalyteGroup, scales = "free", ncol = 1) +
     scale_x_continuous(n.breaks = 10,
                        limits = c(0,round(max(conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +

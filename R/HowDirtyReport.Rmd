@@ -155,9 +155,8 @@ filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo
 * Sample level summary contaminant group assessment was performed by comparing the TotalAbundance_ContaminantGroup against the summed thresholds from each contaminant.
 * Sample level summary contaminant risk assessment was performed by comparing the TotalAbundance against the sample-level quantile thresholds from the reference dataset. These thresholds are reported in `r filedir_report`--> ref_conta_tshd_sample.
 
-```{r}
-
-load_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE){
+```{r functions2move}
+read_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE){
   output <- 
     read.csv(file_report_skyline, na.strings = c("", "#N/A")) %>%
     rename_with(~gsub(patt = "[.]", rep = "",  x = .x)) %>%
@@ -196,42 +195,60 @@ load_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE
     output <-
       output %>% 
       group_by(AnalyteGroup) %>%
-      mutate(AnalyteGroupSimple =  as.factor(case_when(n_distinct(Analyte) <= 3 ~ "Others",
+      mutate(AnalyteGroup =  as.factor(case_when(n_distinct(Analyte) <= 3 ~ "Others",
                                                        TRUE ~ as.character(AnalyteGroup)))) %>%
       ungroup()
     message("AnalyteGroups with less than three elements were combined into 'Others'")
   }
   return(output)
 }
-# load_conta_results(file_report_skyline = params$PeakAreasContaminantsFile) %>% 
+# read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile) %>% 
 #   names
 
+
+read_samples_annotation <- function(file_samples_annotation){
+  read.csv(file_design) %>% 
+  rename(ReplicateName = ReplicateNameSkyline) %>% 
+  mutate(across(where(is.character), ~factor(.x, levels = unique(.x)))) %>% # create levels in given order
+  mutate(DilutionFactor = replace_na(DilutionFactor, 1))  # complete dilution factor if empty
+
+}
+
+# file_design = params$AnnotationFile
+
+
+```
+
+
+```{r functions_in_progress}
+
+
+
+  
 ```
 
 
 ```{r echo=FALSE, warning=FALSE}
 # Skyline results of contaminant peak area and height
-raw_conta <- load_conta_results(file_report_skyline = params$PeakAreasContaminantsFile)
+raw_conta <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile)
 
 # information about samples (annotation)
-info_samples <- read.csv(params$AnnotationFile)   %>% 
-  mutate(ReplicateName = as.factor(ReplicateNameSkyline),
-         DilutionFactor = replace_na(DilutionFactor, 1)) %>%# complete dilution factor if empty
-  select(ReplicateName, Condition, Sample, DilutionFactor)
+samples_annot <- read_samples_annotation(params$AnnotationFile)   
+
 
 #Check if all samples are included in both results and annotation file
-reps_info_samples <- unique(info_samples$ReplicateName)
+reps_samples_annot <- unique(samples_annot$ReplicateName)
 reps_conta_reps <- unique(raw_conta$ReplicateName)
 
-reps_only_info_samples <- as.character(reps_info_samples[!reps_info_samples%in%reps_conta_reps])
-reps_only_conta <- as.character(reps_conta_reps[!reps_conta_reps%in%reps_info_samples])
+reps_only_samples_annot <- as.character(reps_samples_annot[!reps_samples_annot%in%reps_conta_reps])
+reps_only_conta <- as.character(reps_conta_reps[!reps_conta_reps%in%reps_samples_annot])
 reps_only_conta <- reps_only_conta[!is.na(reps_only_conta)]
 
 # Load thresholds
 if(params$RefThresholdsFile == FALSE){
   # Set  thresholds, with values based on the average quantile 75% of training dataset in Exploris480
   ref_conta_tshd <- raw_conta %>% 
-    select(AnalyteGroupSimple, AnalyteGroup, Analyte, AnalyteFull) %>% 
+    select(AnalyteGroup, Analyte, AnalyteFull) %>% 
     unique() %>% 
     mutate(Tshd_Area_TICA_perc25 = 0.00015,
            Tshd_Area_TICA_perc50 = 0.0005,
@@ -252,7 +269,7 @@ if(params$RefThresholdsFile == FALSE){
 }
 #Summary of thresholds for each contaminant group
 ref_conta_tshd_sum <-  ref_conta_tshd %>% 
-  group_by(AnalyteGroupSimple, AnalyteGroup) %>% 
+  group_by(AnalyteGroup) %>% 
   summarise(across(starts_with("Tshd"), sum), .groups = "drop")
 # Check samples
 
@@ -260,20 +277,20 @@ if(length(reps_only_conta) > 0) {
   message(paste("Warning, the following samples from the Skyline results were not found in the annotation file and won't be processed: ", paste(reps_only_conta, collapse = ", ")))
 } 
 
-if(length(reps_only_info_samples) > 0) {
-  message(paste("Warning, the following samples from the Annotation file were not found in the Skyline results and won't be processed: ", paste(reps_only_info_samples, collapse = ", ")))
+if(length(reps_only_samples_annot) > 0) {
+  message(paste("Warning, the following samples from the Annotation file were not found in the Skyline results and won't be processed: ", paste(reps_only_samples_annot, collapse = ", ")))
 } 
 ```
 
 ```{r echo=FALSE}
-#Merge info_samples and contamination, assign thresholds
+#Merge samples_annot and contamination, assign thresholds
 
 conta <-
-  inner_join(info_samples, raw_conta, by = "ReplicateName") %>% 
+  inner_join(samples_annot, raw_conta, by = "ReplicateName") %>% 
   mutate(RawFile = ReplicateName,
-         ReplicateName = factor(ReplicateName, levels = unique(info_samples$ReplicateName)),
-         Sample = factor(Sample, levels = unique(info_samples$Sample)),
-         Condition = factor(Condition, levels = unique(info_samples$Condition))) %>% 
+         ReplicateName = factor(ReplicateName, levels = unique(samples_annot$ReplicateName)),
+         Sample = factor(Sample, levels = unique(samples_annot$Sample)),
+         Condition = factor(Condition, levels = unique(samples_annot$Condition))) %>% 
   #Contaminants that were NA in all replicates are droped
   group_by(ReplicateName, AnalyteGroup, Analyte, AnalyteFull) %>% 
   filter(! all(is.na(Height))) %>% ungroup() 
@@ -306,7 +323,7 @@ conta <- conta %>%
 ## Summary by Analyte Group, needed to get top groups
 conta_summ_analytegroup <-
   conta %>%
-  group_by(AnalyteGroup, AnalyteGroupSimple) %>% 
+  group_by(AnalyteGroup) %>% 
   summarise(across(c(Abundance),
                    list(min = ~min(.x, na.rm = TRUE),
                         quantile25 = ~quantile(.x, na.rm = TRUE)[2],
@@ -318,7 +335,7 @@ conta_summ_analytegroup <-
 
 conta_summ_analyte <-
   conta %>%
-  group_by(AnalyteGroup, AnalyteGroupSimple, Analyte) %>% 
+  group_by(AnalyteGroup, Analyte) %>% 
   summarise(across(c(Abundance),
                    list(min = ~min(.x, na.rm = TRUE),
                         quantile25 = ~quantile(.x, na.rm = TRUE)[2],
@@ -359,7 +376,7 @@ conta %>%
 
 analytegroups_area_ordered <- 
   conta_summ_analytegroup %>% 
-  select(AnalyteGroupSimple, AnalyteGroup, Abundance_median) %>% 
+  select(AnalyteGroup, Abundance_median) %>% 
   unique() %>% 
   arrange(desc(Abundance_median))
   
@@ -376,12 +393,12 @@ analytegroups_area_ordered <-
 
 ```{r input_AnalyteGroup, echo=FALSE}
 # user input for plots
-selectizeInput(inputId = "AnalyteGroupSimple2Plot",
+selectizeInput(inputId = "AnalyteGroup2Plot",
                label = "Select up to 2 contaminant groups (list ordered from highest to lowest median(Abundance))",
-               choices = unique(analytegroups_area_ordered$AnalyteGroupSimple),
+               choices = unique(analytegroups_area_ordered$AnalyteGroup),
                multiple = TRUE,
                options = list(maxItems = 2),
-               selected = analytegroups_area_ordered$AnalyteGroupSimple[c(1,2)], 
+               selected = analytegroups_area_ordered$AnalyteGroup[c(1,2)], 
                width = "70%")
 fluidRow(
   column(3,
@@ -410,7 +427,7 @@ fluidRow(
 # filter data
 conta_area2plot <- reactive({
   conta %>% 
-    filter(AnalyteGroupSimple %in% input$AnalyteGroupSimple2Plot) %>% 
+    filter(AnalyteGroup %in% input$AnalyteGroup2Plot) %>% 
     filter(Analyte %in% as.character(pull(filter(conta_summ_analyte, Abundance_median > input$MedianMin2Plot_ag), Analyte)))
 })
 ```
@@ -633,9 +650,9 @@ ggplotly(dot_plot_conta_summ_condition_risk_analytegroup,
 
 ```{r echo=FALSE, fig.height=8, fig.width=10, warning=FALSE}
 # conta_summ_sample <-
-#   full_join(info_samples %>%
+#   full_join(samples_annot %>%
 #               mutate(RawFile = ReplicateName,
-#                      ReplicateName = Sample), conta_summ_sample, by = "ReplicateName") #Pending: rename Sample and replicatename in info_samples
+#                      ReplicateName = Sample), conta_summ_sample, by = "ReplicateName") #Pending: rename Sample and replicatename in samples_annot
 
 #Summary (sum) of contaminants
 plot_summ_cond_cgp <-
