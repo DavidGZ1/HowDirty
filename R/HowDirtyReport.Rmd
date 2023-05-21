@@ -155,147 +155,7 @@ filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo
 * Sample level summary contaminant group assessment was performed by comparing the TotalAbundance_ContaminantGroup against the summed thresholds from each contaminant.
 * Sample level summary contaminant risk assessment was performed by comparing the TotalAbundance against the sample-level quantile thresholds from the reference dataset. These thresholds are reported in `r filedir_report`--> ref_conta_tshd_sample.
 
-```{r functions2move}
-read_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE){
-  output <- 
-    read.csv(file_report_skyline, na.strings = c("", "#N/A")) %>%
-    rename_with(~gsub(patt = "[.]", rep = "",  x = .x)) %>%
-    rename(Analyte = "Peptide", AnalyteGroup = "Protein") %>%
-    mutate(Analyte = fct_recode(as.factor(Analyte),  #Correct names to facilitate ordering
-                                "PEG01" = "PEG1",  "PEG02" = "PEG2", "PEG03" = "PEG3",
-                                "PEG04" = "PEG4", "PEG05" = "PEG5", "PEG06" = "PEG6",
-                                "PEG07" = "PEG7", "PEG08" = "PEG8", "PEG09" = "PEG9",
-                                "PEG01_Na" = "PEG1_Na", "PEG02_Na" = "PEG2_Na", "PEG03_Na" = "PEG3_Na",
-                                "PEG04_Na" = "PEG4_Na", "PEG05_Na" = "PEG5_Na", "PEG06_Na" = "PEG6_Na",
-                                "PEG07_Na" = "PEG7_Na", "PEG08_Na" = "PEG8_Na", "PEG09_Na" = "PEG9_Na",
-                                "PEG01_NH4" = "PEG1_NH4", "PEG02_NH4" = "PEG2_NH4", "PEG03_NH4" = "PEG3_NH4",
-                                "PEG04_NH4" = "PEG4_NH4", "PEG05_NH4" = "PEG5_NH4", "PEG06_NH4" = "PEG6_NH4",
-                                "PEG07_NH4" = "PEG7_NH4", "PEG08_NH4" = "PEG8_NH4", "PEG09_NH4" = "PEG9_NH4",
-                                "PPG01" = "PPG1",  "PPG02" = "PPG2", "PPG03" = "PPG3",
-                                "PPG04" = "PPG4", "PPG05" = "PPG5", "PPG06" = "PPG6",
-                                "PPG07" = "PPG7", "PPG08" = "PPG8", "PPG09" = "PPG9",
-                                "PPG01_Na" = "PPG1_Na", "PPG02_Na" = "PPG2_Na", "PPG03_Na" = "PPG3_Na",
-                                "PPG04_Na" = "PPG4_Na", "PPG05_Na" = "PPG5_Na", "PPG06_Na" = "PPG6_Na",
-                                "PPG07_Na" = "PPG7_Na", "PPG08_Na" = "PPG8_Na", "PPG09_Na" = "PPG9_Na",
-                                "PPG01_NH4" = "PPG1_NH4", "PPG02_NH4" = "PPG2_NH4", "PPG03_NH4" = "PPG3_NH4",
-                                "PPG04_NH4" = "PPG4_NH4", "PPG05_NH4" = "PPG5_NH4", "PPG06_NH4" = "PPG6_NH4",
-                                "PPG07_NH4" = "PPG7_NH4", "PPG08_NH4" = "PPG8_NH4", "PPG09_NH4" = "PPG9_NH4",
-                                "Nylon_C24H44N4O4H" = "C24H44N4O4H", "Nylon_C36H66N6O6H" = "C36H66N6O6H", "Nylon_C48H88N8O8H" = "C48H88N8O8H"),
-           Analyte = as.character(Analyte), #needed to enable reordering below
-           AnalyteFull = paste(AnalyteGroup, Analyte, sep = "_"),
-           TotalAreaMS1 = replace_na(TotalAreaMS1, rep= 0), #Convert NAs to 0, avoid loosing info
-           Height = replace_na(Height, rep= 0),
-           Abundance = signif(TotalAreaMS1/TotalIonCurrentArea, 4)) %>%
-    arrange(Analyte) %>%
-    mutate(across(all_of(c("AnalyteGroup", "Analyte", "AnalyteFull", "ReplicateName")), as.factor)) %>%
-    arrange(ReplicateName)
-  
-  if(simplify_AnalyteGroup == TRUE){
-      # Groups with n <= 3 are simplified
-    output <-
-      output %>% 
-      group_by(AnalyteGroup) %>%
-      mutate(AnalyteGroup =  as.factor(case_when(n_distinct(Analyte) <= 3 ~ "Others",
-                                                       TRUE ~ as.character(AnalyteGroup)))) %>%
-      ungroup()
-    message("AnalyteGroups with less than three elements were combined into 'Others'")
-  }
-  return(output)
-}
-# read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile) %>% 
-#   names
-
-
-read_samples_annotation <- function(file_samples_annotation){
-  read.csv(file_samples_annotation) %>% 
-  rename(ReplicateName = ReplicateNameSkyline) %>% 
-  mutate(across(where(is.character), ~factor(.x, levels = unique(.x)))) %>% # create levels in given order
-  mutate(DilutionFactor = replace_na(DilutionFactor, 1))  # complete dilution factor if empty
-
-}
-
-# file_design = params$AnnotationFile
-
-check_samples_in_results <- function(df_conta, df_samples_annot){
-  #Check if all samples are included in both results and annotation file
-  reps_samples_annot <- unique(df_samples_annot$ReplicateName)
-  reps_conta_reps <- unique(df_conta$ReplicateName)
-  
-  reps_only_samples_annot <- as.character(reps_samples_annot[!reps_samples_annot%in%reps_conta_reps])
-  reps_only_conta <- as.character(reps_conta_reps[!reps_conta_reps%in%reps_samples_annot])
-  reps_only_conta <- reps_only_conta[!is.na(reps_only_conta)]
-  # Check samples
-  if(length(reps_only_conta) > 0) {
-    message(paste("Warning, the following samples from the Skyline results\nwere not found in the annotation file and won't be processed:\n", paste(reps_only_conta, collapse = ", ")))
-  } 
-  
-  if(length(reps_only_samples_annot) > 0) {
-    message(paste("Warning, the following samples from the Annotation file\nwere not found in the Skyline results and won't be processed:\n", paste(reps_only_samples_annot, collapse = ", ")))
-  } 
-  
-}
-get_simple_thresholds_analyte <-function(df_conta){
-    # Set arbitrary thresholds for the analytes found in df_conta
-      df_conta %>% 
-      select(AnalyteGroup, Analyte, AnalyteFull) %>% 
-      unique() %>% 
-      mutate(Tshd_Area_TICA_perc25 = 0.00015,
-             Tshd_Area_TICA_perc50 = 0.0005,
-             Tshd_Area_TICA_perc75 = 0.0015,
-             Tshd_Area_TICA_perc90 = 0.005)  
-}
-
-get_simple_thresholds_sample <-function(breaks = c(0, 0.05, 0.1, 0.55, 1.0, Inf)){
-  # Set arbitrary thresholds for the samples
-  data.frame(Breaks = breaks,
-             # Sum = c(0, 0.5, 1.0, 5, 10, Inf), #TODO remove if ok
-             Labels = c("0) ERROR", "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", 
-                        "4) High (DO NOT PROCEED)", "5) Very High (DO NOT PROCEED)"))
-}
-annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE){
-  #Merge samples_annot and contamination
-  ouptut <- inner_join(df_samples_annot, df_conta, by = "ReplicateName")
-  if(remove_missing == TRUE){
-    ouptut <- 
-      ouptut %>% 
-      group_by(ReplicateName, AnalyteGroup, Analyte, AnalyteFull) %>% 
-      filter(!all(Height == 0)) %>%
-      ungroup() 
-  }
-  # Multiply by DilutionFactor
-  if(multiply_dilution_factor == TRUE){
-     ouptut <-  mutate(ouptut, Abundance = signif(Abundance*DilutionFactor, 4))
-        message("WARNING: Abundance was multipled by the dilution factor before assigning the RiskLevel")
-
-  }
-  
-  return(ouptut)
-}
-
-annotate_conta_thresholds <- function(df_conta, df_threshold){
-  require(mgsub)
-  df_conta %>% 
-  left_join(., df_threshold %>%  select(AnalyteFull, starts_with("Tshd")),
-            by = "AnalyteFull") %>%  
-  mutate(RiskLevel = case_when(Abundance ==0 ~ 0,
-                               Abundance < Tshd_Area_TICA_perc25 ~ 1,
-                               (Tshd_Area_TICA_perc25 <= Abundance & Abundance < Tshd_Area_TICA_perc50) ~ 2,   
-                               (Tshd_Area_TICA_perc50 <= Abundance & Abundance < Tshd_Area_TICA_perc75) ~ 3,
-                               (Tshd_Area_TICA_perc75 <= Abundance & Abundance < Tshd_Area_TICA_perc90) ~ 4,
-                               (Tshd_Area_TICA_perc90 <= Abundance) ~ 5,
-                               TRUE ~ 6),
-         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
-                              "5) Very High", "6) No threshold in reference"))) %>% 
-  mutate(Risk = as.factor(Risk)) %>% 
-  select(-starts_with("Tshd_"))
-}
-
-
-```
-
-
-```{r read_data, echo=FALSE, warning=FALSE}
+```{r read_data}
 # Load thresholds
 if(params$RefThresholdsFile == FALSE){
   # set arbitrary thresholds
@@ -316,6 +176,9 @@ conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminan
 samples_annot <- read_samples_annotation(params$AnnotationFile) 
 ## check if all samples are included in both results and annotation file
 check_samples_in_results(conta_raw, samples_annot)
+```
+
+```{r annotate_results}
 # Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
 conta <- conta_raw %>% 
   annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
@@ -324,6 +187,14 @@ conta <- conta_raw %>%
 
 ```
 
+```{r functions2move}
+
+
+
+
+
+
+```
 
 ```{r functions_in_progress}
 

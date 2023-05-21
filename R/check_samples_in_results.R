@@ -1,0 +1,31 @@
+#' Short description
+#'
+#' description
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+check_samples_in_results <- function(df_conta, df_samples_annot){
+  #Check if all samples are included in both results and annotation file
+  reps_samples_annot <- unique(df_samples_annot$ReplicateName)
+  reps_conta_reps <- unique(df_conta$ReplicateName)
+
+  reps_only_samples_annot <- as.character(reps_samples_annot[!reps_samples_annot%in%reps_conta_reps])
+  reps_only_conta <- as.character(reps_conta_reps[!reps_conta_reps%in%reps_samples_annot])
+  reps_only_conta <- reps_only_conta[!is.na(reps_only_conta)]
+  # Check samples
+  if(length(reps_only_conta) > 0) {
+    message(paste("Warning, the following samples from the Skyline results\nwere not found in the annotation file and won't be processed:\n", paste(reps_only_conta, collapse = ", ")))
+  }
+
+  if(length(reps_only_samples_annot) > 0) {
+    message(paste("Warning, the following samples from the Annotation file\nwere not found in the Skyline results and won't be processed:\n", paste(reps_only_samples_annot, collapse = ", ")))
+  }
+
+}
