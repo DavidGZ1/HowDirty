@@ -122,7 +122,7 @@ installed_packages <- required_packages %in% installed.packages()[,"Package"]
 missing_packages <- required_packages[!installed_packages]
 if ( length(missing_packages) > 0 ) install.packages(packages)
 ##Load libraries
-invisible(lapply(packages, require, character.only = TRUE))
+invisible(lapply(required_packages, require, character.only = TRUE))
 # names for output files
 today_date <- gsub(patt ="-", rep="",paste0(gsub(patt ="-", rep="", Sys.Date()), "_", format(Sys.time(), "%H%M")))
 filedir_report <- file.path(params$OutputDirectory,
@@ -421,9 +421,9 @@ fluidRow(
   column(6,
          sliderInput(inputId = "MedianMin2Plot_ag",
                      label = "Plot contaminants with log10(median) > " ,
-                     min = min_no_zero(conta_summ_analytegroup$Abundance_median), #min no zero
+                     min = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median), #min no zero
                      max = signif(log10(max(conta_summ_analytegroup$Abundance_median)), 3), #max in whole dataset
-                     value = min_no_zero(conta_summ_analytegroup$Abundance_median), 
+                     value = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median), 
                      width = "70%")
   )
 )
@@ -548,7 +548,7 @@ conta_summ_sample %>%
               backgroundRepeat = 'no-repeat',
               backgroundPosition = 'left')
 
-MedianMin2Plot_ag = min_no_zero(conta_summ_analytegroup$Abundance_median)
+MedianMin2Plot_ag = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median)
 
 #Summary (sum) of contaminants
 conta_summ_sample_risk <-

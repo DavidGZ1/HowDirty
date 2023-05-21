@@ -8,7 +8,7 @@
 #' @return html-formated string.
 #'
 #' @examples
-#' colorize_text("this text is red", "red)
+#' colorize_text("this text is red", "red")
 #'
 #' @export
 colorize_text <- function(x, color) {

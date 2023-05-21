@@ -9,7 +9,6 @@ get_maintainer <- function(email='davidgz.science@gmail.com', github='https://gi
   sprintf('%s (%s)\n', email, utils::URLdecode(github))
 }
 
-
 #' Minima without zero
 #'
 #' Returns the minima of the input values while ignoring zero values.
