@@ -363,24 +363,30 @@ conta_summ_sampleset %>%
 ```{r input_conta_summ_sample_risk, echo=FALSE}
 # user input for plots
 fluidRow(
-  column(3,radioButtons(inputId =  "abundance_scale_sample_total",
+  column(2,radioButtons(inputId =  "abundance_scale_sample_total",
                         label = "Scale",
                         choices = c("linear", "log10"),
                         selected = "linear",
                         inline = FALSE, 
-                        width = "30%")
+                        width = "90%")
   ),
-  column(5, radioButtons(inputId =  "order_sample_total",
+  column(3, radioButtons(inputId =  "order_sample_total",
                          label = "Order_x",
                          choices = c("Sample", "Abundance"),
                          selected = "Abundance",
                          inline = FALSE, 
-                         width = "30%")
+                         width = "90%")
   ),
-  column(4, checkboxInput(inputId =  "facet_condition_total",
+  column(3, checkboxInput(inputId =  "facet_condition_total",
                         label = "Facet by Condition",
                         value  = TRUE,
-                        width = "30%")
+                        width = "90%")
+  # column(4, radioButtons(inputId =  "facet_condition_total",
+  #                        label = "Facet by Condition",
+  #                        choices = c(TRUE, FALSE),
+  #                        selected = TRUE,
+  #                        inline = FALSE, 
+  #                        width = "30%")
   )
 )
 
@@ -401,13 +407,11 @@ renderPlotly({
     dot_plot_sample_risk_total <-
       dot_plot_sample_risk_total + 
       facet_wrap(~Condition, scales = "free_x")
-  }else{
-     dot_plot_sample_risk_total <- dot_plot_sample_risk_total
   }
   
   ggplotly(dot_plot_sample_risk_total,
-           height = 400, width = 1000) %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
-  layout_ggplotly_label_margin( x = -0.02, y = -0.02) #fixes label margin problem
+           height = 400, width = 1000) # %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
+    # layout_ggplotly_label_margin(x = -0.05, y = -0.02) #fixes label margin problem, but we have to adapt the margins to avoid it going out of margins
   
 })
 ```
