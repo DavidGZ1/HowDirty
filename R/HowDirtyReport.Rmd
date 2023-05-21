@@ -1,0 +1,1020 @@
+---
+title: Evaluation of LC-MS contamination risk (HowDirty)
+output:
+  html_document:
+    toc: true
+    toc_float: false
+    theme: united
+    number_sections: TRUE
+runtime: shiny
+params:
+  DataSet: 
+    label: "Experiment"
+    value: 2022-132_FASP_filters
+    input: text
+  UserNames: 
+    label: "User(s)"
+    value: 
+    input: text
+  Notes:
+    label:
+    value:
+    input: text
+  PeakAreasContaminantsFile:
+    label: "PeakAreaContaminants report from Skyline"
+    value: data/PeakAreas_Contaminants_2023-231.csv # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
+  AnnotationFile:
+    label: "Sample annotation file"
+    value: data/samples_annotation_20223-231.csv # Samples Annotation directory/name
+  RefThresholdsFile:
+    label: "Reference threshold file (total)"
+    value: data/contaminants_tshd_2021_E480.csv # A file directory/name in or FALSE if no threshold available
+  RefThresholdsSampleLevelFile:
+    label: "Reference threshold file (sample)"
+    value: data/contaminants_tshd_sample_2021_E480.csv # A file directory/name or FALSE if no threshold available
+  OutputDirectory:
+    label: "Directory where the report and the results are exported"
+    value: results
+  nTopContaminants:
+    label: 
+    value: 5
+    input: numeric
+  MultiplyDilutionFactor:
+    label:
+    value: FALSE #Use carefully, normalization by TIC already takes into account slight differences in injection amounts
+  PlotsInteractive: 
+    label:
+    value: TRUE #TRUE = interactive in html, FALSE = static
+  PlotsSave:
+    label:
+    value: FALSE #Saves all the plots as .jpg
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+# Report information
+
+## Data set information
+
+**Sample Set:** `r params$DataSet`
+
+**User(s):** `r params$UserNames`
+
+**Date:**  `r Sys.Date()` 
+
+**Notes:** `r params$Notes`
+
+
+## HowDirty evaluation of LC-MS results
+
+This report was generated with a prototype version of *HowDirty*. This is meant to help you evaluating *How Dirty* are your samples (or system) in LC-MS analyses. The possible contaminants reported hereby could impact the quality of the results (e.g. analyte IDs and reproducibility) and, in extreme cases, even damage the column or instruments. The raw data are previously analyzed using Skyline to extract LC-MS peaks possibly corresponding to contaminants. Then, a Risk level is assigned to each contaminant by comparing against the reference threshold (see Procedures for details). Finally, the Risk is similarly assessed at the Sample and whole Sample Set levels. These are indicative of the level of possible contamination.
+
+**Code author:** David Gomez-Zepeda (HI-TRON)
+
+**Version:** 0.04
+
+## Warning
+
+The algorithm used for peak picking in Skyline is simple and based only in m/z and charge (z). Thus, some true analyte peaks (e.g. peptides) could be incorrectly assigned to contaminants (i.e. false positives). Therefore, it is recommended to also look into the Skyline file to evaluate other factors, such as patterns of contaminant groups elution across the retention time. 
+
+## Objectives
+
+* Evaluate the risk of possible contamination with polymers and small molecules in the samples from the data set.
+
+```{r global_options, include=FALSE, echo=FALSE}
+#General parameters for knitr
+require("knitr")
+# knitr::opts_knit$set(root.dir = '/tmp')
+opts_knit$set(root.dir = normalizePath("..")) #Set wd to folder above
+opts_chunk$set(echo = FALSE, message = TRUE, warning = FALSE)
+today_date <- gsub(patt ="-", rep="",paste0(gsub(patt ="-", rep="", Sys.Date()), "_", format(Sys.time(), "%H%M")))
+filedir_report <- file.path(params$OutputDirectory,
+                            paste0(params$DataSet, "_report_contaminants_", today_date, ".xlsx"))
+filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo.txt", filedir_report)
+```
+
+```{r include=FALSE, echo=FALSE}
+# verify that parameters were filled
+if(is.null(params$PeakAreasContaminantsFile))  stop("Please enter the PeakAreasContaminantsFile")
+if(is.null(params$RefThresholdsFile)) stop("Please enter the RefThresholdsFile")
+if(is.null(params$ RefThresholdsSampleLevelFile)) stop("Please enter the RefThresholdsSampleLevelFile")
+# verify that files exist
+filenames <- unlist(params[grepl("File" , names(params))])
+filenames <- filenames[filenames != "FALSE"] # ignore if FALSE (e.g. for thresholds)
+filecheck <- file.exists(filenames) 
+if(any(!filecheck)){
+  files_missing <- filenames[!filecheck] %>% 
+    data.frame(File=names(.), Entry=., row.names=NULL) %>% 
+    mutate(message = paste0(File, ": ", Entry,"\n"))
+  stop("The input files below were not found. Please verify that they are in the right location: \n ", files_missing$message)
+}
+
+```
+
+
+```{r initialize, message=FALSE, include=FALSE}
+#Install required packages
+##Test whether all required packages, install packages needed and install if needed
+packages <- c('ggplot2', 'ggpubr', 'scales', 'plotly',
+              'openxlsx', 'mgsub', 'DT', 'shiny', 'tidyverse')
+required_packages <- c(packages)
+installed_packages <- required_packages %in% installed.packages()[,"Package"]
+missing_packages <- required_packages[!installed_packages]
+
+if ( length(missing_packages) > 0 ) {
+  install.packages(packages)
+} 
+##Load libraries
+lapply(packages, require, character.only = TRUE)
+
+# Other functions
+rawr_ggsave <-function(input, file, width = 20, height = 24) {
+  ggsave(file.path("4_figures", paste0(file, ".tiff")) , input, device =  "tiff", 
+         scale = 1, width = width, height = height, units = "cm")
+}
+
+colorize <- function(x, color) {
+  # Colorize output
+  #based on https://bookdown.org/yihui/rmarkdown-cookbook/font-color.html
+  if (knitr::is_latex_output()) {
+    sprintf("\\textcolor{%s}{%s}", color, x)
+  } else if (knitr::is_html_output()) {
+    sprintf("<span style='color: %s;'>%s</span>", color, 
+      x)
+  } else x
+}
+```
+
+
+```{r functions, echo=FALSE}
+#functions
+min_no_zero <- function(x, na.rm = TRUE){
+  min(x[x != 0], na.rm = na.rm)
+}
+# themes and palettes for plots
+theme_hd <- 
+  theme_classic(base_size = 8)+ 
+  theme(plot.margin = margin(4,4,4,4),
+        legend.position = "right",
+        strip.background = element_blank(),
+        strip.text = element_text(size=8, face="bold"))
+
+scale_fill_risk <- function(..., option = "plasma", direction = 1){
+  # options = "RdOrBlu", "plasma"
+  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
+  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
+  if(direction == 1){colors_risk = colors_risk}
+  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
+  
+    ggplot2:::manual_scale(
+        'fill', 
+        values = setNames(colors_risk,
+                          c(0, 1, 2, 3, 4, 5, 6)), 
+        ...
+    )
+}
+
+scale_color_risk <- function(..., option = "RdOrBlu", direction = 1, verbose = FALSE){
+  # options = "RdOrBlu", "plasma"
+  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
+  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdOrBlu, plasma)")
+  if(direction == 1){colors_risk = colors_risk}
+  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
+  if(verbose == FALSE) names_levels = c(0, 1, 2, 3, 4, 5, 6)
+  if(verbose == TRUE) names_levels = c("0) Not Detected",
+                                       "1) Very Low",
+                                       "2) Low",
+                                       "3) Medium",
+                                       "4) High",
+                                       "5) Very High",
+                                       "6) No threshold in reference")
+  
+  
+  ggplot2:::manual_scale(
+    'color', 
+    values = setNames(colors_risk,
+                      names_levels), 
+    ...
+  )
+}
+
+
+# plots
+plot_normabundance <- function(input_conta, scale = "linear"){
+  # plot the normalized abundance
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  output <-
+    ggplot(input_conta, aes(x = Analyte, y = NormAbundance)) +
+    geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
+    geom_boxplot( alpha = 0.4, width = 0.2, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
+    # scale_color_viridis_d(end=0.8, option =  "plasma", direction = 1) +
+    scale_color_risk(verbose = TRUE) +
+    facet_wrap(~AnalyteGroupSimple, scales = "free", nrow = 1) +
+    scale_y_continuous(n.breaks = 5) +
+    ylab("Normalized Abundance = Area/TICA") +
+    xlab("Contaminant")+
+    theme_hd +
+    ggtitle("Normalized Abundance of contaminants") +
+    rotate()
+  
+  if(scale == "linear"){return(output)}
+  if(scale == "log10"){
+    output <- output + 
+      scale_y_log10(n.breaks = 5) +
+      ylab("Normalized Abundance = log10(Area/TICA)")
+    return(output)}
+}
+plot_pseudochromatogram <- function(input_conta, scale = "linear"){
+  # plot the normalized abundance
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  output <- 
+    ggplot(input_conta, aes(x = PeptideRetentionTime, y = NormAbundance, color = Sample)) +
+    geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample,
+                                        "\nContaminant: ", Analyte, "\nRisk: ", Risk)), alpha = 0.8, size = 1)  +
+    scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
+    facet_wrap(~AnalyteGroupSimple, scales = "free", ncol = 1) +
+    scale_x_continuous(n.breaks = 10,
+                       limits = c(0,round(max(conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
+    scale_y_continuous(n.breaks = 5) +
+    ylab("Normalized Abundance = Area/TICA") +
+    xlab("Retention time (min)")+
+    theme_hd +
+    ggtitle("Normalized abundance vs. RT")
+  
+  if(scale == "linear"){return(output)}
+  if(scale == "log10"){
+    output <- output + 
+      scale_y_log10(n.breaks = 5) +
+      ylab("Normalized Abundance = log10(Area/TICA)")
+    return(output)}
+}
+
+plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", scale = "linear"){
+  # plot Total Normalized Abundance vs Replicate Name 
+  # order = c("Sample", "NormAbundance")
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  # arrange in function of Sample or TotalNormAbundance, !!input$order_sample_total didn't work
+  if(order_x == "Sample"){
+    input_conta_summ_sample <-
+      input_conta_summ_sample %>% 
+      arrange(Sample) 
+  }else{
+    if(order_x == "NormAbundance"){
+      input_conta_summ_sample <-
+        input_conta_summ_sample %>% 
+        arrange(desc(TotalNormAbundance))
+    }else{
+      stop("order_x must be Sample or NormAbundance")}
+  }
+  
+  input_conta_summ_sample <-
+    input_conta_summ_sample %>% 
+    mutate(Sample = factor(Sample, levels = unique(Sample)))
+  
+  output <- input_conta_summ_sample %>%
+    # arrange(!! order_x) %>% 
+    # mutate(Sample = factor(Sample, levels = unique(Sample))) %>% 
+    mutate(AnalyteGroup = "Total") %>%
+    ggplot(aes(y = TotalNormAbundance, x = Sample, color = RiskLevel, size = TotalNormAbundance)) +
+    geom_point(alpha = 1) +
+    scale_y_continuous(n.breaks = 10) +
+    scale_color_risk() +
+    ylab("Total Normalized Abundance = sum(Area/TICA)") +
+    xlab("Sample")+
+    theme_hd +
+    rotate_x_text(angle=45)
+  # adapt scale
+  if(scale == "linear"){return(output)}
+  if(scale == "log10"){
+    output <- output + 
+      scale_y_log10(n.breaks = 10) +
+      ylab("Total Normalized Abundance = log10(sum(Area/TICA))")
+    return(output)}
+}
+
+plot_sample_risk_analyte <- function(input_conta_summ_sample_risk,
+                                     order_x = "Sample", order_y = "NormAbundance",
+                                     show_zeros = FALSE){
+  # plot Anaylte vs Sample, with color in function of risk and size in function of NormAbundance_median
+  # order = c("Sample", "NormAbundance")
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  # remove all zero values
+  if(show_zeros == FALSE){
+    # remove zero values
+    AnalyteGroup2Plot <- 
+      input_conta_summ_sample_risk %>% 
+      group_by(AnalyteGroup, NormAbundance_median) %>% 
+      summarise(Keep = all(NormAbundance_median > 0), .groups = "drop") %>% 
+      filter(Keep == TRUE) %>% 
+      pull(AnalyteGroup) %>% 
+      unique()
+    input_conta_summ_sample_risk <- 
+      filter(input_conta_summ_sample_risk, AnalyteGroup %in% AnalyteGroup2Plot) 
+  }
+  # arrange in function of Sample or NormAbundance, !!input$order_sample_total didn't work
+  if(order_x == "Sample"){
+    input_conta_summ_sample_risk <-
+      input_conta_summ_sample_risk %>% 
+      arrange(Sample) 
+  }else{
+    if(order_x == "NormAbundance"){
+      input_conta_summ_sample_risk <-
+        input_conta_summ_sample_risk %>% 
+        group_by(Sample) %>% 
+        arrange(desc(median(NormAbundance_median))) %>% 
+        ungroup()
+    }else{
+      stop("order_x must be Sample or NormAbundance")}
+  }
+  input_conta_summ_sample_risk <-
+    input_conta_summ_sample_risk %>% 
+    mutate(Sample = factor(Sample, levels = unique(Sample)))
+  # arrange in function of AnalyteGroup or NormAbundance_median, !!input$order_sample_total didn't work
+  if(order_y == "NormAbundance"){
+    input_conta_summ_sample_risk <-
+      input_conta_summ_sample_risk %>% 
+        arrange(NormAbundance_median)
+  }else{
+    if(order_y == "AnalyteGroup"){
+      input_conta_summ_sample_risk <-
+        input_conta_summ_sample_risk %>% 
+        arrange(AnalyteGroup)
+    }else{
+      stop("order_y must be AnalyteGroup or NormAbundance")}
+  }
+  
+  input_conta_summ_sample_risk <-
+    input_conta_summ_sample_risk %>% 
+    mutate(AnalyteGroup = factor(AnalyteGroup, levels = unique(AnalyteGroup)))
+  
+  
+  output <-
+  input_conta_summ_sample_risk %>%
+    ggplot(aes(y = AnalyteGroup, x = Sample, color = RiskLevel, size = NormAbundance_median)) +
+    geom_point() +
+    scale_color_risk() +
+    ylab("Analyte Group") +
+    xlab("Sample")+
+    theme_hd +
+    theme(plot.margin = margin(4,4,4,10)) +
+    rotate_x_text(angle=45)
+  return(output)
+}
+
+plot_condition_risk_analyte <- function(input_conta_summ_sample_risk,
+                                     order_x = "Condition", order_y = "NormAbundance",
+                                     show_zeros = FALSE){
+  # plot Anaylte vs Condition, with color in function of risk and size in function of NormAbundance_median
+  # order = c("Condition", "NormAbundance")
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  # remove all zero values
+  if(show_zeros == FALSE){
+    # remove zero values
+    AnalyteGroup2Plot <- 
+      input_conta_summ_sample_risk %>% 
+      group_by(AnalyteGroup, NormAbundance_median) %>% 
+      summarise(Keep = all(NormAbundance_median > 0), .groups = "drop") %>% 
+      filter(Keep == TRUE) %>% 
+      pull(AnalyteGroup) %>% 
+      unique()
+    input_conta_summ_sample_risk <- 
+      filter(input_conta_summ_sample_risk, AnalyteGroup %in% AnalyteGroup2Plot) 
+  }
+  # arrange in function of Condition or NormAbundance, !!input$order_sample_total didn't work
+  if(order_x == "Condition"){
+    input_conta_summ_sample_risk <-
+      input_conta_summ_sample_risk %>% 
+      arrange(Condition) 
+  }else{
+    if(order_x == "NormAbundance"){
+      input_conta_summ_sample_risk <-
+        input_conta_summ_sample_risk %>% 
+        group_by(Condition) %>% 
+        arrange(desc(median(NormAbundance_median))) %>% 
+        ungroup()
+    }else{
+      stop("order_x must be Condition or NormAbundance")}
+  }
+  input_conta_summ_sample_risk <-
+    input_conta_summ_sample_risk %>% 
+    mutate(Condition = factor(Condition, levels = unique(Condition)))
+  # arrange in function of AnalyteGroup or NormAbundance_median, !!input$order_sample_total didn't work
+  if(order_y == "NormAbundance"){
+    input_conta_summ_sample_risk <-
+      input_conta_summ_sample_risk %>% 
+        arrange(NormAbundance_median)
+  }else{
+    if(order_y == "AnalyteGroup"){
+      input_conta_summ_sample_risk <-
+        input_conta_summ_sample_risk %>% 
+        arrange(AnalyteGroup)
+    }else{
+      stop("order_y must be AnalyteGroup or NormAbundance")}
+  }
+  
+  input_conta_summ_sample_risk <-
+    input_conta_summ_sample_risk %>% 
+    mutate(AnalyteGroup = factor(AnalyteGroup, levels = unique(AnalyteGroup)))
+  
+  
+  output <-
+  input_conta_summ_sample_risk %>%
+    ggplot(aes(y = AnalyteGroup, x = Condition, color = RiskLevel, size = NormAbundance_median)) +
+    geom_point() +
+    scale_color_risk() +
+    ylab("Analyte Group") +
+    xlab("Condition")+
+    theme_hd +
+    theme(plot.margin = margin(4,4,4,10)) +
+    rotate_x_text(angle=45)
+  return(output)
+}
+
+layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
+  # The 1 and 2 goes into the list that contains the options for the x and y axis labels respectively
+  gg[['x']][['layout']][['annotations']][[1]][['y']] <- x
+  gg[['x']][['layout']][['annotations']][[2]][['x']] <- y
+  gg
+}
+
+```
+
+
+# Procedures
+
+**Raw data**
+
+* Raw data was imported into Skyline using the Contaminant List template.
+* The feature area of extracted ion chromatograms was imported in *HowDirty*.
+
+**Calculations**
+
+* TICA = Total Ion Current Area
+* NormAbundance (Normalized abundance) = TotalAreaMS1 / TICA
+* TotalNormAbundance_ContaminantGroup = Sum (NormAbundance_ContaminantGroup) across all the contaminants in one ContaminantGroup for one sample.
+* TotalNormAbundance = Sum (NormAbundance) across all the contaminants for one sample
+* Contaminant-specific Risk level assessment was performed by comparing the NormAbundance of the possible contaminants in each one of the test samples (current data set) against thresholds previously extrapolated from a reference data set (~ 1000s runs). These thresholds are reported in `r filedir_report`--> ref_conta_tshd.
+* Sample level summary contaminant group assessment was performed by comparing the TotalNormAbundance_ContaminantGroup against the summed thresholds from each contaminant.
+* Sample level summary contaminant risk assessment was performed by comparing the TotalNormAbundance against the sample-level quantile thresholds from the reference dataset. These thresholds are reported in `r filedir_report`--> ref_conta_tshd_sample.
+
+```{r echo=FALSE, warning=FALSE}
+# Skyline results of contaminant peak area and height
+raw_conta <-
+    read.csv(params$PeakAreasContaminantsFile, na.strings = c("", "#N/A")) %>% 
+  rename_with(~gsub(patt = "[.]", rep = "",  x = .x)) %>% 
+  rename(Analyte = "Peptide", AnalyteGroup = "Protein") %>% 
+  mutate(Analyte = fct_recode(as.factor(Analyte),  #Correct names to facilitate ordering
+                              "PEG01" = "PEG1",  "PEG02" = "PEG2", "PEG03" = "PEG3",
+                              "PEG04" = "PEG4", "PEG05" = "PEG5", "PEG06" = "PEG6",
+                              "PEG07" = "PEG7", "PEG08" = "PEG8", "PEG09" = "PEG9", 
+                              "PEG01_Na" = "PEG1_Na", "PEG02_Na" = "PEG2_Na", "PEG03_Na" = "PEG3_Na",
+                              "PEG04_Na" = "PEG4_Na", "PEG05_Na" = "PEG5_Na", "PEG06_Na" = "PEG6_Na",
+                              "PEG07_Na" = "PEG7_Na", "PEG08_Na" = "PEG8_Na", "PEG09_Na" = "PEG9_Na",
+                              "PEG01_NH4" = "PEG1_NH4", "PEG02_NH4" = "PEG2_NH4", "PEG03_NH4" = "PEG3_NH4",
+                              "PEG04_NH4" = "PEG4_NH4", "PEG05_NH4" = "PEG5_NH4", "PEG06_NH4" = "PEG6_NH4",
+                              "PEG07_NH4" = "PEG7_NH4", "PEG08_NH4" = "PEG8_NH4", "PEG09_NH4" = "PEG9_NH4",
+                              "PPG01" = "PPG1",  "PPG02" = "PPG2", "PPG03" = "PPG3",
+                              "PPG04" = "PPG4", "PPG05" = "PPG5", "PPG06" = "PPG6",
+                              "PPG07" = "PPG7", "PPG08" = "PPG8", "PPG09" = "PPG9", 
+                              "PPG01_Na" = "PPG1_Na", "PPG02_Na" = "PPG2_Na", "PPG03_Na" = "PPG3_Na",
+                              "PPG04_Na" = "PPG4_Na", "PPG05_Na" = "PPG5_Na", "PPG06_Na" = "PPG6_Na",
+                              "PPG07_Na" = "PPG7_Na", "PPG08_Na" = "PPG8_Na", "PPG09_Na" = "PPG9_Na",
+                              "PPG01_NH4" = "PPG1_NH4", "PPG02_NH4" = "PPG2_NH4", "PPG03_NH4" = "PPG3_NH4",
+                              "PPG04_NH4" = "PPG4_NH4", "PPG05_NH4" = "PPG5_NH4", "PPG06_NH4" = "PPG6_NH4",
+                              "PPG07_NH4" = "PPG7_NH4", "PPG08_NH4" = "PPG8_NH4", "PPG09_NH4" = "PPG9_NH4",
+                              "Nylon_C24H44N4O4H" = "C24H44N4O4H", "Nylon_C36H66N6O6H" = "C36H66N6O6H", "Nylon_C48H88N8O8H" = "C48H88N8O8H"),
+         Analyte = as.character(Analyte), #needed to enable reordering below
+         AnalyteFull = paste(AnalyteGroup, Analyte, sep = "_"),
+         TotalAreaMS1 = replace_na(TotalAreaMS1, rep= 0), #Convert NAs to 0, avoid loosing info
+         Height = replace_na(Height, rep= 0),
+         NormAbundance = signif(TotalAreaMS1/TotalIonCurrentArea, 4)) %>% 
+  arrange(Analyte) %>% 
+  mutate(across(all_of(c("AnalyteGroup", "Analyte", "AnalyteFull", "ReplicateName")), as.factor)) %>% 
+  arrange(ReplicateName)  %>% 
+  # Groups with n <= 3 are simplified
+  group_by(AnalyteGroup) %>% 
+  mutate(AnalyteGroupSimple =  as.factor(case_when(n_distinct(Analyte) <= 3 ~ "Others",
+                                                   TRUE ~ as.character(AnalyteGroup)))) %>% 
+  relocate(AnalyteGroupSimple, .before = AnalyteGroup) %>% 
+  ungroup()
+
+# information about samples (annotation)
+info_samples <- read.csv(params$AnnotationFile)   %>% 
+  mutate(ReplicateName = as.factor(ReplicateNameSkyline),
+         DilutionFactor = replace_na(DilutionFactor, 1)) %>%# complete dilution factor if empty
+  select(ReplicateName, Condition, Sample, DilutionFactor)
+
+#Check if all samples are included in both results and annotation file
+reps_info_samples <- unique(info_samples$ReplicateName)
+reps_conta_reps <- unique(raw_conta$ReplicateName)
+
+reps_only_info_samples <- as.character(reps_info_samples[!reps_info_samples%in%reps_conta_reps])
+reps_only_conta <- as.character(reps_conta_reps[!reps_conta_reps%in%reps_info_samples])
+reps_only_conta <- reps_only_conta[!is.na(reps_only_conta)]
+
+# Load thresholds
+if(params$RefThresholdsFile == FALSE){
+  # Set  thresholds, with values based on the average quantile 75% of training dataset in Exploris480
+  ref_conta_tshd <- raw_conta %>% 
+    select(AnalyteGroupSimple, AnalyteGroup, Analyte, AnalyteFull) %>% 
+    unique() %>% 
+    mutate(Tshd_Area_TICA_perc25 = 0.00015,
+           Tshd_Area_TICA_perc50 = 0.0005,
+           Tshd_Area_TICA_perc75 = 0.0015,
+           Tshd_Area_TICA_perc90 = 0.005)  
+  # Set sample thresholds, based on thresholds from training dataset in Exploris480
+  ref_conta_tshd_sample <- data.frame(Breaks = c(0, 0.05, 0.1, 0.55, 1.0, Inf),
+                                      # Sum = c(0, 0.5, 1.0, 5, 10, Inf), #TODO remove if ok
+                                      Labels = c("0) ERROR", "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", 
+                                                 "4) High (DO NOT PROCEED)", "5) Very High (DO NOT PROCEED)"))
+  message("WARNING: Reference Threshold File was not provided. Thus, threshold were set at the same level for all the contaminants")
+} else{ 
+  # read thresholds from file
+  ref_conta_tshd <- read.csv(params$RefThresholdsFile) %>% 
+    select(-X)
+  ref_conta_tshd_sample <- read.csv(params$RefThresholdsSampleLevelFile) %>% 
+    select(-X)
+}
+#Summary of thresholds for each contaminant group
+ref_conta_tshd_sum <-  ref_conta_tshd %>% 
+  group_by(AnalyteGroupSimple, AnalyteGroup) %>% 
+  summarise(across(starts_with("Tshd"), sum), .groups = "drop")
+# Check samples
+
+if(length(reps_only_conta) > 0) {
+  message(paste("Warning, the following samples from the Skyline results were not found in the annotation file and won't be processed: ", paste(reps_only_conta, collapse = ", ")))
+} 
+
+if(length(reps_only_info_samples) > 0) {
+  message(paste("Warning, the following samples from the Annotation file were not found in the Skyline results and won't be processed: ", paste(reps_only_info_samples, collapse = ", ")))
+} 
+```
+
+```{r echo=FALSE}
+#Merge info_samples and contamination, assign thresholds
+
+conta <-
+  inner_join(info_samples, raw_conta, by = "ReplicateName") %>% 
+  mutate(RawFile = ReplicateName,
+         ReplicateName = factor(ReplicateName, levels = unique(info_samples$ReplicateName)),
+         Sample = factor(Sample, levels = unique(info_samples$Sample)),
+         Condition = factor(Condition, levels = unique(info_samples$Condition))) %>% 
+  #Contaminants that were NA in all replicates are droped
+  group_by(ReplicateName, AnalyteGroup, Analyte, AnalyteFull) %>% 
+  filter(! all(is.na(Height))) %>% ungroup() 
+# Multiply by DilutionFactor if needed
+if(params$MultiplyDilutionFactor == TRUE){
+  conta <- conta %>% 
+    mutate(NormAbundance = signif(NormAbundance*DilutionFactor, 4))
+  message("WARNING: NormAbundance has been multipled by the dilution factor before assigning the RiskLevel")
+}
+
+
+
+#Adding and evaluating thresholds
+conta <- conta %>% 
+  left_join(., ref_conta_tshd %>%  select(AnalyteFull, starts_with("Tshd")),
+            by = "AnalyteFull") %>%  
+  mutate(RiskLevel = case_when(NormAbundance ==0 ~ 0,
+                               NormAbundance < Tshd_Area_TICA_perc25 ~ 1,
+                               (Tshd_Area_TICA_perc25 <= NormAbundance & NormAbundance < Tshd_Area_TICA_perc50) ~ 2,   
+                               (Tshd_Area_TICA_perc50 <= NormAbundance & NormAbundance < Tshd_Area_TICA_perc75) ~ 3,
+                               (Tshd_Area_TICA_perc75 <= NormAbundance & NormAbundance < Tshd_Area_TICA_perc90) ~ 4,
+                               (Tshd_Area_TICA_perc90 <= NormAbundance) ~ 5,
+                               TRUE ~ 6),
+         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>% 
+  mutate(Risk = as.factor(Risk)) %>% 
+  select(-starts_with("Tshd_"))
+
+
+## Summary by Analyte Group, needed to get top groups
+conta_summ_analytegroup <-
+  conta %>%
+  group_by(AnalyteGroup, AnalyteGroupSimple) %>% 
+  summarise(across(c(NormAbundance),
+                   list(min = ~min(.x, na.rm = TRUE),
+                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
+                        median = ~median(.x, na.rm = TRUE),
+                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
+                        max = ~max(.x, na.rm = TRUE))),
+            .groups = "drop") %>% 
+  mutate(across(where(is.numeric), ~signif(.x, 4)))
+
+conta_summ_analyte <-
+  conta %>%
+  group_by(AnalyteGroup, AnalyteGroupSimple, Analyte) %>% 
+  summarise(across(c(NormAbundance),
+                   list(min = ~min(.x, na.rm = TRUE),
+                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
+                        median = ~median(.x, na.rm = TRUE),
+                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
+                        max = ~max(.x, na.rm = TRUE))),
+            .groups = "drop")  %>% 
+  mutate(across(where(is.numeric), ~signif(.x, 4)))
+
+```
+
+
+# Results: possible contaminants
+
+## List of possible contaminants detected in the samples
+
+* The following table shows the results of possible contaminants detected in each sample.
+* An extended version of this table containing the Area and Total-Ion-Count-Area (TICA) can also be found in `r filedir_report` --> conta.
+* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
+
+```{r echo=FALSE, warning=FALSE}
+conta %>% 
+  select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, NormAbundance) %>% 
+  arrange(desc(NormAbundance)) %>% 
+  datatable(filter = 'top', 
+            options = list(pageLength = 10, autoWidth = TRUE)) %>% 
+  formatStyle('RiskLevel',
+              backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
+```
+
+## Summary per contaminat groups{.tabset}
+
+* A summary of the NormAbundance was calculated and is reported in the annexed report (`r filedir_report` --> conta_summ_analytegroup).
+
+### Table: Top contaminants
+
+```{r echo=FALSE, warning=FALSE}
+
+analytegroups_area_ordered <- 
+  conta_summ_analytegroup %>% 
+  select(AnalyteGroupSimple, AnalyteGroup, NormAbundance_median) %>% 
+  unique() %>% 
+  arrange(desc(NormAbundance_median))
+  
+# datatable(analytegroups_area_ordered , filter = 'top', options = list(
+#     pageLength = 10, autoWidth = TRUE))
+
+
+```
+
+## Plots per contaminant group{.tabset}
+
+* The NormAbundance of the contaminants are reported in the plots below for all the samples in the data set.
+* The Pseudochromatograms represent the NormAbundance in function of the RentetionTime (Apex of the peak). Those can be useful to evaluate the presence of the usual patterns of polymers, i.e. from small to larger molecules; as well as the reproducibility of the RentetionTime across replicates.
+
+```{r input_AnalyteGroup, echo=FALSE}
+# user input for plots
+selectizeInput(inputId = "AnalyteGroupSimple2Plot",
+               label = "Select up to 2 contaminant groups (list ordered from highest to lowest median(NormAbundance))",
+               choices = unique(analytegroups_area_ordered$AnalyteGroupSimple),
+               multiple = TRUE,
+               options = list(maxItems = 2),
+               selected = analytegroups_area_ordered$AnalyteGroupSimple[c(1,2)], 
+               width = "70%")
+fluidRow(
+  column(3,
+         radioButtons(inputId =  "abundance_scale_ag",
+                      label = "Scale",
+                      choices = c("linear", "log10"),
+                      selected = "linear",
+                      inline = FALSE, 
+                      width = "30%")
+  ),
+  column(6,
+         sliderInput(inputId = "MedianMin2Plot_ag",
+                     label = "Plot contaminants with log10(median) > " ,
+                     min = min_no_zero(conta_summ_analytegroup$NormAbundance_median), #min no zero
+                     max = signif(log10(max(conta_summ_analytegroup$NormAbundance_median)), 3), #max in whole dataset
+                     value = min_no_zero(conta_summ_analytegroup$NormAbundance_median), 
+                     width = "70%")
+  )
+)
+# select layers (#2DO maybe)
+# selectInput(inputId = "Layers2Show",
+#             "Select layers to show in the plot",
+#             choices = c("Points", "Boxplot"),
+#             multiple = TRUE,
+#             selected = c("Points", "Boxplot"))
+# filter data
+conta_area2plot <- reactive({
+  conta %>% 
+    filter(AnalyteGroupSimple %in% input$AnalyteGroupSimple2Plot) %>% 
+    filter(Analyte %in% as.character(pull(filter(conta_summ_analyte, NormAbundance_median > input$MedianMin2Plot_ag), Analyte)))
+})
+```
+
+### Normalized abundance
+
+```{r plot_AnalyteGroupArea, echo=FALSE, fig.height=10, fig.width=10, warning=FALSE}
+renderPlotly({
+  ggplotly(plot_normabundance(conta_area2plot(), scale = input$abundance_scale_ag),
+           height = 600, width = 1000) %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px 
+    layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
+})
+
+```
+
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
+### Pseudochromatograms (NormAbundance vs. RT)
+
+```{r plot_AnalyteGroupPseudoChromato, echo=FALSE, fig.height=10, fig.width=10, warning=FALSE}
+renderPlotly({
+  ggplotly(plot_pseudochromatogram(conta_area2plot(), scale = input$abundance_scale_ag),
+           height = 600, width = 1000) %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px 
+    layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
+})
+```
+
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
+# Summary risk evaluation and top contaminants
+
+## Global summary 
+
+```{r echo=FALSE, warning=FALSE}
+# summaries
+## Sample level
+conta_summ_sample <-
+  conta %>%
+  group_by(Condition, Sample, ReplicateName) %>%
+  summarise(TotalNormAbundance = round(sum(NormAbundance, na.rm=TRUE), 4), .groups = "drop") %>%
+  mutate(Risk =
+           cut(x = TotalNormAbundance,
+               breaks = ref_conta_tshd_sample$Break,
+               labels = ref_conta_tshd_sample$Labels[-1]))  %>%
+  drop_na %>%
+  mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
+         RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
+  relocate(Condition, Sample, ReplicateName, TotalNormAbundance, RiskLevel, Risk) %>%
+  # Join with median from top 8 contaminants
+  full_join(.,
+            conta %>%
+              # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
+              pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalNormAbundance_",
+                          values_from = NormAbundance, values_fn = function(x) sum(x, na.rm=TRUE)),
+            by = "ReplicateName")
+
+#Dataset level
+conta_summ_sampleset <-
+  conta_summ_sample %>%
+  count(Risk, name = "Count") %>%
+    mutate(Fraction = paste0(Count, "/", sum(Count)) ,
+      Freq =  round(Count/sum(Count), 2),
+      Perc = label_percent()(Freq),
+      Tag = paste0(Risk, ": ", Perc, " (", Fraction, ")")) %>%
+  summarise(Risk  =  paste0(Tag, collapse = "; "), .groups = "drop")
+# Verbose summary of the data set
+max_risklevel <- max(as.numeric(conta_summ_sample$RiskLevel))
+summ_msg <- c("You don't like getting soappy, your samples are super clean!",
+              "You are clean to go!",
+              "Be careful, you have some medium dirty samples",
+              "WARNING: You have some dirty samples!",
+              "WARNING: You have some dirty diiirty samples!")[max_risklevel]
+summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
+summ_color <- summ_color_scale[max_risklevel]
+```
+
+
+* In summary, the sample set contained the following percentages of samples associated to each risk level (also saved in `r filedir_report` --> conta_summ_sampleset):
+  * `r colorize(conta_summ_sampleset$Risk, summ_color)`
+  * `r colorize(summ_msg, summ_color)`
+
+## Sample summary {.tabset}
+
+* Below is shown the summary of contaminant risk evaluation for each sample in table and plot formats, including the Total (summed) Normalized Abundance of the top `r params$nTopContaminants` contaminants.
+* The table can also be found in `r filedir_report` --> conta_summ_sample.
+* a = 0.1% FA, b = ACN, c = MeOH
+
+### Table: Summary
+
+* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
+
+```{r echo=FALSE, warning=FALSE}
+conta_summ_sample %>% 
+  select(Condition, Sample, ReplicateName, TotalNormAbundance, RiskLevel) %>% 
+  rename_with(~gsub(patt = "TotalNormAbundance_", rep = "", .x)) %>% 
+  datatable(filter = 'top', options = list(
+    pageLength = 10, autoWidth = TRUE))  %>% 
+  formatStyle('RiskLevel',
+              backgroundColor = styleEqual(c(0:6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))),
+              backgroundSize = '50% 0%',
+              backgroundRepeat = 'no-repeat',
+              backgroundPosition = 'left')
+
+MedianMin2Plot_ag = min_no_zero(conta_summ_analytegroup$NormAbundance_median)
+
+#Summary (sum) of contaminants
+conta_summ_sample_risk <-
+  conta_summ_sample %>%
+  select(-TotalNormAbundance) %>%
+    # rename(TotalNormAbundance_Total = TotalNormAbundance) %>%
+  select(Condition, Sample, starts_with("TotalNormAbundance_")) %>%
+  pivot_longer(cols = starts_with("Total"),
+               names_to = "AnalyteGroup",
+               names_prefix = "TotalNormAbundance_",
+               values_to = "NormAbundance_median") %>%
+  left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>%
+  mutate(RiskLevel = case_when(NormAbundance_median ==0 ~ 0,
+                               NormAbundance_median < Tshd_Area_TICA_perc25 ~ 1,
+                               (Tshd_Area_TICA_perc25 <= NormAbundance_median & NormAbundance_median < Tshd_Area_TICA_perc50) ~ 2,
+                               (Tshd_Area_TICA_perc50 <= NormAbundance_median & NormAbundance_median < Tshd_Area_TICA_perc75) ~ 3,
+                               (Tshd_Area_TICA_perc75 <= NormAbundance_median & NormAbundance_median < Tshd_Area_TICA_perc90) ~ 4,
+                               (Tshd_Area_TICA_perc90 <= NormAbundance_median) ~ 5,
+                               TRUE ~ 6),
+         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>%
+  mutate(Risk = as.factor(Risk),
+         RiskLevel = as.factor(RiskLevel),
+         AnalyteGroup = factor(AnalyteGroup, levels = rev(analytegroups_area_ordered$AnalyteGroup)), # order from lowest to highest NormAbundance_median  (shown inversed in plot)
+         Sample = Sample) %>%
+  select(-starts_with("Tshd_"))
+
+```
+
+### Plot: Summary Total
+
+```{r input_conta_summ_sample_risk, echo=FALSE}
+# user input for plots
+fluidRow(
+  column(3,radioButtons(inputId =  "abundance_scale_sample_total",
+                        label = "Scale",
+                        choices = c("linear", "log10"),
+                        selected = "linear",
+                        inline = FALSE, 
+                        width = "30%")
+  ),
+  column(6, radioButtons(inputId =  "order_sample_total",
+                         label = "Order_x",
+                         choices = c("Sample", "NormAbundance"),
+                         selected = "Sample",
+                         inline = FALSE, 
+                         width = "30%")
+  )
+)
+
+# filter data
+conta_summ_sample2plot <- reactive({
+  conta_summ_sample
+})
+```
+
+```{r plot_conta_summ_sample_risk, echo=FALSE, warning=FALSE}
+renderPlotly({ 
+  ggplotly(plot_sample_risk_total(conta_summ_sample2plot(),
+                                  order_x  = input$order_sample_total, 
+                                  scale = input$abundance_scale_sample_total),
+           height = 400, width = 1000)  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
+    # layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
+    # layout(height = 400, width = 1000) 
+})
+```
+
+### Plot: Summary by Sample
+
+```{r plot_AnalyteGroupSample, echo=FALSE}
+#dotplot
+## AnalyteGroup 
+dot_plot_conta_summ_sample_risk_analytegroup <-
+  conta_summ_sample_risk %>% 
+  plot_sample_risk_analyte(order_x = "Sample", order_y = "NormAbundance", show_zeros = FALSE)
+
+ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
+         height = 600, width = 1000) 
+  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
+
+```
+
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+<br><br>
+
+### Plot: Summary by Condition
+
+
+
+```{r plot_AnalyteGroupCondition, echo=FALSE}
+#dotplot
+## AnalyteGroup 
+dot_plot_conta_summ_condition_risk_analytegroup <-
+  conta_summ_sample_risk %>% 
+  plot_condition_risk_analyte(order_x = "Condition", order_y = "NormAbundance", show_zeros = FALSE)
+
+ggplotly(dot_plot_conta_summ_condition_risk_analytegroup,
+         height = 600, width = 1000) 
+  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
+```
+
+
+### Plot: Summary by groups
+
+
+```{r echo=FALSE, fig.height=8, fig.width=10, warning=FALSE}
+# conta_summ_sample <-
+#   full_join(info_samples %>%
+#               mutate(RawFile = ReplicateName,
+#                      ReplicateName = Sample), conta_summ_sample, by = "ReplicateName") #Pending: rename Sample and replicatename in info_samples
+
+#Summary (sum) of contaminants
+plot_summ_cond_cgp <-
+  conta_summ_sample %>%  
+  select(-TotalNormAbundance) %>% 
+  select(Condition, starts_with("TotalNormAbundance_")) %>% 
+  pivot_longer(cols = starts_with("Total"),
+               names_to = "AnalyteGroup",
+               names_prefix = "TotalNormAbundance_",
+               values_to = "NormAbundance_median") %>%  
+  left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>% 
+  mutate(RiskLevel = case_when(NormAbundance_median ==0 ~ 0,
+                               NormAbundance_median < Tshd_Area_TICA_perc25 ~ 1,
+                               (Tshd_Area_TICA_perc25 <= NormAbundance_median & NormAbundance_median < Tshd_Area_TICA_perc50) ~ 2,   
+                               (Tshd_Area_TICA_perc50 <= NormAbundance_median & NormAbundance_median < Tshd_Area_TICA_perc75) ~ 3,
+                               (Tshd_Area_TICA_perc75 <= NormAbundance_median & NormAbundance_median < Tshd_Area_TICA_perc90) ~ 4,
+                               (Tshd_Area_TICA_perc90 <= NormAbundance_median) ~ 5,
+                               TRUE ~ 6),
+         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>% 
+  mutate(Risk = as.factor(Risk)) %>% 
+  select(-starts_with("Tshd_")) %>% 
+  ggbarplot(y = "NormAbundance_median", x = "Condition", 
+            fill="Risk",
+            facet.by = "AnalyteGroup", scales = "free_y", ncol =1,
+            position = position_dodge2(), alpha = 0.6) +
+  scale_fill_viridis_d(end=0.8, option =  "plasma", direction = 1) +
+  ylab("Total Normalized Abundance") +
+  xlab("Replicate Name")+
+  theme_hd +
+  theme(axis.text.y = element_text(size=4)) +
+  rotate_x_text(angle=20) +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf) #This re-add the y axes to the faceted plots
+#Total Summary per sample
+plot_summ_cond <-
+  conta_summ_sample  %>%
+  mutate(Condition = Condition,
+         Dummy = "TOTAL") %>% 
+  ggbarplot(y = "TotalNormAbundance", x = "Condition", fill="Risk", 
+            facet.by = "Dummy",
+            position = position_dodge2(), alpha = 0.6) +
+  scale_fill_viridis_d(end=0.8, option =  "plasma", direction = 1) +
+  ylab("Total Normalized Abundance (Sum(Area/TICA))") +
+  xlab("Replicate Name")+
+  theme_hd +
+  theme(axis.text.y = element_text(size=4),
+        strip.text.x = element_text(size = 10, colour = "darkred")) +
+  rotate_x_text(angle=20)
+
+#Merged plot
+plot_summary_risk_top_conta_groups_cond <-
+  ggarrange(plot_summ_cond_cgp+ rremove("x.text"), 
+            plot_summ_cond,
+            ncol= 1,
+            common.legend = TRUE, heights = c(0.75, 0.25), align = "hv",
+            labels = c("A)", "B)"),
+            label.x = 0.05,
+            font.label = list(size = 12)) %>% 
+  annotate_figure(paste0("A) Top ", params$nTopContaminants, "contaminant groups Total Normalized Abundance \n",
+                         "B) Summary risk evaluation)"))
+plot_summary_risk_top_conta_groups_cond
+if(params$PlotsSave){
+  rawr_ggsave(plot_summary_risk_top_conta_groups_cond, "plot_summary_risk_top_conta_groups_cond")
+}
+
+```
+
+# Appendixes
+
+* Plots are exported in folder 4_figures.
+* Result tables are exported in folder `r filedir_report`.
+
+```{r echo=FALSE, warning=FALSE}
+res_list<- list(conta=conta, 
+             conta_summ_sample=conta_summ_sample,
+             conta_summ_sampleset=conta_summ_sampleset,
+             conta_summ_analytegroup=conta_summ_analytegroup,
+             ref_conta_tshd=ref_conta_tshd,
+             ref_conta_tshd_sample=ref_conta_tshd_sample)
+write.xlsx(res_list,
+           file = filedir_report)
+writeLines(capture.output(sessionInfo()), filedir_sessioninfo)
+
+```
+
+
+# END
