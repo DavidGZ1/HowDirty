@@ -13,6 +13,96 @@
 #' bmi3(bmi.vals)
 #'
 #' @export
+theme_hd <-
+  theme_classic(base_size = 8)+
+  theme(plot.margin = margin(4,4,4,4),
+        legend.position = "right",
+        strip.background = element_blank(),
+        strip.text = element_text(size=8, face="bold"))
+
+#' Plot functions for HowDirty
+#'
+#' diverse plot functions
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+scale_fill_risk <- function(..., option = "plasma", direction = 1){
+  # options = "RdOrBlu", "plasma"
+  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
+  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
+  if(direction == 1){colors_risk = colors_risk}
+  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
+
+  ggplot2:::manual_scale(
+    'fill',
+    values = setNames(colors_risk,
+                      c(0, 1, 2, 3, 4, 5, 6)),
+    ...
+  )
+}
+
+
+#' Plot functions for HowDirty
+#'
+#' diverse plot functions
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+scale_color_risk <- function(..., option = "RdOrBlu", direction = 1, verbose = FALSE){
+  # options = "RdOrBlu", "plasma"
+  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
+  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdOrBlu, plasma)")
+  if(direction == 1){colors_risk = colors_risk}
+  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
+  if(verbose == FALSE) names_levels = c(0, 1, 2, 3, 4, 5, 6)
+  if(verbose == TRUE) names_levels = c("0) Not Detected",
+                                       "1) Very Low",
+                                       "2) Low",
+                                       "3) Medium",
+                                       "4) High",
+                                       "5) Very High",
+                                       "6) No threshold in reference")
+
+
+  ggplot2:::manual_scale(
+    'color',
+    values = setNames(colors_risk,
+                      names_levels),
+    ...
+  )
+}
+
+#' Plot functions for HowDirty
+#'
+#' diverse plot functions
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
 plot_normabundance <- function(input_conta, scale = "linear"){
   # plot the normalized abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
