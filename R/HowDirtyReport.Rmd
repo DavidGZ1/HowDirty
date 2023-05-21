@@ -207,7 +207,7 @@ read_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE
 
 
 read_samples_annotation <- function(file_samples_annotation){
-  read.csv(file_design) %>% 
+  read.csv(file_samples_annotation) %>% 
   rename(ReplicateName = ReplicateNameSkyline) %>% 
   mutate(across(where(is.character), ~factor(.x, levels = unique(.x)))) %>% # create levels in given order
   mutate(DilutionFactor = replace_na(DilutionFactor, 1))  # complete dilution factor if empty
@@ -272,7 +272,6 @@ annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = 
   return(ouptut)
 }
 
-
 annotate_conta_thresholds <- function(df_conta, df_threshold){
   require(mgsub)
   df_conta %>% 
@@ -300,7 +299,7 @@ annotate_conta_thresholds <- function(df_conta, df_threshold){
 # Load thresholds
 if(params$RefThresholdsFile == FALSE){
   # set arbitrary thresholds
-  ref_conta_tshd <- get_simple_thresholds_analyte(raw_conta)
+  ref_conta_tshd <- get_simple_thresholds_analyte(conta_raw)
   ref_conta_tshd_sample <- get_simple_thresholds_sample()
   message("WARNING: Reference Threshold File was not provided. Thus, threshold were set at the same level for all the contaminants")
 } else{ 
@@ -310,52 +309,31 @@ if(params$RefThresholdsFile == FALSE){
   ref_conta_tshd_sample <- read.csv(params$RefThresholdsSampleLevelFile) %>% 
     select(-any_of("X"))
 }
-#Summary of thresholds for each contaminant group
-ref_conta_tshd_sum <-  ref_conta_tshd %>% 
-  group_by(AnalyteGroup) %>% 
-  summarise(across(starts_with("Tshd"), sum), .groups = "drop")
-
 # read files
 ## Skyline results of contaminant peak area and height
-raw_conta <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile)
+conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile)
 ## information about samples (annotation)
 samples_annot <- read_samples_annotation(params$AnnotationFile) 
-#Check if all samples are included in both results and annotation file
-check_samples_in_results(raw_conta, samples_annot[c(1:10), ])
+## check if all samples are included in both results and annotation file
+check_samples_in_results(conta_raw, samples_annot)
+# Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
+conta <- conta_raw %>% 
+  annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
+                         multiply_dilution_factor = params$MultiplyDilutionFactor) %>% 
+  annotate_conta_thresholds(., ref_conta_tshd) # assign RiskLevel
 
 ```
-
 
 
 ```{r functions_in_progress}
 
 ```
 
-
-```{r merging_dfs, echo=FALSE}
-
-##Merge samples_annot and contamination, multiply by dilution_factor, assign thresholds
-conta_annotated <- annotate_conta_samples(df_conta = raw_conta,
-                                          df_samples_annot = samples_annot,
-                                          multiply_dilution_factor = params$MultiplyDilutionFactor)
-#Adding and evaluating thresholds
-# conta <- annotate_conta_thresholds(conta_annotated, ref_conta_tshd)
-# 
-# conta <- conta_annotated %>% 
-#   left_join(., ref_conta_tshd %>%  select(AnalyteFull, starts_with("Tshd")),
-#             by = "AnalyteFull") %>%  
-#   mutate(RiskLevel = case_when(Abundance ==0 ~ 0,
-#                                Abundance < Tshd_Area_TICA_perc25 ~ 1,
-#                                (Tshd_Area_TICA_perc25 <= Abundance & Abundance < Tshd_Area_TICA_perc50) ~ 2,   
-#                                (Tshd_Area_TICA_perc50 <= Abundance & Abundance < Tshd_Area_TICA_perc75) ~ 3,
-#                                (Tshd_Area_TICA_perc75 <= Abundance & Abundance < Tshd_Area_TICA_perc90) ~ 4,
-#                                (Tshd_Area_TICA_perc90 <= Abundance) ~ 5,
-#                                TRUE ~ 6),
-#          Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-#                       rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>% 
-#   mutate(Risk = as.factor(Risk)) %>% 
-#   select(-starts_with("Tshd_"))
-
+```{r summaries}
+#Summary of thresholds for each contaminant group
+ref_conta_tshd_sum <-  ref_conta_tshd %>% 
+  group_by(AnalyteGroup) %>% 
+  summarise(across(starts_with("Tshd"), sum), .groups = "drop")
 
 ## Summary by Analyte Group, needed to get top groups
 conta_summ_analytegroup <-
@@ -381,7 +359,6 @@ conta_summ_analyte <-
                         max = ~max(.x, na.rm = TRUE))),
             .groups = "drop")  %>% 
   mutate(across(where(is.numeric), ~signif(.x, 4)))
-
 ```
 
 
