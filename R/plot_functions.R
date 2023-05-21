@@ -209,7 +209,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     geom_point(alpha = 1) +
     scale_y_continuous(n.breaks = 10) +
     scale_color_risk() +
-    ylab("Total Normalized Abundance = sum(Area/TICA)") +
+    ylab("Total Abundance = sum(Area/TICA)") +
     xlab("Sample")+
     theme_hd +
     rotate_x_text(angle=45)
@@ -218,7 +218,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 10) +
-      ylab("Total Normalized Abundance = log10(sum(Area/TICA))")
+      ylab("Total Abundance = log10(sum(Area/TICA))")
     return(output)}
 }
 
