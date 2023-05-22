@@ -11,7 +11,7 @@
 #' bmi3(bmi.vals)
 #'
 #' @export
-get_template <- function(file = "HowDirtyReportTemplate", edit = TRUE, create_dir = FALSE) {
+get_report_template <- function(file = "HowDirtyReportTemplate", edit = TRUE, create_dir = FALSE) {
   rmarkdown::draft(file = file,
                    template = "HowDirty",
                    edit = edit,

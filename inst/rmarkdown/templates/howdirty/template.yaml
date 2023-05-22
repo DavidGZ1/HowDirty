@@ -1,0 +1,4 @@
+name: HowDirtyReportTemplate
+description: >
+   Template to create the HowDirty report to evaluate LC-MS molecular contaminants based on the Skyline output
+create_dir: FALSE
