@@ -21,7 +21,8 @@ annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = 
       ouptut %>%
       group_by(ReplicateName, AnalyteGroup, Analyte, AnalyteFull) %>%
       filter(!all(Height == 0)) %>%
-      ungroup()
+      ungroup() %>%
+      droplevels()
   }
   # Multiply by DilutionFactor
   if(multiply_dilution_factor == TRUE){
