@@ -6,7 +6,6 @@ output:
     toc_float: false
     theme: united
     number_sections: TRUE
-runtime: shiny
 params:
   DataSet: 
     label: "Data set or experiment (keep it short since it's used as prefix for output file names)"
@@ -35,9 +34,9 @@ params:
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
-  nTopContaminants:
-    label: 
-    value: 5
+  nTopContaminantGroups:
+    label: "Top n contaminant groups to show in plots"
+    value: 3
     input: numeric
   MultiplyDilutionFactor:
     label:
@@ -132,6 +131,20 @@ count_factor_columns <- function(df){
     rename("Count" = 1) %>% 
     rownames_to_column("Variable")
 }
+get_w <- function() {
+  # Get the current figure width in pixels
+  # solution to print ggplotly inside asis from https://stackoverflow.com/questions/61906480/how-to-display-ggplotly-plots-with-dynamically-created-tabs-and-for-loops
+  
+  with(knitr::opts_current$get(c("fig.width", "dpi", "fig.retina")),
+       fig.width*dpi/fig.retina)
+}
+
+get_h <- function() {
+    # Get the current figure height in pixels
+  # solution to print ggplotly inside asis from https://stackoverflow.com/questions/61906480/how-to-display-ggplotly-plots-with-dynamically-created-tabs-and-for-loops
+  with(knitr::opts_current$get(c("fig.height", "dpi", "fig.retina")),
+       fig.height*dpi/fig.retina)
+}
 
 ```
 
@@ -187,7 +200,7 @@ if(params$RefThresholdsFile == FALSE){
 }
 # read files
 ## Skyline results of contaminant peak area and height
-conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile)
+conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile, simplify_AnalyteGroup = TRUE)
 ## information about samples (annotation)
 samples_annot <- read_samples_annotation(params$AnnotationFile) 
 ## check if all samples are included in both results and annotation file
@@ -198,8 +211,9 @@ check_samples_in_results(conta_raw, samples_annot)
 # Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
 conta <- conta_raw %>% 
   annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
+                         remove_missing = TRUE, 
                          multiply_dilution_factor = params$MultiplyDilutionFactor) %>% 
-  annotate_conta_thresholds(., ref_conta_tshd) # assign RiskLevel
+  annotate_conta_thresholds(., ref_conta_tshd)  # assign RiskLevel
 ```
 
 The data set contained the following:
@@ -211,6 +225,26 @@ count_factor_columns(conta) %>%
   kable() 
 ```
 
+```{r}
+df_conta <- conta
+summarize_conta <- function(df_conta, ...){
+  output <-
+  df_conta %>%
+  group_by(...) %>% 
+  summarise(across(c(Abundance),
+                   list(min = ~min(.x, na.rm = TRUE),
+                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
+                        median = ~median(.x, na.rm = TRUE),
+                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
+                        max = ~max(.x, na.rm = TRUE),
+                        total = ~sum(.x, na.rm = TRUE))),
+            .groups = "drop") %>% 
+  mutate(across(where(is.numeric), ~signif(.x, 4)))
+  return(output)
+}
+```
+
+
 ```{r summaries}
 #Summary of thresholds for each contaminant group
 ref_conta_tshd_sum <-  ref_conta_tshd %>% 
@@ -218,17 +252,19 @@ ref_conta_tshd_sum <-  ref_conta_tshd %>%
   summarise(across(starts_with("Tshd"), sum), .groups = "drop")
 
 ## Summary by Analyte Group, needed to get top groups
-conta_summ_analytegroup <-
-  conta %>%
-  group_by(AnalyteGroup) %>% 
-  summarise(across(c(Abundance),
-                   list(min = ~min(.x, na.rm = TRUE),
-                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
-                        median = ~median(.x, na.rm = TRUE),
-                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
-                        max = ~max(.x, na.rm = TRUE))),
-            .groups = "drop") %>% 
-  mutate(across(where(is.numeric), ~signif(.x, 4)))
+conta_summ_analytegroup <- summarize_conta(conta, AnalyteGroup)
+# conta_summ_analytegroup <-
+#   conta %>%
+#   group_by(AnalyteGroup) %>% 
+#   summarise(across(c(Abundance),
+#                    list(min = ~min(.x, na.rm = TRUE),
+#                         quantile25 = ~quantile(.x, na.rm = TRUE)[2],
+#                         median = ~median(.x, na.rm = TRUE),
+#                         quantile75 = ~quantile(.x, na.rm = TRUE)[4],
+#                         max = ~max(.x, na.rm = TRUE),
+#                         total = ~sum(.x, na.rm = TRUE))),
+#             .groups = "drop") %>% 
+#   mutate(across(where(is.numeric), ~signif(.x, 4)))
 
 conta_summ_analyte <-
   conta %>%
@@ -319,11 +355,8 @@ summ_msg <- summ_msg_options[max_risklevel]
 summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
 summ_color <- summ_color_scale[max_risklevel]
 
-conta_summ_analytegroup_sample <- 
-  conta %>% 
-  group_by(Condition, Sample, ReplicateName, AnalyteGroup) %>% 
-  summarise( Abundance= sum(Abundance), .groups = "drop") 
-
+conta_summ_analytegroup_sample <-
+  summarize_conta(conta, Condition, Sample, ReplicateName, AnalyteGroup)
 ```
 
 
@@ -336,7 +369,8 @@ conta_summ_analytegroup_sample <-
 
 ## Global
 
-The data set contained the following percentages of samples associated to each risk level (also saved in `r filedir_report` --> conta_summ_sampleset)
+* The data set contained the following percentages of samples associated to each risk level
+* The results were exported to `r filedir_report` > conta_summ_sampleset
 
 ```{r plot_conta_summ_sampleset, fig.width= 4, fig.height=4}
 conta_summ_sampleset %>% 
@@ -362,58 +396,63 @@ conta_summ_sampleset %>%
 
 ```{r input_conta_summ_sample_risk, echo=FALSE}
 # user input for plots
-fluidRow(
-  column(2,radioButtons(inputId =  "abundance_scale_sample_total",
-                        label = "Scale",
-                        choices = c("linear", "log10"),
-                        selected = "linear",
-                        inline = FALSE, 
-                        width = "90%")
-  ),
-  column(2, radioButtons(inputId =  "order_sample_total",
-                         label = "Order_x",
-                         choices = c("Sample", "Abundance"),
-                         selected = "Abundance",
-                         inline = FALSE, 
-                         width = "90%")
-  ),
-  column(3, checkboxInput(inputId =  "facet_condition_total",
-                        label = "Facet by Condition",
-                        value  = TRUE,
-                        width = "90%")
-  # column(4, radioButtons(inputId =  "facet_condition_total",
-  #                        label = "Facet by Condition",
-  #                        choices = c(TRUE, FALSE),
-  #                        selected = TRUE,
-  #                        inline = FALSE, 
-  #                        width = "30%")
-  )
-)
-
-# filter data
-conta_summ_sample2plot <- reactive({
-  conta_summ_sample
-})
+# fluidRow(
+#   column(2,radioButtons(inputId =  "abundance_scale_sample_total",
+#                         label = "Scale",
+#                         choices = c("linear", "log10"),
+#                         selected = "linear",
+#                         inline = FALSE, 
+#                         width = "90%")
+#   ),
+#   column(2, radioButtons(inputId =  "order_sample_total",
+#                          label = "Order_x",
+#                          choices = c("Sample", "Abundance"),
+#                          selected = "Abundance",
+#                          inline = FALSE, 
+#                          width = "90%")
+#   ),
+#   column(3, checkboxInput(inputId =  "facet_condition_total",
+#                         label = "Facet by Condition",
+#                         value  = TRUE,
+#                         width = "90%")
+#   # column(4, radioButtons(inputId =  "facet_condition_total",
+#   #                        label = "Facet by Condition",
+#   #                        choices = c(TRUE, FALSE),
+#   #                        selected = TRUE,
+#   #                        inline = FALSE, 
+#   #                        width = "30%")
+#   )
+# )
+# 
+# # filter data
+# conta_summ_sample2plot <- reactive({
+#   conta_summ_sample
+# })
 ```
 
 ```{r plot_conta_summ_sample_risk, echo=FALSE, warning=FALSE}
-renderPlotly({
-  dot_plot_sample_risk_total <-
-        # plot_sample_risk_total(conta_summ_sample) # for troubleshooting only
-  plot_sample_risk_total(conta_summ_sample2plot(),
-                         order_x  = input$order_sample_total,
-                         scale = input$abundance_scale_sample_total)
-  if(input$facet_condition_total == TRUE){
-    dot_plot_sample_risk_total <-
-      dot_plot_sample_risk_total + 
-      facet_wrap(~Condition, scales = "free_x")
-  }
+
+# renderPlotly({
+#   dot_plot_sample_risk_total <-
+#         # plot_sample_risk_total(conta_summ_sample) # for troubleshooting only
+#   plot_sample_risk_total(conta_summ_sample2plot(),
+#                          order_x  = input$order_sample_total,
+#                          scale = input$abundance_scale_sample_total)
+#   if(input$facet_condition_total == TRUE){
+#     dot_plot_sample_risk_total <-
+#       dot_plot_sample_risk_total + 
+#       facet_wrap(~Condition, scales = "free_x")
+#   }
+#   
+#   ggplotly(dot_plot_sample_risk_total,
+#            height = 400, width = 1000) # %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
+#     # layout_ggplotly_label_margin(x = -0.05, y = -0.02) #fixes label margin problem, but we have to adapt the margins to avoid it going out of margins
+#   
+# })
+
+dot_plot_sample_risk_total <-  plot_sample_risk_total(conta_summ_sample, order_x = "Abundance") 
   
-  ggplotly(dot_plot_sample_risk_total,
-           height = 400, width = 1000) # %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px
-    # layout_ggplotly_label_margin(x = -0.05, y = -0.02) #fixes label margin problem, but we have to adapt the margins to avoid it going out of margins
-  
-})
+
 ```
 
 ### Table
@@ -454,7 +493,7 @@ ggplotly(dot_plot_conta_summ_condition_risk_analytegroup,
 
 ```{r}
 conta_summ_analytegroup_sample %>% 
-  ggplot(aes(y = AnalyteGroup, x = Abundance)) +
+  ggplot(aes(y = AnalyteGroup, x = Abundance_total)) +
     geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
   geom_boxplot( alpha = 0.4, width = 0.2, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
   # scale_y_continuous(n.breaks = 5) +
@@ -466,23 +505,30 @@ conta_summ_analytegroup_sample %>%
 
 ## Sample {.tabset}
 
-### dotplot
+### dotplot by abundance
 
-```{r plot_AnalyteGroupSample, echo=FALSE}
+```{r plot_AnalyteGroupSample_abundance, fig.height=8, fig.width=8, }
 #dotplot
 ## AnalyteGroup 
 dot_plot_conta_summ_sample_risk_analytegroup <-
   conta_summ_sample_risk %>% 
   plot_sample_risk_analyte(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
 
-ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
-         height = 600, width = 1000) 
+if(params$PlotsInteractive == TRUE){
+  ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
+           height = 600, width = 1000)
   # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
+}else{
+  if(params$PlotsInteractive == FALSE){
+    dot_plot_conta_summ_sample_risk_analytegroup
+  }
+}
+
+
 
 ```
 
 ### boxplot
-
 
 # Contaminants per sample{.tabset}
 
@@ -490,81 +536,58 @@ ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
 * The Abundance of the contaminants are reported in the plots below for all the samples in the data set.
 * The Pseudochromatograms represent the Abundance in function of the RentetionTime (Apex of the peak). Those can be useful to evaluate the presence of the usual patterns of polymers, i.e. from small to larger molecules; as well as the reproducibility of the RentetionTime across replicates.
 
-```{r input_AnalyteGroup, echo=FALSE}
-MedianMin2Plot_ag = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median)
+## Normalized abundance{.tabset}
 
-# user input for plots
-selectizeInput(inputId = "AnalyteGroup2Plot",
-               label = "Select up to 2 contaminant groups (list ordered from highest to lowest median(Abundance))",
-               choices = unique(analytegroups_area_ordered$AnalyteGroup),
-               multiple = TRUE,
-               options = list(maxItems = 2),
-               selected = analytegroups_area_ordered$AnalyteGroup[c(1,2)], 
-               width = "70%")
-fluidRow(
-  column(3,
-         radioButtons(inputId =  "abundance_scale_ag",
-                      label = "Scale",
-                      choices = c("linear", "log10"),
-                      selected = "linear",
-                      inline = FALSE, 
-                      width = "30%")
-  ),
-  column(6,
-         sliderInput(inputId = "MedianMin2Plot_ag",
-                     label = "Plot contaminants with log10(median) > " ,
-                     min = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median), #min no zero
-                     max = signif(log10(max(conta_summ_analytegroup$Abundance_median)), 3), #max in whole dataset
-                     value = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_median), 
-                     width = "70%")
+```{r plot_AnalyteGroupArea, results='asis', fig.height=8, fig.width=8, warning=FALSE}
+plot_abundance_analytegroup_list <-
+  lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
+         function(x){
+           plot_abundance(filter(conta, AnalyteGroup == x)) %>% 
+             ggplotly(width = get_w(), height = get_h()) %>% 
+             htmltools::tagList()
+         }
   )
-)
-# select layers (#ToDo maybe)
-# selectInput(inputId = "Layers2Show",
-#             "Select layers to show in the plot",
-#             choices = c("Points", "Boxplot"),
-#             multiple = TRUE,
-#             selected = c("Points", "Boxplot"))
-# filter data
-conta_area2plot <- reactive({
-  conta %>% 
-    filter(AnalyteGroup %in% input$AnalyteGroup2Plot) %>% 
-    filter(Analyte %in% as.character(pull(filter(conta_summ_analyte, Abundance_median > input$MedianMin2Plot_ag), Analyte)))
-})
+names(plot_abundance_analytegroup_list) <-
+  levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)]
+
+for (i in 1:length(plot_abundance_analytegroup_list)) {
+  cat("### ", names(plot_abundance_analytegroup_list)[i],"\n")
+  if(params$PlotsInteractive == TRUE){
+    print(htmltools::tagList(plot_abundance_analytegroup_list[[i]])) #required to print ggplotly inside asis
+  }else{if(params$PlotsInteractive == FALSE){
+    plot_abundance_analytegroup_list[[i]]
+  }
+  }
+  cat('\n\n')
+}
 ```
 
-## Normalized abundance
+## Pseudochromatograms (Abundance vs. RT){.tabset}
 
-```{r plot_AnalyteGroupArea, echo=FALSE, fig.height=10, fig.width=10, warning=FALSE}
-renderPlotly({
-  ggplotly(plot_abundance(conta_area2plot(), scale = input$abundance_scale_ag),
-           height = 600, width = 1000) %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px 
-    layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
-})
+```{r plot_AnalyteGroupPseudoChromato, results='asis', echo=FALSE, fig.height=8, fig.width=8, warning=FALSE}
+plot_seudochromatogram_analytegroup_list <-
+  lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
+         function(x){
+           plot_pseudochromatogram(filter(conta, AnalyteGroup == x)) %>% 
+             ggplotly(width = get_w(), height = get_h()) %>% 
+             htmltools::tagList()
+         }
+  )
+names(plot_seudochromatogram_analytegroup_list) <-
+  levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)]
+
+for (i in 1:length(plot_seudochromatogram_analytegroup_list)) {
+  cat("### ", names(plot_seudochromatogram_analytegroup_list)[i],"\n")
+  if(params$PlotsInteractive == TRUE){
+    print(htmltools::tagList(plot_seudochromatogram_analytegroup_list[[i]])) #required to print ggplotly inside asis
+  }else{if(params$PlotsInteractive == FALSE){
+    plot_seudochromatogram_analytegroup_list[[i]]
+  }
+  }
+  cat('\n\n')
+}
 
 ```
-
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-
-## Pseudochromatograms (Abundance vs. RT)
-
-```{r plot_AnalyteGroupPseudoChromato, echo=FALSE, fig.height=10, fig.width=10, warning=FALSE}
-renderPlotly({
-  ggplotly(plot_pseudochromatogram(conta_area2plot(), scale = input$abundance_scale_ag),
-           height = 600, width = 1000) %>%  #when height > 400, the plot overlaps with the next segment of text. add <br><br> below this chunk to introduce a line per additional 50px 
-    layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
-})
-```
-
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
 
 
 ## Table
@@ -574,13 +597,13 @@ renderPlotly({
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
 
 ```{r table_conta, echo=FALSE, warning=FALSE}
-conta %>% 
-  select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
-  arrange(desc(Abundance)) %>% 
-  datatable(filter = 'top', 
-            options = list(pageLength = 10, autoWidth = TRUE)) %>% 
-  formatStyle('RiskLevel',
-              backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
+# conta %>% 
+#   select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
+#   arrange(desc(Abundance)) %>% 
+#   datatable(filter = 'top', 
+#             options = list(pageLength = 10, autoWidth = TRUE)) %>% 
+#   formatStyle('RiskLevel',
+#               backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
 ```
 
 

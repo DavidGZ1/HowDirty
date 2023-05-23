@@ -123,41 +123,6 @@ filedir_report <- file.path(params$OutputDirectory,
 filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo.txt", filedir_report)
 ```
 
-```{r}
-shinyApp(
-  ui = fluidPage(
-    # sliderInput("slider", "Slider", 1, 100, 50),
-    downloadButton("report", "Generate report")
-  ),
-  server = function(input, output) {
-    output$report <- downloadHandler(
-      # For PDF output, change this to "report.pdf"
-      filename = "report.html",
-      content = function(file) {
-        # Copy the report file to a temporary directory before processing it, in
-        # case we don't have write permissions to the current working dir (which
-        # can happen when deployed).
-        tempReport <- file.path(tempdir(), "HowDirtyReport_RunTimeShiny.Rmd")
-        file.copy("HowDirtyReport_RunTimeShiny.Rmd", tempReport, overwrite = TRUE)
-
-        # Set up parameters to pass to Rmd document
-        params <- params
-        # params <- list(n = input$slider)
-
-        # Knit the document, passing in the `params` list, and eval it in a
-        # child of the global environment (this isolates the code in the document
-        # from the code in this app).
-        rmarkdown::render(tempReport, output_file = file,
-          params = params,
-          envir = new.env(parent = globalenv())
-        )
-      }
-    )
-  }
-)
-```
-
-
 ```{r functions2move}
 count_factor_columns <- function(df){
   df  %>% 
@@ -246,26 +211,6 @@ count_factor_columns(conta) %>%
   kable() 
 ```
 
-```{r}
-df_conta <- conta
-summarize_conta <- function(df_conta, ...){
-  output <-
-  df_conta %>%
-  group_by(...) %>% 
-  summarise(across(c(Abundance),
-                   list(min = ~min(.x, na.rm = TRUE),
-                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
-                        median = ~median(.x, na.rm = TRUE),
-                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
-                        max = ~max(.x, na.rm = TRUE),
-                        total = ~sum(.x, na.rm = TRUE))),
-            .groups = "drop") %>% 
-  mutate(across(where(is.numeric), ~signif(.x, 4)))
-  return(output)
-}
-```
-
-
 ```{r summaries}
 #Summary of thresholds for each contaminant group
 ref_conta_tshd_sum <-  ref_conta_tshd %>% 
@@ -273,19 +218,17 @@ ref_conta_tshd_sum <-  ref_conta_tshd %>%
   summarise(across(starts_with("Tshd"), sum), .groups = "drop")
 
 ## Summary by Analyte Group, needed to get top groups
-conta_summ_analytegroup <- summarize_conta(conta, AnalyteGroup)
-# conta_summ_analytegroup <-
-#   conta %>%
-#   group_by(AnalyteGroup) %>% 
-#   summarise(across(c(Abundance),
-#                    list(min = ~min(.x, na.rm = TRUE),
-#                         quantile25 = ~quantile(.x, na.rm = TRUE)[2],
-#                         median = ~median(.x, na.rm = TRUE),
-#                         quantile75 = ~quantile(.x, na.rm = TRUE)[4],
-#                         max = ~max(.x, na.rm = TRUE),
-#                         total = ~sum(.x, na.rm = TRUE))),
-#             .groups = "drop") %>% 
-#   mutate(across(where(is.numeric), ~signif(.x, 4)))
+conta_summ_analytegroup <-
+  conta %>%
+  group_by(AnalyteGroup) %>% 
+  summarise(across(c(Abundance),
+                   list(min = ~min(.x, na.rm = TRUE),
+                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
+                        median = ~median(.x, na.rm = TRUE),
+                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
+                        max = ~max(.x, na.rm = TRUE))),
+            .groups = "drop") %>% 
+  mutate(across(where(is.numeric), ~signif(.x, 4)))
 
 conta_summ_analyte <-
   conta %>%
@@ -376,8 +319,11 @@ summ_msg <- summ_msg_options[max_risklevel]
 summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
 summ_color <- summ_color_scale[max_risklevel]
 
-conta_summ_analytegroup_sample <-
-  summarize_conta(conta, Condition, Sample, ReplicateName, AnalyteGroup)
+conta_summ_analytegroup_sample <- 
+  conta %>% 
+  group_by(Condition, Sample, ReplicateName, AnalyteGroup) %>% 
+  summarise( Abundance= sum(Abundance), .groups = "drop") 
+
 ```
 
 
@@ -390,8 +336,7 @@ conta_summ_analytegroup_sample <-
 
 ## Global
 
-* The data set contained the following percentages of samples associated to each risk level
-* The results were exported to `r filedir_report` > conta_summ_sampleset
+The data set contained the following percentages of samples associated to each risk level (also saved in `r filedir_report` --> conta_summ_sampleset)
 
 ```{r plot_conta_summ_sampleset, fig.width= 4, fig.height=4}
 conta_summ_sampleset %>% 
@@ -509,7 +454,7 @@ ggplotly(dot_plot_conta_summ_condition_risk_analytegroup,
 
 ```{r}
 conta_summ_analytegroup_sample %>% 
-  ggplot(aes(y = AnalyteGroup, x = Abundance_total)) +
+  ggplot(aes(y = AnalyteGroup, x = Abundance)) +
     geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
   geom_boxplot( alpha = 0.4, width = 0.2, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
   # scale_y_continuous(n.breaks = 5) +
@@ -629,13 +574,13 @@ renderPlotly({
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
 
 ```{r table_conta, echo=FALSE, warning=FALSE}
-# conta %>% 
-#   select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
-#   arrange(desc(Abundance)) %>% 
-#   datatable(filter = 'top', 
-#             options = list(pageLength = 10, autoWidth = TRUE)) %>% 
-#   formatStyle('RiskLevel',
-#               backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
+conta %>% 
+  select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
+  arrange(desc(Abundance)) %>% 
+  datatable(filter = 'top', 
+            options = list(pageLength = 10, autoWidth = TRUE)) %>% 
+  formatStyle('RiskLevel',
+              backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
 ```
 
 

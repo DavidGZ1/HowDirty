@@ -136,9 +136,8 @@ plot_abundance <- function(input_conta, scale = "linear"){
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
     ggplot(input_conta, aes(x = Analyte, y = Abundance)) +
-    geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
     geom_boxplot( alpha = 0.4, width = 0.2, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
-    # scale_color_viridis_d(end=0.8, option =  "plasma", direction = 1) +
+    geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
     scale_color_risk(verbose = TRUE) +
     facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
     scale_y_continuous(n.breaks = 5) +
