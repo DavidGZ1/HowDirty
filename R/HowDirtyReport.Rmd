@@ -567,7 +567,7 @@ MedianMin2Plot_ag = HowDirty::min_no_zero(conta_summ_analytegroup$Abundance_medi
 #     layout_ggplotly_label_margin( x = -0.0, y = -0.02) #fixes label margin problem
 # })
 
-# solution to print ggplotly inside asis based on https://stackoverflow.com/questions/61906480/how-to-display-ggplotly-plots-with-dynamically-created-tabs-and-for-loops
+# solution to print ggplotly inside asis from https://stackoverflow.com/questions/61906480/how-to-display-ggplotly-plots-with-dynamically-created-tabs-and-for-loops
 # Get the current figure size in pixels:
 get_w <- function() {
   with(knitr::opts_current$get(c("fig.width", "dpi", "fig.retina")),
@@ -579,13 +579,13 @@ get_h <- function() {
        fig.height*dpi/fig.retina)
 }
 
-plot_abundance_analytegroup_list <- lapply(levels(conta$AnalyteGroup), function(x){
+plot_abundance_analytegroup_list <- lapply(levels(conta$AnalyteGroup[c(1:3)]), function(x){
   plot_abundance(filter(conta, AnalyteGroup == x)) %>% 
         ggplotly(width = get_w(), height = get_h()) %>% 
     htmltools::tagList()
 }
 )
-names(plot_abundance_analytegroup_list) <- levels(conta$AnalyteGroup)
+names(plot_abundance_analytegroup_list) <- levels(conta$AnalyteGroup[c(1:3)])
 
 for (i in 1:length(plot_abundance_analytegroup_list)) {
   cat("### ", names(plot_abundance_analytegroup_list)[i],"\n")
