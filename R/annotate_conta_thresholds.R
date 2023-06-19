@@ -55,7 +55,7 @@ annotate_conta_thresholds <- function(df_conta, df_threshold, var){
       select(-starts_with("Tshd_"))
   }
 
-  if(!all(c("Analyte", "AnalyteFull", "AnalyteGroup") %in% names(df_conta))){
+  if(!any(c("AnalyteFull", "AnalyteGroup") %in% names(df_conta))){
 
     stop("At least one of these variables must be present to assign the risk levels: AnalyteFull or AnalyteGroup")
   }
