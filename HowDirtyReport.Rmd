@@ -272,13 +272,15 @@ samples_annot <- read_samples_annotation(params$AnnotationFile)
 check_samples_in_results(conta_raw, samples_annot)
 ```
 
+
+
 ```{r annotate_results}
 # Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
 conta <- conta_raw %>% 
   annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
                          remove_missing = TRUE, 
                          multiply_dilution_factor = params$MultiplyDilutionFactor) %>% 
-  annotate_conta_thresholds(., ref_conta_tshd)  %>%  # assign RiskLevel
+  annotate_conta_thresholds(., ref_conta_tshd, Abundance)  %>%  # assign RiskLevel
   arrange_analytegroup_levels(metric = "median") # arrange analyte group levels based on overall median abundance
 ```
 
@@ -292,6 +294,12 @@ count_factor_columns(conta) %>%
   kable("html")
 ```
 
+```{r}
+
+conta_summ_condition %>% 
+  annotate_conta_thresholds(ref_conta_tshd, Abundance_total)
+
+```
 
 ```{r summaries}
 #Summary of thresholds for each contaminant group
@@ -312,52 +320,77 @@ conta_summ_analyte <- summarize_conta(conta, AnalyteGroup, Analyte)
 
 ## Sample level
 conta_summ_sample <-
-  conta %>%
-  group_by(Condition, Sample, ReplicateName) %>%
-  summarise(TotalAbundance = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
-  mutate(Risk =
-           cut(x = TotalAbundance,
-               breaks = ref_conta_tshd_sample$Break,
-               labels = ref_conta_tshd_sample$Labels[-1]))  %>%
-  drop_na %>%
-  mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
-         RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
-  relocate(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel, Risk) %>%
-  # Join with median from top 8 contaminants
+  conta %>% 
+  summarize_conta(Condition, Sample, ReplicateName) %>% 
+  annotate_conta_thresholds_samples(ref_conta_tshd_sample) %>% 
+  select(Condition, Sample, ReplicateName, TotalAbundance = Abundance_total, Risk) %>%
+  arrange(Condition, Sample, ReplicateName) %>% 
+  # # Join with median from top 8 contaminants
   full_join(.,
             conta %>%
               # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
               pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
                           values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
             by = "ReplicateName")
-conta_summ_condition <- summarize_conta(conta, Condition, AnalyteGroup, Analyte)
+# 
+# conta_summ_sample <-
+#   conta %>%
+#   group_by(Condition, Sample, ReplicateName) %>%
+#   summarise(TotalAbundance = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
+#   mutate(Risk =
+#            cut(x = TotalAbundance,
+#                breaks = ref_conta_tshd_sample$Break,
+#                labels = ref_conta_tshd_sample$Labels[-1]))  %>%
+#   drop_na %>%
+#   mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
+#          RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
+#   relocate(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel, Risk) %>%
+#   # Join with median from top 8 contaminants
+#   full_join(.,
+#             conta %>%
+#               # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
+#               pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
+#                           values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
+#             by = "ReplicateName")
+
+conta_summ_analytegroup_sample <-
+  summarize_conta(conta, Condition, Sample, ReplicateName, AnalyteGroup)  %>% 
+  annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
+
+conta_summ_condition <-
+  summarize_conta(conta, Condition, AnalyteGroup, Analyte, AnalyteFull) %>% 
+  annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
   
 
 #Summary (sum) of contaminants
-conta_summ_sample_risk <-
-  conta_summ_sample %>%
-  select(-TotalAbundance) %>%
-    # rename(TotalAbundance_Total = TotalAbundance) %>%
-  select(Condition, Sample, starts_with("TotalAbundance_")) %>%
-  pivot_longer(cols = starts_with("Total"),
-               names_to = "AnalyteGroup",
-               names_prefix = "TotalAbundance_",
-               values_to = "Abundance_median") %>%
-  left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>%
-  mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
-                               Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
-                               (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,
-                               (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
-                               (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
-                               (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
-                               TRUE ~ 6),
-         Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                      rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>%
-  mutate(Risk = as.factor(Risk),
-         RiskLevel = as.factor(RiskLevel),
-         # AnalyteGroup = factor(AnalyteGroup, levels = rev(analytegroups_area_ordered$AnalyteGroup)), # order from lowest to highest Abundance_median  (shown inversed in plot)
-         Sample = Sample) %>%
-  select(-starts_with("Tshd_"))
+# conta_summ_sample_risk <-
+#   conta_summ_sample %>%
+#   select(-TotalAbundance) %>%
+#     # rename(TotalAbundance_Total = TotalAbundance) %>%
+#   select(Condition, Sample, starts_with("TotalAbundance_")) %>%
+#   pivot_longer(cols = starts_with("Total"),
+#                names_to = "AnalyteGroup",
+#                names_prefix = "TotalAbundance_",
+#                values_to = "Abundance_median") %>% # this was not the median, it was the sum
+#   left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>%
+#   mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
+#                                Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
+#                                (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,
+#                                (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
+#                                (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
+#                                (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
+#                                TRUE ~ 6),
+#          Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+#                       rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>%
+#   mutate(Risk = as.factor(Risk),
+#          RiskLevel = as.factor(RiskLevel),
+#          # AnalyteGroup = factor(AnalyteGroup, levels = rev(analytegroups_area_ordered$AnalyteGroup)), # order from lowest to highest Abundance_median  (shown inversed in plot)
+#          Sample = Sample) %>%
+#   select(-starts_with("Tshd_"))
+# 
+# conta_summ_sample_risk <- 
+#   conta_summ_analytegroup_sample %>% 
+#   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
 
 #Dataset level
 conta_summ_sampleset <-
@@ -382,8 +415,7 @@ summ_msg <- summ_msg_options[max_risklevel]
 summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
 summ_color <- summ_color_scale[max_risklevel]
 
-conta_summ_analytegroup_sample <-
-  summarize_conta(conta, Condition, Sample, ReplicateName, AnalyteGroup)
+
 ```
 
 # Summary risk evaluation (total contamination) {.tabset}
@@ -453,9 +485,11 @@ conta_summ_sample %>%
 ```{r plot_AnalyteGroupCondition, echo=FALSE}
 #dotplot
 ## AnalyteGroup 
-dot_plot_conta_summ_condition_risk_analytegroup <- 
-  plot_condition_risk_analyte(conta_summ_sample_risk,
+dot_plot_conta_summ_condition_risk_analytegroup <-
+  plot_condition_risk_analyte(conta_summ_analytegroup_sample,
                               order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
+
+
 
 print_plot_or_plotly(dot_plot_conta_summ_condition_risk_analytegroup)
 ```
@@ -507,7 +541,8 @@ plot_bp_abundance_analytegroup_condition
 #dotplot
 ## AnalyteGroup 
 dot_plot_conta_summ_sample_risk_analytegroup <-
-  conta_summ_sample_risk %>% 
+  # conta_summ_sample_risk %>% 
+  conta_summ_analytegroup_sample %>% 
   plot_sample_risk_analyte(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
 
 if(params$PlotsInteractive == TRUE){
@@ -524,10 +559,9 @@ if(params$PlotsInteractive == TRUE){
 
 ```
 
-
 ```{r plot_bp_abundance_analytegroup_sample}
 plot_bp_abundance_analytegroup_sample <-
-  plot_abundance_analytegroup(conta_summ_sample_risk,
+  plot_abundance_analytegroup(conta_summ_analytegroup_sample,
                               x = Abundance_median,
                               variable = Condition)
 # print_plot_or_plotly(plot_bp_abundance_analytegroup_condition) #not working
