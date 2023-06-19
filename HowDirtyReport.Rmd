@@ -241,10 +241,10 @@ The algorithm used for peak picking in Skyline is simple and based only on m/z a
 * TICA = Total Ion Current Area
 * Abundance (Normalized abundance) = TotalAreaMS1 / TICA
 * TotalAbundance_ContaminantGroup = Sum (Abundance_ContaminantGroup) across all the contaminants in one ContaminantGroup for one sample
-* TotalAbundance = Sum (Abundance) across all the contaminants for one sample
+* Abundance_total = Sum (Abundance) across all the contaminants for one sample
 * Contaminant-specific Risk level assessment was performed by comparing the Abundance of the possible contaminants in each one of the test samples (current data set) against thresholds previously extrapolated from a reference data set (~ 1000s runs). These thresholds are reported in `r filedir_report`--> ref_conta_tshd
 * Sample level summary contaminant group assessment was performed by comparing the TotalAbundance_ContaminantGroup against the summed thresholds from each contaminant
-* Sample level summary contaminant risk assessment was performed by comparing the TotalAbundance against the sample-level quantile thresholds from the reference dataset
+* Sample level summary contaminant risk assessment was performed by comparing the Abundance_total against the sample-level quantile thresholds from the reference dataset
 * These thresholds are reported in `r filedir_report`--> ref_conta_tshd_sample
 
 # Input
@@ -294,13 +294,6 @@ count_factor_columns(conta) %>%
   kable("html")
 ```
 
-```{r}
-
-conta_summ_condition %>% 
-  annotate_conta_thresholds(ref_conta_tshd, Abundance_total)
-
-```
-
 ```{r summaries}
 #Summary of thresholds for each contaminant group
 ref_conta_tshd_sum <-  ref_conta_tshd %>% 
@@ -322,29 +315,29 @@ conta_summ_analyte <- summarize_conta(conta, AnalyteGroup, Analyte)
 conta_summ_sample <-
   conta %>% 
   summarize_conta(Condition, Sample, ReplicateName) %>% 
-  annotate_conta_thresholds_samples(ref_conta_tshd_sample) %>% 
-  select(Condition, Sample, ReplicateName, TotalAbundance = Abundance_total, Risk) %>%
-  arrange(Condition, Sample, ReplicateName) %>% 
+  annotate_conta_thresholds_samples(ref_conta_tshd_sample) 
+  # select(Condition, Sample, ReplicateName, Abundance_total = Abundance_total, Risk, RiskLevel) %>%
+  # arrange(Condition, Sample, ReplicateName) %>% 
   # # Join with median from top 8 contaminants
-  full_join(.,
-            conta %>%
-              # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
-              pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
-                          values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
-            by = "ReplicateName")
+  # full_join(.,
+  #           conta %>%
+  #             # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
+  #             pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
+  #                         values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
+  #           by = "ReplicateName")
 # 
 # conta_summ_sample <-
 #   conta %>%
 #   group_by(Condition, Sample, ReplicateName) %>%
-#   summarise(TotalAbundance = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
+#   summarise(Abundance_total = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
 #   mutate(Risk =
-#            cut(x = TotalAbundance,
+#            cut(x = Abundance_total,
 #                breaks = ref_conta_tshd_sample$Break,
 #                labels = ref_conta_tshd_sample$Labels[-1]))  %>%
 #   drop_na %>%
 #   mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
 #          RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
-#   relocate(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel, Risk) %>%
+#   relocate(Condition, Sample, ReplicateName, Abundance_total, RiskLevel, Risk) %>%
 #   # Join with median from top 8 contaminants
 #   full_join(.,
 #             conta %>%
@@ -365,8 +358,8 @@ conta_summ_condition <-
 #Summary (sum) of contaminants
 # conta_summ_sample_risk <-
 #   conta_summ_sample %>%
-#   select(-TotalAbundance) %>%
-#     # rename(TotalAbundance_Total = TotalAbundance) %>%
+#   select(-Abundance_total) %>%
+#     # rename(TotalAbundance_Total = Abundance_total) %>%
 #   select(Condition, Sample, starts_with("TotalAbundance_")) %>%
 #   pivot_longer(cols = starts_with("Total"),
 #                names_to = "AnalyteGroup",
@@ -462,7 +455,7 @@ print_plot_or_plotly(dot_plot_sample_risk_total_bysample)
 
 ```{r echo=FALSE, warning=FALSE}
 conta_summ_sample %>% 
-  select(Condition, Sample, ReplicateName, TotalAbundance, RiskLevel) %>% 
+  select(Condition, Sample, ReplicateName, Abundance_total, RiskLevel) %>% 
   rename_with(~gsub(patt = "TotalAbundance_", rep = "", .x)) %>% 
   datatable(filter = 'top', options = list(
     pageLength = 10, autoWidth = TRUE))  %>% 

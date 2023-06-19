@@ -210,7 +210,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
   # plot Total Abundance vs Replicate Name
   # order = c("Sample", "Abundance")
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
-  # arrange in function of Sample or TotalAbundance, !!input$order_sample_total didn't work
+  # arrange in function of Sample or Abundance_total, !!input$order_sample_total didn't work
   if(order_x == "Sample"){
     input_conta_summ_sample <-
       input_conta_summ_sample %>%
@@ -219,7 +219,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     if(order_x == "Abundance"){
       input_conta_summ_sample <-
         input_conta_summ_sample %>%
-        arrange(desc(TotalAbundance))
+        arrange(desc(Abundance_total))
     }else{
       stop("order_x must be Sample or Abundance")}
   }
@@ -232,7 +232,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     # arrange(!! order_x) %>%
     # mutate(Sample = factor(Sample, levels = unique(Sample))) %>%
     mutate(AnalyteGroup = "Total") %>%
-    ggplot(aes(y = TotalAbundance, x = Sample, color = RiskLevel, size = TotalAbundance)) +
+    ggplot(aes(y = Abundance_total, x = Sample, color = RiskLevel, size = Abundance_total)) +
     geom_point(alpha = 1) +
     scale_y_continuous(n.breaks = 10) +
     scale_color_risk() +
