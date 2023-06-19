@@ -53,9 +53,13 @@ annotate_conta_thresholds <- function(df_conta, df_threshold, var){
                                   "5) Very High", "6) No threshold in reference"))) %>%
       mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
       select(-starts_with("Tshd_"))
-  }else{
+  }
+
+  if(!all(c("Analyte", "AnalyteFull", "AnalyteGroup") %in% names(df_conta))){
+
     stop("At least one of these variables must be present to assign the risk levels: AnalyteFull or AnalyteGroup")
   }
+
   return(output)
 }
 # annotate_conta_thresholds <- function(df_conta, df_threshold){
