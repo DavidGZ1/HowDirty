@@ -409,7 +409,7 @@ plot_pie_conta_summ_sampleset
 * The table can also be found in `r filedir_report` --> conta_summ_sample.
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
 
-### Dotplot by abundance
+### Dotplot ordered by abundance
 
 ```{r plot_conta_summ_sample_risk_byabundance , echo=FALSE, warning=FALSE, fig.width= 5, fig.height=10}
 dot_plot_sample_risk_total_byabundance <- 
@@ -417,7 +417,7 @@ dot_plot_sample_risk_total_byabundance <-
 print_plot_or_plotly(dot_plot_sample_risk_total_byabundance)
 ```
 
-### Dotplot by sample
+### Dotplot ordered by sample
 
 ```{r plot_conta_summ_sample_risk_bysample, echo=FALSE, warning=FALSE}
 dot_plot_sample_risk_total_bysample <-
