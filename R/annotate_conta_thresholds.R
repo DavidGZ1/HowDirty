@@ -12,22 +12,51 @@
 #'
 #' @export
 annotate_conta_thresholds <- function(df_conta, df_threshold, var){
+  # if only the AnalyteGroup is present, calculate for AnalyteGroup
   require(mgsub)
-  df_conta %>%
-    left_join(., df_threshold %>%  select(AnalyteFull, starts_with("Tshd")),
-              by = "AnalyteFull") %>%
-    mutate(RiskLevel = case_when({{ var }} ==0 ~ 0,
-                                 {{ var }} < Tshd_Area_TICA_perc25 ~ 1,
-                                 (Tshd_Area_TICA_perc25 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc50) ~ 2,
-                                 (Tshd_Area_TICA_perc50 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc75) ~ 3,
-                                 (Tshd_Area_TICA_perc75 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc90) ~ 4,
-                                 (Tshd_Area_TICA_perc90 <= {{ var }}) ~ 5,
-                                 TRUE ~ 6),
-           Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                        rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
-                                "5) Very High", "6) No threshold in reference"))) %>%
-    mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
-    select(-starts_with("Tshd_"))
+  if("AnalyteFull" %in% names(df_conta)){
+    message("Thresholds assigned at the Analyte level")
+    output <- df_conta %>%
+      left_join(., df_threshold %>%  select(AnalyteFull, starts_with("Tshd")),
+                by = c("AnalyteFull")) %>%
+      mutate(RiskLevel = case_when({{ var }} ==0 ~ 0,
+                                   {{ var }} < Tshd_Area_TICA_perc25 ~ 1,
+                                   (Tshd_Area_TICA_perc25 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc50) ~ 2,
+                                   (Tshd_Area_TICA_perc50 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc75) ~ 3,
+                                   (Tshd_Area_TICA_perc75 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc90) ~ 4,
+                                   (Tshd_Area_TICA_perc90 <= {{ var }}) ~ 5,
+                                   TRUE ~ 6),
+             Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                          rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
+                                  "5) Very High", "6) No threshold in reference"))) %>%
+      mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
+      select(-starts_with("Tshd_"))
+  }
+  if(!all((c("Analyte", "AnalyteFull") %in% names(df_conta))) & ("AnalyteGroup" %in% names(df_conta))){
+    message("Thresholds assigned at the AnalyteGroup level (median across analytes)")
+    # if only the AnalyteGroup is present, calculate for AnalyteGroup
+    df_threshold_median <-  df_threshold %>%
+      group_by(AnalyteGroup) %>%
+      summarise(across(starts_with("Tshd"), ~median(.x)))
+    output <- df_conta%>%
+      left_join(., df_threshold_median %>%  select(AnalyteGroup, starts_with("Tshd")),
+                by = c("AnalyteGroup")) %>%
+      mutate(RiskLevel = case_when({{ var }} ==0 ~ 0,
+                                   {{ var }} < Tshd_Area_TICA_perc25 ~ 1,
+                                   (Tshd_Area_TICA_perc25 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc50) ~ 2,
+                                   (Tshd_Area_TICA_perc50 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc75) ~ 3,
+                                   (Tshd_Area_TICA_perc75 <= {{ var }} & {{ var }} < Tshd_Area_TICA_perc90) ~ 4,
+                                   (Tshd_Area_TICA_perc90 <= {{ var }}) ~ 5,
+                                   TRUE ~ 6),
+             Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                          rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
+                                  "5) Very High", "6) No threshold in reference"))) %>%
+      mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
+      select(-starts_with("Tshd_"))
+  }else{
+    stop("At least one of these variables must be present to assign the risk levels: AnalyteFull or AnalyteGroup")
+  }
+  return(output)
 }
 # annotate_conta_thresholds <- function(df_conta, df_threshold){
 #   require(mgsub)
