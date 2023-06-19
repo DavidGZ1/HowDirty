@@ -2,6 +2,7 @@
 
 export(annotate_conta_samples)
 export(annotate_conta_thresholds)
+export(annotate_conta_thresholds_samples)
 export(bmi3)
 export(check_samples_in_results)
 export(colorize_text)
