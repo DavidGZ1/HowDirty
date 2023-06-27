@@ -21,10 +21,10 @@ params:
     input: text
   PeakAreasContaminantsFile:
     label: "PeakAreaContaminants report from Skyline"
-    value: data/PeakAreas_Contaminants_2023-231.csv # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
+    value: data/PeakAreas_Contaminants_2021-231.csv # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
   AnnotationFile:
     label: "Sample annotation file"
-    value: data/samples_annotation_20223-231.csv # Samples Annotation directory/name
+    value: data/samples_annotation_2021-231.csv # Samples Annotation directory/name
   RefThresholdsFile:
     label: "Reference threshold file (total)"
     value: data/contaminants_tshd_2021_E480.csv # A file directory/name in or FALSE if no threshold available
