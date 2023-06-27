@@ -34,6 +34,9 @@ params:
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
+  RemoveMissingContaminants:
+    label: "Remove contaminants that were not identified in any sample"
+    value: FALSE
   nTopContaminantGroups:
     label: "Top n contaminant groups to show in plots"
     value: 3
@@ -42,10 +45,10 @@ params:
     label:
     value: FALSE #Use carefully, normalization by TIC already takes into account slight differences in injection amounts
   PlotsInteractive: 
-    label:
+    label: "Export interactive plots"
     value: TRUE #TRUE = interactive in html, FALSE = static
   PlotsSave:
-    label:
+    label: "Save all plots as .jpg files"
     value: FALSE #Saves all the plots as .jpg
 ---
 
@@ -278,7 +281,7 @@ check_samples_in_results(conta_raw, samples_annot)
 # Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
 conta <- conta_raw %>% 
   annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
-                         remove_missing = TRUE, 
+                         remove_missing = params$RemoveMissingContaminants, 
                          multiply_dilution_factor = params$MultiplyDilutionFactor) %>% 
   annotate_conta_thresholds(., ref_conta_tshd, Abundance)  %>%  # assign RiskLevel
   arrange_analytegroup_levels(metric = "median") # arrange analyte group levels based on overall median abundance
@@ -439,7 +442,7 @@ plot_pie_conta_summ_sampleset
 ```{r plot_conta_summ_sample_risk_byabundance , echo=FALSE, warning=FALSE, fig.width= 5, fig.height=10}
 dot_plot_sample_risk_total_byabundance <- 
   plot_sample_risk_total(conta_summ_sample, order_x = "Abundance") 
-print_plot_or_plotly(dot_plot_sample_risk_total_byabundance)
+print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 ```
 
 ### Dotplot ordered by sample
@@ -448,7 +451,7 @@ print_plot_or_plotly(dot_plot_sample_risk_total_byabundance)
 dot_plot_sample_risk_total_bysample <-
   plot_sample_risk_total(conta_summ_sample, order_x = "Sample") +
   facet_wrap(~Condition, scales = "free_x")
-print_plot_or_plotly(dot_plot_sample_risk_total_bysample)
+print_plot_or_plotly(dot_plot_sample_risk_total_bysample + rremove("xlab"))
 ```
 
 ### Table
@@ -484,7 +487,7 @@ dot_plot_conta_summ_condition_risk_analytegroup <-
 
 
 
-print_plot_or_plotly(dot_plot_conta_summ_condition_risk_analytegroup)
+print_plot_or_plotly(dot_plot_conta_summ_condition_risk_analytegroup, height_plotly = 400, width_plotly = 600)
 ```
 
 ### boxplot
@@ -540,7 +543,7 @@ dot_plot_conta_summ_sample_risk_analytegroup <-
 
 if(params$PlotsInteractive == TRUE){
   ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
-           height = 600, width = 1000)
+           height = 600, width = 1000) 
   # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
 }else{
   if(params$PlotsInteractive == FALSE){
@@ -598,13 +601,14 @@ for (i in 1:length(plot_abundance_analytegroup_list)) {
 
 ## Pseudochromatograms (Abundance vs. RT){.tabset}
 
-```{r plot_AnalyteGroupPseudoChromato, results='asis', echo=FALSE, fig.height=6, fig.width=8, warning=FALSE}
+```{r plot_AnalyteGroupPseudoChromato, results='asis', echo=FALSE, fig.height=5, fig.width=8, warning=FALSE}
 plot_seudochromatogram_analytegroup_list <-
   lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
            plot_pseudochromatogram(filter(conta, AnalyteGroup == x)) %>% 
-             ggplotly(width = get_w(), height = get_h()) %>% 
-             htmltools::tagList()
+             ggplotly(width = get_w(), height = get_h()*0.7) %>%
+             # layout_ggplotly_label_margin( x = 0.05, y = -0.05) %>%
+             htmltools::tagList() 
          }
   )
 names(plot_seudochromatogram_analytegroup_list) <-

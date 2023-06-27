@@ -14,11 +14,11 @@
 #'
 #' @export
 theme_hd <-
-  theme_classic(base_size = 9)+
+  theme_classic(base_size = 10) +
   theme(plot.margin = margin(4,4,4,4),
         legend.position = "right",
         strip.background = element_blank(),
-        strip.text = element_text(size=8, face="bold"))
+        strip.text = element_text(face="bold"))
 
 #' Plot functions for HowDirty
 #'
@@ -180,16 +180,16 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
     scale_x_continuous(n.breaks = 10,
                        limits = c(0,round(max(input_conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
-    ylab("Abundance = Area/TICA") +
+    ylab("Abundance") +
     xlab("Retention time (min)")+
-    theme_hd +
-    ggtitle("abundance vs. RT")
+    theme_hd
+    # ggtitle("abundance vs. RT")
 
   if(scale == "linear"){return(output)}
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 5) +
-      ylab("Abundance = log10(Area/TICA)")
+      ylab("log10(Abundance)")
     return(output)}
 }
 
@@ -236,7 +236,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     geom_point(alpha = 1) +
     scale_y_continuous(n.breaks = 10) +
     scale_color_risk() +
-    ylab("Total Abundance = sum(Area/TICA)") +
+    ylab("Total Abundance") +
     xlab("Sample")+
     theme_hd +
     rotate_x_text(angle=45)
