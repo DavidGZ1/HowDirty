@@ -87,7 +87,7 @@ This report was generated with a prototype version of *HowDirty*. This is meant 
 require("knitr")
 # opts_knit$set(root.dir = normalizePath("..")) #Set wd to folder above, currently not working
 # opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
-opts_chunk$set(echo = FALSE, message = TRUE, warning = FALSE)
+opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 print(getwd())
 # normalizePath("..")
 ```
@@ -156,6 +156,54 @@ plot_conta_summ_sampleset <- function(df_conta){
     theme_void()  +
     scale_fill_risk_level()
 }
+
+plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test",  ...){
+  # plot the abundance
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  require(ggpubr)
+  output <-
+    ggplot(input_conta_summ_sample, aes(x = Condition, y = Abundance_total)) +
+    geom_boxplot(alpha = 0.4, width = 0.5, size = 0.2,
+                 outlier.shape = NA, outlier.size = 0, outlier.alpha = 0,
+                 outlier.color = NA, outlier.fill = NA) +
+    geom_point(aes(group = Condition, color = RiskLevel,
+                   text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)),
+               alpha = 0.5, size = 1) + 
+    scale_color_risk() +
+    scale_y_continuous(n.breaks = 5) +
+    xlab("Contaminant")+
+    theme_hd 
+
+  
+  if(compare_means == TRUE){
+    # add stats
+    if(any(method %in% c("anova", "kruskal.test"))){
+      output <- output +
+        ggpubr::stat_compare_means(method = method, size = 2.5, ...)
+    }
+    if(any(method %in% c("t.test", "wilcox.test"))){
+      # get conditions to compare
+      conditions_to_compare <- 
+        levels(input_conta_summ_sample$Condition) %>%
+        combn(m = 2) %>% 
+        t() %>% 
+        split(.,seq(nrow(.)))
+      output <- output +
+        ggpubr::stat_compare_means(method = method,
+                                   comparisons = conditions_to_compare,
+                                   size = 2.5, ...)
+    }
+  }
+  if(scale == "linear"){return(output)}
+  if(scale == "log10"){
+    output <- output +
+      scale_y_log10(n.breaks = 5) +
+      ylab("Abundance = log10(Area/TICA)")
+    return(output)}
+}
+
+
+
 count_factor_columns <- function(df){
   df  %>% 
     summarise(across(where(is.factor), ~n_distinct(.x))) %>% 
@@ -215,10 +263,6 @@ arrange_analytegroup_levels <- function(df_conta, metric = "median"){
 }
 ```
 
-```{r functions_in_progress}
-
-```
-
 ```{r rawr_ggsave}
 # Other functions
 # rawr_ggsave <-function(input, file, width = 20, height = 24) {
@@ -275,8 +319,6 @@ samples_annot <- read_samples_annotation(params$AnnotationFile)
 check_samples_in_results(conta_raw, samples_annot)
 ```
 
-
-
 ```{r annotate_results}
 # Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
 conta <- conta_raw %>% 
@@ -314,78 +356,23 @@ conta_summ_analyte <- summarize_conta(conta, AnalyteGroup, Analyte)
 #   unique() %>% 
 #   arrange(desc(Abundance_median))
 
-## Sample level
+
 conta_summ_sample <-
   conta %>% 
   summarize_conta(Condition, Sample, ReplicateName) %>% 
   annotate_conta_thresholds_samples(ref_conta_tshd_sample) 
-  # select(Condition, Sample, ReplicateName, Abundance_total = Abundance_total, Risk, RiskLevel) %>%
-  # arrange(Condition, Sample, ReplicateName) %>% 
-  # # Join with median from top 8 contaminants
-  # full_join(.,
-  #           conta %>%
-  #             # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
-  #             pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
-  #                         values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
-  #           by = "ReplicateName")
-# 
-# conta_summ_sample <-
-#   conta %>%
-#   group_by(Condition, Sample, ReplicateName) %>%
-#   summarise(Abundance_total = round(sum(Abundance, na.rm=TRUE), 4), .groups = "drop") %>%
-#   mutate(Risk =
-#            cut(x = Abundance_total,
-#                breaks = ref_conta_tshd_sample$Break,
-#                labels = ref_conta_tshd_sample$Labels[-1]))  %>%
-#   drop_na %>%
-#   mutate(RiskLevel= as.numeric(substr(as.character(Risk),1,1)),
-#          RiskLevel = factor(RiskLevel, levels = c(0:6))) %>%
-#   relocate(Condition, Sample, ReplicateName, Abundance_total, RiskLevel, Risk) %>%
-#   # Join with median from top 8 contaminants
-#   full_join(.,
-#             conta %>%
-#               # filter(AnalyteGroup %in% top_analytegroups_area$AnalyteGroup) %>%
-#               pivot_wider(id_cols = ReplicateName, names_from = AnalyteGroup, names_prefix = "TotalAbundance_",
-#                           values_from = Abundance, values_fn = function(x) sum(x, na.rm=TRUE)),
-#             by = "ReplicateName")
+
 
 conta_summ_analytegroup_sample <-
   summarize_conta(conta, Condition, Sample, ReplicateName, AnalyteGroup)  %>% 
   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
 
-conta_summ_condition <-
+conta_summ_analyte_condition <-
   summarize_conta(conta, Condition, AnalyteGroup, Analyte, AnalyteFull) %>% 
   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
-  
 
-#Summary (sum) of contaminants
-# conta_summ_sample_risk <-
-#   conta_summ_sample %>%
-#   select(-Abundance_total) %>%
-#     # rename(TotalAbundance_Total = Abundance_total) %>%
-#   select(Condition, Sample, starts_with("TotalAbundance_")) %>%
-#   pivot_longer(cols = starts_with("Total"),
-#                names_to = "AnalyteGroup",
-#                names_prefix = "TotalAbundance_",
-#                values_to = "Abundance_median") %>% # this was not the median, it was the sum
-#   left_join(., ref_conta_tshd_sum,  by = "AnalyteGroup") %>%
-#   mutate(RiskLevel = case_when(Abundance_median ==0 ~ 0,
-#                                Abundance_median < Tshd_Area_TICA_perc25 ~ 1,
-#                                (Tshd_Area_TICA_perc25 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc50) ~ 2,
-#                                (Tshd_Area_TICA_perc50 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc75) ~ 3,
-#                                (Tshd_Area_TICA_perc75 <= Abundance_median & Abundance_median < Tshd_Area_TICA_perc90) ~ 4,
-#                                (Tshd_Area_TICA_perc90 <= Abundance_median) ~ 5,
-#                                TRUE ~ 6),
-#          Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-#                       rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"))) %>%
-#   mutate(Risk = as.factor(Risk),
-#          RiskLevel = as.factor(RiskLevel),
-#          # AnalyteGroup = factor(AnalyteGroup, levels = rev(analytegroups_area_ordered$AnalyteGroup)), # order from lowest to highest Abundance_median  (shown inversed in plot)
-#          Sample = Sample) %>%
-#   select(-starts_with("Tshd_"))
-# 
-# conta_summ_sample_risk <- 
-#   conta_summ_analytegroup_sample %>% 
+# conta_summ_analytegroup_condition <- #not needed
+#   summarize_conta(conta, Condition, AnalyteGroup) %>% 
 #   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
 
 #Dataset level
@@ -429,109 +416,62 @@ plot_pie_conta_summ_sampleset <- plot_conta_summ_sampleset(conta_summ_sampleset)
 plot_pie_conta_summ_sampleset
 ```
 
-## Condition {.tabset}
+## Conditions boxplot
+
+* Statistical difference was assessed by a Wilcoxon signed-rank test
+
+```{r plot_conta_summ_condition_risk, warning=FALSE, fig.width=4, fig.height=3}
+plot_conta_summ_condition_risk <-
+  plot_condition_risk_total_boxplot(conta_summ_sample,
+                                    compare_means = TRUE,
+                                    method = "wilcox.test") 
+plot_conta_summ_condition_risk # note: the results of the statistical test can't be shown as interactive plot with ggplotly
+```
 
 
-## Sample {.tabset}
+## Sample (ordered by name)
 
 * The table can also be found in `r filedir_report` --> conta_summ_sample.
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
 
-### Dotplot ordered by abundance
+```{r plot_conta_summ_sample_risk_bysample, warning=FALSE}
+dot_plot_sample_risk_total_bysample <-
+  plot_sample_risk_total(conta_summ_sample, order_x = "Sample") +
+  facet_wrap(~Condition, scales = "free_x") 
+print_plot_or_plotly(dot_plot_sample_risk_total_bysample + rremove("xlab"))
+```
 
-```{r plot_conta_summ_sample_risk_byabundance , echo=FALSE, warning=FALSE, fig.width= 5, fig.height=10}
+## Sample (ordered by abundance)
+
+* The table can also be found in `r filedir_report` --> conta_summ_sample.
+* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
+
+```{r plot_conta_summ_sample_risk_byabundance, warning=FALSE, fig.width= 5, fig.height=10}
 dot_plot_sample_risk_total_byabundance <- 
   plot_sample_risk_total(conta_summ_sample, order_x = "Abundance") 
 print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 ```
 
-### Dotplot ordered by sample
-
-```{r plot_conta_summ_sample_risk_bysample, echo=FALSE, warning=FALSE}
-dot_plot_sample_risk_total_bysample <-
-  plot_sample_risk_total(conta_summ_sample, order_x = "Sample") +
-  facet_wrap(~Condition, scales = "free_x")
-print_plot_or_plotly(dot_plot_sample_risk_total_bysample + rremove("xlab"))
-```
-
-### Table
-
-```{r echo=FALSE, warning=FALSE}
-conta_summ_sample %>% 
-  select(Condition, Sample, ReplicateName, Abundance_total, RiskLevel) %>% 
-  rename_with(~gsub(patt = "TotalAbundance_", rep = "", .x)) %>% 
-  datatable(filter = 'top', options = list(
-    pageLength = 10, autoWidth = TRUE))  %>% 
-  formatStyle('RiskLevel',
-              backgroundColor = styleEqual(c(0:6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))),
-              backgroundSize = '50% 0%',
-              backgroundRepeat = 'no-repeat',
-              backgroundPosition = 'left')
-
-```
-
-# Contaminant group (median(Abundance)){.tabset}
+# Contaminant group {.tabset}
 
 * y axis is ordered from highest to lowest abundance
 
-## Condition{.tabset}
+## Condition dotplot
 
-### dotplot
-
-```{r plot_AnalyteGroupCondition, echo=FALSE}
+```{r plot_AnalyteGroupCondition}
 #dotplot
 ## AnalyteGroup 
-dot_plot_conta_summ_condition_risk_analytegroup <-
+dot_plot_conta_summ_analyte_condition_risk_analytegroup <-
   plot_condition_risk_analyte(conta_summ_analytegroup_sample,
                               order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
 
 
 
-print_plot_or_plotly(dot_plot_conta_summ_condition_risk_analytegroup, height_plotly = 400, width_plotly = 600)
+print_plot_or_plotly(dot_plot_conta_summ_analyte_condition_risk_analytegroup,
+                     height_plotly = 400, width_plotly = 1000)
 ```
 
-### boxplot
-
-```{r}
-#ToDo: add risk to conta_summ_analytegroup_sample, add color to plot
-plot_abundance_analytegroup <- function(input_conta, x, variable,  scale = "linear"){
-  # plot the abundance
-  # scale: changes the scale to linear or log10; options = c("linear", "log10")
-  output <-
-    ggplot(input_conta, aes(y = AnalyteGroup, x = {{x}})) +
-    geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
-    geom_point(aes(text = paste0(deparse(substitute(variable)), ": ", {{variable}})) , alpha = 0.5, size = 1) +
-    # geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
-    scale_color_risk(verbose = TRUE) +
-    scale_x_continuous(n.breaks = 10) +
-    scale_y_discrete(limits=rev) +
-    xlab(gsub("_", " ", deparse(substitute(x)))) +
-    ylab("Contaminant")+
-    theme_hd +
-    ggtitle("Abundance of contaminants") 
-  
-  if(scale == "linear"){return(output)}
-  if(scale == "log10"){
-    output <- output +
-      scale_y_log10(n.breaks = 5) +
-      ylab("Abundance = log10(Area/TICA)")
-    return(output)}
-}
-```
-
-```{r plot_bp_abundance_analytegroup_condition}
-plot_bp_abundance_analytegroup_condition <-
-  plot_abundance_analytegroup(conta_summ_condition,
-                              x = Abundance_median,
-                              variable = Condition)
-# print_plot_or_plotly(plot_bp_abundance_analytegroup_condition) #not working #ToDo: fix interactive
-plot_bp_abundance_analytegroup_condition
-
-```
-
-## Sample {.tabset}
-
-### dotplot by abundance
+## Sample dotplot
 
 ```{r plot_AnalyteGroupSample_abundance, fig.height=8, fig.width=8, }
 #dotplot
@@ -541,31 +481,19 @@ dot_plot_conta_summ_sample_risk_analytegroup <-
   conta_summ_analytegroup_sample %>% 
   plot_sample_risk_analyte(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
 
-if(params$PlotsInteractive == TRUE){
-  ggplotly(dot_plot_conta_summ_sample_risk_analytegroup,
-           height = 600, width = 1000) 
-  # layout_ggplotly_label_margin( x = -0.0, y = -0.05) #fixes label margin problem
-}else{
-  if(params$PlotsInteractive == FALSE){
-    dot_plot_conta_summ_sample_risk_analytegroup
-  }
-}
 
-
-
+print_plot_or_plotly(dot_plot_conta_summ_sample_risk_analytegroup,
+                     height_plotly = 600, width_plotly = 1000)
 ```
 
-```{r plot_bp_abundance_analytegroup_sample}
-plot_bp_abundance_analytegroup_sample <-
-  plot_abundance_analytegroup(conta_summ_analytegroup_sample,
-                              x = Abundance_median,
-                              variable = Condition)
-# print_plot_or_plotly(plot_bp_abundance_analytegroup_condition) #not working
-plot_bp_abundance_analytegroup_sample
+## Sample boxplot
 
+```{r plot_abundance_analytegroup_sample, fig.height=8, fig.width=8, }
+plot_abundance_analytegroup_sample <- 
+   plot_abundance(conta_summ_analytegroup_sample, AnalyteGroup, Abundance_median)
+
+print_plot_or_plotly(plot_abundance_analytegroup_sample)
 ```
-
-### boxplot
 
 # Contaminants per sample{.tabset}
 
@@ -573,14 +501,14 @@ plot_bp_abundance_analytegroup_sample
 * The Abundance of the contaminants are reported in the plots below for all the samples in the data set.
 * The Pseudochromatograms represent the Abundance in function of the RentetionTime (Apex of the peak). Those can be useful to evaluate the presence of the usual patterns of polymers, i.e. from small to larger molecules; as well as the reproducibility of the RentetionTime across replicates.
 
-## Normalized abundance{.tabset}
+## Abundance boxplot{.tabset}
 
 ```{r plot_AnalyteGroupArea, results='asis', fig.height=6, fig.width=10, warning=FALSE}
 plot_abundance_analytegroup_list <-
   lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
-           plot_abundance(filter(conta, AnalyteGroup == x)) %>% 
-             ggplotly(width = get_w(), height = get_h()) %>% 
+           plot_abundance(filter(conta, AnalyteGroup == x), Analyte, Abundance) %>%
+             ggplotly(width = get_w(), height = get_h()*1.1) %>% 
              htmltools::tagList()
          }
   )
@@ -601,12 +529,12 @@ for (i in 1:length(plot_abundance_analytegroup_list)) {
 
 ## Pseudochromatograms (Abundance vs. RT){.tabset}
 
-```{r plot_AnalyteGroupPseudoChromato, results='asis', echo=FALSE, fig.height=5, fig.width=8, warning=FALSE}
+```{r plot_AnalyteGroupPseudoChromato, results='asis', fig.height=5, fig.width=8, warning=FALSE}
 plot_seudochromatogram_analytegroup_list <-
   lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
            plot_pseudochromatogram(filter(conta, AnalyteGroup == x)) %>% 
-             ggplotly(width = get_w(), height = get_h()*0.7) %>%
+             ggplotly(width = get_w(), height = get_h()*0.8) %>%
              # layout_ggplotly_label_margin( x = 0.05, y = -0.05) %>%
              htmltools::tagList() 
          }
