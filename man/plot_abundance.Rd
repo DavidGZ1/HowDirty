@@ -4,7 +4,7 @@
 \alias{plot_abundance}
 \title{Plot functions for HowDirty}
 \usage{
-plot_abundance(input_conta, scale = "linear")
+plot_abundance(input_conta, level, variable, scale = "linear")
 }
 \arguments{
 \item{x}{type of input object (e.g. numeric vector).}

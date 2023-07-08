@@ -131,21 +131,44 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
 #' bmi3(bmi.vals)
 #'
 #' @export
-plot_abundance <- function(input_conta, scale = "linear"){
+# plot_abundance <- function(input_conta, scale = "linear"){
+#   # plot the abundance
+#   # scale: changes the scale to linear or log10; options = c("linear", "log10")
+#   output <-
+#     ggplot(input_conta, aes(x = Analyte, y = Abundance)) +
+#     geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
+#     geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
+#     scale_color_risk(verbose = TRUE) +
+#     facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
+#     scale_y_continuous(n.breaks = 5) +
+#     ylab("Abundance = Area/TICA") +
+#     xlab("Contaminant")+
+#     theme_hd +
+#     ggtitle("Abundance of contaminants") +
+#     rotate()
+#
+#   if(scale == "linear"){return(output)}
+#   if(scale == "log10"){
+#     output <- output +
+#       scale_y_log10(n.breaks = 5) +
+#       ylab("Abundance = log10(Area/TICA)")
+#     return(output)}
+# }
+plot_abundance <- function(input_conta, level, variable, scale = "linear"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
-    ggplot(input_conta, aes(x = Analyte, y = Abundance)) +
+    ggplot(input_conta, aes(x = {{ level }} , y = {{ variable }})) +
     geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
     geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
     scale_color_risk(verbose = TRUE) +
-    facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
+    # facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
     scale_y_continuous(n.breaks = 5) +
     ylab("Abundance = Area/TICA") +
     xlab("Contaminant")+
     theme_hd +
-    ggtitle("Abundance of contaminants") +
-    rotate()
+    # ggtitle("Abundance of contaminants") +
+    rotate() #needed to rotate the boxplot
 
   if(scale == "linear"){return(output)}
   if(scale == "log10"){
@@ -154,6 +177,8 @@ plot_abundance <- function(input_conta, scale = "linear"){
       ylab("Abundance = log10(Area/TICA)")
     return(output)}
 }
+
+
 
 #' Plot functions for HowDirty
 #'
@@ -239,13 +264,13 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     ylab("Total Abundance") +
     xlab("Sample")+
     theme_hd +
-    rotate_x_text(angle=45)
+    rotate_x_text(angle=90)
   # adapt scale
   if(scale == "linear"){return(output)}
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 10) +
-      ylab("Total Abundance = log10(sum(Area/TICA))")
+      ylab("log10(Total Abundance)")
     return(output)}
 }
 
@@ -327,7 +352,7 @@ plot_sample_risk_analyte <- function(input_conta_summ_sample_risk,
     xlab("Sample")+
     theme_hd +
     theme(plot.margin = margin(4,4,4,10)) +
-    rotate_x_text(angle=45)
+    rotate_x_text(angle = 90)
   return(output)
 }
 
@@ -409,7 +434,7 @@ plot_condition_risk_analyte <- function(input_conta_summ_sample_risk,
     xlab("Condition")+
     theme_hd +
     theme(plot.margin = margin(4,4,4,10)) +
-    rotate_x_text(angle=45)
+    rotate_x_text(angle = 90)
   return(output)
 }
 
@@ -432,4 +457,88 @@ layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
   gg[['x']][['layout']][['annotations']][[1]][['y']] <- x
   gg[['x']][['layout']][['annotations']][[2]][['x']] <- y
   gg
+}
+
+#' Plot functions for HowDirty
+#'
+#' diverse plot functions
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+plot_conta_summ_sampleset <- function(df_conta){
+  df_conta %>%
+    arrange(desc(Risk)) %>%
+    mutate(ypos = cumsum(Freq) - 0.5*Freq) %>%
+    ggplot(aes(x = "", y= Freq , fill= Risk)) +
+    geom_bar(stat = "identity", color = "white") +
+    coord_polar("y", start=0) +
+    geom_text(aes(y = ypos, label = Perc), color = "white", size=4) +
+    theme_void()  +
+    scale_fill_risk_level()
+}
+
+
+#' Plot functions for HowDirty
+#'
+#' diverse plot functions
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test",  ...){
+  # plot the abundance
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  require(ggpubr)
+  output <-
+    ggplot(input_conta_summ_sample, aes(x = Condition, y = Abundance_total)) +
+    geom_boxplot(alpha = 0.4, width = 0.5, size = 0.2,
+                 outlier.shape = NA, outlier.size = 0, outlier.alpha = 0,
+                 outlier.color = NA, outlier.fill = NA) +
+    geom_point(aes(group = Condition, color = RiskLevel,
+                   text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)),
+               alpha = 0.5, size = 1) +
+    scale_color_risk() +
+    scale_y_continuous(n.breaks = 5) +
+    xlab("Contaminant")+
+    theme_hd
+
+
+  if(compare_means == TRUE){
+    # add stats
+    if(any(method %in% c("anova", "kruskal.test"))){
+      output <- output +
+        ggpubr::stat_compare_means(method = method, size = 2.5, ...)
+    }
+    if(any(method %in% c("t.test", "wilcox.test"))){
+      # get conditions to compare
+      conditions_to_compare <-
+        levels(input_conta_summ_sample$Condition) %>%
+        combn(m = 2) %>%
+        t() %>%
+        split(.,seq(nrow(.)))
+      output <- output +
+        ggpubr::stat_compare_means(method = method,
+                                   comparisons = conditions_to_compare,
+                                   size = 2.5, ...)
+    }
+  }
+  if(scale == "linear"){return(output)}
+  if(scale == "log10"){
+    output <- output +
+      scale_y_log10(n.breaks = 5) +
+      ylab("Abundance = log10(Area/TICA)")
+    return(output)}
 }

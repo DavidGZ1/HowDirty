@@ -1,0 +1,64 @@
+---
+title: "archive"
+output: html_document
+date: "2023-06-27"
+---
+
+
+# Summary risk evaluation - Sample
+
+## Table
+
+```{r echo=FALSE, warning=FALSE}
+conta_summ_sample %>% 
+  select(Condition, Sample, ReplicateName, Abundance_total, RiskLevel) %>% 
+  rename_with(~gsub(patt = "TotalAbundance_", rep = "", .x)) %>% 
+  datatable(filter = 'top', options = list(
+    pageLength = 10, autoWidth = TRUE))  %>% 
+  formatStyle('RiskLevel',
+              backgroundColor = styleEqual(c(0:6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))),
+              backgroundSize = '50% 0%',
+              backgroundRepeat = 'no-repeat',
+              backgroundPosition = 'left')
+
+```
+
+
+# Contaminant group {.tabset}
+
+
+## Condition boxplot
+
+```{r}
+#ToDo: add risk to conta_summ_analytegroup_sample, add color to plot
+plot_abundance_analytegroup <- function(input_conta, x, variable,  scale = "linear"){
+  # plot the abundance
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  output <-
+    ggplot(input_conta, aes(y = AnalyteGroup, x = {{x}})) +
+    geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
+    geom_point(aes(text = paste0(deparse(substitute(variable)), ": ", {{variable}})) , alpha = 0.5, size = 1) +
+    # geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
+    scale_color_risk(verbose = TRUE) +
+    scale_x_continuous(n.breaks = 10) +
+    scale_y_discrete(limits=rev) +
+    xlab(gsub("_", " ", deparse(substitute(x)))) +
+    ylab("Contaminant")+
+    theme_hd +
+    ggtitle("Abundance of contaminants") 
+  
+  if(scale == "linear"){return(output)}
+  if(scale == "log10"){
+    output <- output +
+      scale_y_log10(n.breaks = 5) +
+      ylab("Abundance = log10(Area/TICA)")
+    return(output)}
+}
+
+plot_bp_abundance_analytegroup_condition <-
+  plot_abundance_analytegroup(conta_summ_analyte_condition,
+                              x = Abundance_median,
+                              variable = Condition)
+# print_plot_or_plotly(plot_bp_abundance_analytegroup_condition) #not working #ToDo: fix interactive
+plot_bp_abundance_analytegroup_condition
+```
