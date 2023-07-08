@@ -144,133 +144,6 @@ print_plot_or_plotly <- function(input, height_plotly = 500, width_plotly = 1000
 }
 ```
 
-```{r functions2move}
-plot_conta_summ_sampleset <- function(df_conta){
-  df_conta %>% 
-    arrange(desc(Risk)) %>% 
-    mutate(ypos = cumsum(Freq) - 0.5*Freq) %>% 
-    ggplot(aes(x = "", y= Freq , fill= Risk)) +
-    geom_bar(stat = "identity", color = "white") +
-    coord_polar("y", start=0) +
-    geom_text(aes(y = ypos, label = Perc), color = "white", size=4) +
-    theme_void()  +
-    scale_fill_risk_level()
-}
-
-plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test",  ...){
-  # plot the abundance
-  # scale: changes the scale to linear or log10; options = c("linear", "log10")
-  require(ggpubr)
-  output <-
-    ggplot(input_conta_summ_sample, aes(x = Condition, y = Abundance_total)) +
-    geom_boxplot(alpha = 0.4, width = 0.5, size = 0.2,
-                 outlier.shape = NA, outlier.size = 0, outlier.alpha = 0,
-                 outlier.color = NA, outlier.fill = NA) +
-    geom_point(aes(group = Condition, color = RiskLevel,
-                   text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)),
-               alpha = 0.5, size = 1) + 
-    scale_color_risk() +
-    scale_y_continuous(n.breaks = 5) +
-    xlab("Contaminant")+
-    theme_hd 
-
-  
-  if(compare_means == TRUE){
-    # add stats
-    if(any(method %in% c("anova", "kruskal.test"))){
-      output <- output +
-        ggpubr::stat_compare_means(method = method, size = 2.5, ...)
-    }
-    if(any(method %in% c("t.test", "wilcox.test"))){
-      # get conditions to compare
-      conditions_to_compare <- 
-        levels(input_conta_summ_sample$Condition) %>%
-        combn(m = 2) %>% 
-        t() %>% 
-        split(.,seq(nrow(.)))
-      output <- output +
-        ggpubr::stat_compare_means(method = method,
-                                   comparisons = conditions_to_compare,
-                                   size = 2.5, ...)
-    }
-  }
-  if(scale == "linear"){return(output)}
-  if(scale == "log10"){
-    output <- output +
-      scale_y_log10(n.breaks = 5) +
-      ylab("Abundance = log10(Area/TICA)")
-    return(output)}
-}
-
-
-
-count_factor_columns <- function(df){
-  df  %>% 
-    summarise(across(where(is.factor), ~n_distinct(.x))) %>% 
-    t() %>% 
-    as.data.frame() %>% 
-    rename("Count" = 1) %>% 
-    rownames_to_column("Variable")
-}
-get_w <- function() {
-  # Get the current figure width in pixels
-  # solution to print ggplotly inside asis from https://stackoverflow.com/questions/61906480/how-to-display-ggplotly-plots-with-dynamically-created-tabs-and-for-loops
-  
-  with(knitr::opts_current$get(c("fig.width", "dpi", "fig.retina")),
-       fig.width*dpi/fig.retina)
-}
-
-get_h <- function() {
-    # Get the current figure height in pixels
-  # solution to print ggplotly inside asis from https://stackoverflow.com/questions/61906480/how-to-display-ggplotly-plots-with-dynamically-created-tabs-and-for-loops
-  with(knitr::opts_current$get(c("fig.height", "dpi", "fig.retina")),
-       fig.height*dpi/fig.retina)
-}
-
-summarize_conta <- function(df_conta, ...){
-  #summarize results by ...
-  output <-
-  df_conta %>%
-  group_by(...) %>% 
-  summarise(across(c(Abundance),
-                   list(min = ~min(.x, na.rm = TRUE),
-                        quantile25 = ~quantile(.x, na.rm = TRUE)[2],
-                        median = ~median(.x, na.rm = TRUE),
-                        quantile75 = ~quantile(.x, na.rm = TRUE)[4],
-                        max = ~max(.x, na.rm = TRUE),
-                        total = ~sum(.x, na.rm = TRUE))),
-            .groups = "drop") %>% 
-  mutate(across(where(is.numeric), ~signif(.x, 4)))
-  return(output)
-}
-arrange_analytegroup_levels <- function(df_conta, metric = "median"){
-  #arrange column AnalyteGroup based on metric
-  # metric = min, median, max, total
-  if(metric %in% c("min", "median", "max", "total")){
-    variable <-  paste0("Abundance_", metric)
-  }else{
-    stop("metric must be any of the following: = min, median, max, total")
-  }
-  analytegroup_arranged <- 
-    df_conta %>% 
-    summarize_conta(., AnalyteGroup) %>% 
-    arrange(desc(get(variable))) %>% 
-    pull(AnalyteGroup) %>% 
-    as.character()
-  output <- df_conta %>% 
-    mutate(AnalyteGroup = factor(AnalyteGroup, analytegroup_arranged))
-  return(output)
-}
-```
-
-```{r rawr_ggsave}
-# Other functions
-# rawr_ggsave <-function(input, file, width = 20, height = 24) {
-#   ggsave(file.path("4_figures", paste0(file, ".tiff")) , input, device =  "tiff", 
-#          scale = 1, width = width, height = height, units = "cm")
-# }
-```
-
 # Procedure
 
 ## Data analysis
@@ -349,14 +222,6 @@ ref_conta_tshd_sum <-  ref_conta_tshd %>%
 conta_summ_analytegroup <- summarize_conta(conta, AnalyteGroup)
 conta_summ_analyte <- summarize_conta(conta, AnalyteGroup, Analyte)
 
-## top contaminants
-# analytegroups_area_ordered <- 
-#   conta_summ_analytegroup %>% 
-#   select(AnalyteGroup, Abundance_median) %>% 
-#   unique() %>% 
-#   arrange(desc(Abundance_median))
-
-
 conta_summ_sample <-
   conta %>% 
   summarize_conta(Condition, Sample, ReplicateName) %>% 
@@ -370,10 +235,6 @@ conta_summ_analytegroup_sample <-
 conta_summ_analyte_condition <-
   summarize_conta(conta, Condition, AnalyteGroup, Analyte, AnalyteFull) %>% 
   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
-
-# conta_summ_analytegroup_condition <- #not needed
-#   summarize_conta(conta, Condition, AnalyteGroup) %>% 
-#   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
 
 #Dataset level
 conta_summ_sampleset <-
@@ -397,8 +258,6 @@ summ_msg_options <- c("Something may be wrong, all Abundances were = 0"  ,
 summ_msg <- summ_msg_options[max_risklevel]
 summ_color_scale <- scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7)
 summ_color <- summ_color_scale[max_risklevel]
-
-
 ```
 
 # Summary risk evaluation (total contamination) {.tabset}
@@ -575,7 +434,6 @@ for (i in 1:length(plot_seudochromatogram_analytegroup_list)) {
 
 # Appendixes
 
-* Plots are exported in folder 4_figures.
 * Result tables are exported in folder `r filedir_report`.
 
 ```{r echo=FALSE, warning=FALSE}
