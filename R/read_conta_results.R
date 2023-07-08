@@ -15,7 +15,9 @@ read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = 
   output <-
     read.csv(file_report_skyline, na.strings = c("", "#N/A")) %>%
     rename_with(~gsub(patt = "[.]", rep = "",  x = .x)) %>%
-    rename(Contaminant = "Peptide", ContaminantGroup = "Protein") %>%
+    rename(Contaminant = "Peptide",
+           ContaminantGroup = "Protein",
+           RetentionTime = "PeptideRetentionTime") %>%
     mutate(Contaminant = fct_recode(as.factor(Contaminant),  #Correct names to facilitate ordering
                                 "PEG01" = "PEG1",  "PEG02" = "PEG2", "PEG03" = "PEG3",
                                 "PEG04" = "PEG4", "PEG05" = "PEG5", "PEG06" = "PEG6",

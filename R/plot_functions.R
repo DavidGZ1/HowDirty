@@ -197,13 +197,13 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
-    ggplot(input_conta, aes(x = PeptideRetentionTime, y = Abundance, color = Sample)) +
+    ggplot(input_conta, aes(x = RetentionTime, y = Abundance, color = Sample)) +
     geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample,
                                 "\nContaminant: ", Contaminant, "\nRisk: ", Risk)), alpha = 0.8, size = 1)  +
     scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
     facet_wrap(~ContaminantGroup, scales = "free", ncol = 1) +
     scale_x_continuous(n.breaks = 10,
-                       limits = c(0,round(max(input_conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
+                       limits = c(0,round(max(input_conta$RetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
     ylab("Abundance") +
     xlab("Retention time (min)")+
