@@ -131,29 +131,6 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
 #' bmi3(bmi.vals)
 #'
 #' @export
-# plot_abundance <- function(input_conta, scale = "linear"){
-#   # plot the abundance
-#   # scale: changes the scale to linear or log10; options = c("linear", "log10")
-#   output <-
-#     ggplot(input_conta, aes(x = Contaminant, y = Abundance)) +
-#     geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
-#     geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
-#     scale_color_risk(verbose = TRUE) +
-#     facet_wrap(~ContaminantGroup, scales = "free", nrow = 1) +
-#     scale_y_continuous(n.breaks = 5) +
-#     ylab("Abundance = Area/TICA") +
-#     xlab("Contaminant")+
-#     theme_hd +
-#     ggtitle("Abundance of contaminants") +
-#     rotate()
-#
-#   if(scale == "linear"){return(output)}
-#   if(scale == "log10"){
-#     output <- output +
-#       scale_y_log10(n.breaks = 5) +
-#       ylab("Abundance = log10(Area/TICA)")
-#     return(output)}
-# }
 plot_abundance <- function(input_conta, level, variable, scale = "linear"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
@@ -164,8 +141,8 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
     scale_color_risk(verbose = TRUE) +
     # facet_wrap(~ContaminantGroup, scales = "free", nrow = 1) +
     scale_y_continuous(n.breaks = 5) +
-    ylab("Abundance = Area/TICA") +
-    xlab("Contaminant")+
+    # ylab("Abundance") +
+    # xlab("Contaminant")+
     theme_hd +
     # ggtitle("Abundance of contaminants") +
     rotate() #needed to rotate the boxplot
@@ -174,7 +151,7 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 5) +
-      ylab("Abundance = log10(Area/TICA)")
+      ylab("log10(Abundance)")
     return(output)}
 }
 
@@ -205,7 +182,7 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
     scale_x_continuous(n.breaks = 10,
                        limits = c(0,round(max(input_conta$RetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
-    ylab("Abundance") +
+    # ylab("Abundance") +
     xlab("Retention time (min)")+
     theme_hd
     # ggtitle("abundance vs. RT")
@@ -513,6 +490,7 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
     scale_color_risk() +
     scale_y_continuous(n.breaks = 5) +
     xlab("Contaminant")+
+    ylab("Total Abundance") +
     theme_hd
 
 
@@ -539,6 +517,6 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
   if(scale == "log10"){
     output <- output +
       scale_y_log10(n.breaks = 5) +
-      ylab("Abundance = log10(Area/TICA)")
+      ylab("log10(Total Abundance)")
     return(output)}
 }

@@ -9,7 +9,7 @@ output:
 params:
   DataSet: 
     label: "Data set or experiment (keep it short since it's used as prefix for output file names)"
-    value: 2022-132_FASP_filters
+    value: 2021-231_FASP_filters
     input: text
   UserNames: 
     label: "User(s)"
