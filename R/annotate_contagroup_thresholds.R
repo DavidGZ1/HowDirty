@@ -1,0 +1,43 @@
+#' Short description
+#'
+#' description
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+annotate_contagroup_thresholds <- function(df_conta, df_threshold, var){
+  # if only the ContaminantGroup is present, calculate for ContaminantGroup
+  require(mgsub)
+  if(!all((c("Contaminant") %in% names(df_conta))) & ("ContaminantGroup" %in% names(df_conta))){
+    message("Thresholds assigned at the ContaminantGroup level (total sum of contaminant abundance)")
+    # if only the ContaminantGroup is present, calculate for ContaminantGroup
+    df_threshold_median <-  df_threshold %>%
+      group_by(ContaminantGroup) %>%
+      summarise(across(starts_with("Tshd"), ~sum(.x)))
+    output <- df_conta%>%
+      left_join(., df_threshold_median %>%  select(ContaminantGroup, starts_with("Tshd")),
+                by = c("ContaminantGroup")) %>%
+      mutate(RiskLevel = case_when(Abundance_total ==0 ~ 0,
+                                   Abundance_total < Tshd_Area_TICA_perc25 ~ 1,
+                                   (Tshd_Area_TICA_perc25 <= Abundance_total & Abundance_total < Tshd_Area_TICA_perc50) ~ 2,
+                                   (Tshd_Area_TICA_perc50 <= Abundance_total & Abundance_total < Tshd_Area_TICA_perc75) ~ 3,
+                                   (Tshd_Area_TICA_perc75 <= Abundance_total & Abundance_total < Tshd_Area_TICA_perc90) ~ 4,
+                                   (Tshd_Area_TICA_perc90 <= Abundance_total) ~ 5,
+                                   TRUE ~ 6),
+             Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
+                          rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
+                                  "5) Very High", "6) No threshold in reference"))) %>%
+      mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
+      select(-starts_with("Tshd_"))
+  }
+  if(!any(c("ContaminantGroup") %in% names(df_conta))){
+    stop("At least one of these variables must be present to assign the risk levels: Contaminant or ContaminantGroup")
+  }
+  return(output)
+}

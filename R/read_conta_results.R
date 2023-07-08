@@ -11,12 +11,12 @@
 #' bmi3(bmi.vals)
 #'
 #' @export
-read_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE){
+read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = TRUE){
   output <-
     read.csv(file_report_skyline, na.strings = c("", "#N/A")) %>%
     rename_with(~gsub(patt = "[.]", rep = "",  x = .x)) %>%
-    rename(Analyte = "Peptide", AnalyteGroup = "Protein") %>%
-    mutate(Analyte = fct_recode(as.factor(Analyte),  #Correct names to facilitate ordering
+    rename(Contaminant = "Peptide", ContaminantGroup = "Protein") %>%
+    mutate(Contaminant = fct_recode(as.factor(Contaminant),  #Correct names to facilitate ordering
                                 "PEG01" = "PEG1",  "PEG02" = "PEG2", "PEG03" = "PEG3",
                                 "PEG04" = "PEG4", "PEG05" = "PEG5", "PEG06" = "PEG6",
                                 "PEG07" = "PEG7", "PEG08" = "PEG8", "PEG09" = "PEG9",
@@ -36,24 +36,24 @@ read_conta_results <- function(file_report_skyline, simplify_AnalyteGroup = TRUE
                                 "PPG04_NH4" = "PPG4_NH4", "PPG05_NH4" = "PPG5_NH4", "PPG06_NH4" = "PPG6_NH4",
                                 "PPG07_NH4" = "PPG7_NH4", "PPG08_NH4" = "PPG8_NH4", "PPG09_NH4" = "PPG9_NH4",
                                 "Nylon_C24H44N4O4H" = "C24H44N4O4H", "Nylon_C36H66N6O6H" = "C36H66N6O6H", "Nylon_C48H88N8O8H" = "C48H88N8O8H"),
-           Analyte = as.character(Analyte), #needed to enable reordering below
-           AnalyteFull = paste(AnalyteGroup, Analyte, sep = "_"),
+           Contaminant = as.character(Contaminant), #needed to enable reordering below
+           # ContaminantFull = paste(ContaminantGroup, Contaminant, sep = "_"),
            TotalAreaMS1 = replace_na(TotalAreaMS1, rep= 0), #Convert NAs to 0, avoid loosing info
            Height = replace_na(Height, rep= 0),
            Abundance = signif(TotalAreaMS1/TotalIonCurrentArea, 4)) %>%
-    arrange(Analyte) %>%
-    mutate(across(all_of(c("AnalyteGroup", "Analyte", "AnalyteFull", "ReplicateName")), as.factor)) %>%
+    arrange(Contaminant) %>%
+    mutate(across(all_of(c("ContaminantGroup", "Contaminant","ReplicateName")), as.factor)) %>%
     arrange(ReplicateName)
 
-  if(simplify_AnalyteGroup == TRUE){
+  if(simplify_ContaminantGroup == TRUE){
     # Groups with n <= 3 are simplified
     output <-
       output %>%
-      group_by(AnalyteGroup) %>%
-      mutate(AnalyteGroup =  as.factor(case_when(n_distinct(Analyte) <= 3 ~ "Others",
-                                                 TRUE ~ as.character(AnalyteGroup)))) %>%
+      group_by(ContaminantGroup) %>%
+      mutate(ContaminantGroup =  as.factor(case_when(n_distinct(Contaminant) <= 3 ~ "Others",
+                                                 TRUE ~ as.character(ContaminantGroup)))) %>%
       ungroup()
-    message("AnalyteGroups with less than three elements were combined into 'Others'")
+    message("ContaminantGroups with less than three elements were combined into 'Others'")
   }
   return(output)
 }

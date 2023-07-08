@@ -76,7 +76,7 @@ params:
 
 ## HowDirty evaluation of LC-MS results
 
-This report was generated with a prototype version of *HowDirty*. This is meant to help you evaluating *How Dirty* are your samples (or system) in LC-MS analyses. The possible contaminants reported hereby could impact the quality of the results (e.g. analyte IDs and reproducibility) and, in extreme cases, even damage the column or instruments. The raw data are previously analyzed using Skyline to extract LC-MS peaks possibly corresponding to contaminants. Then, a Risk level is assigned to each contaminant by comparing against the reference threshold (see Procedures for details). Finally, the Risk is similarly assessed at the Sample and whole Sample Set levels. These are indicative of the level of possible contamination.
+This report was generated with a prototype version of *HowDirty*. This is meant to help you evaluating *How Dirty* are your samples (or system) in LC-MS analyses. The possible contaminants reported hereby could impact the quality of the results (e.g. contaminant IDs and reproducibility) and, in extreme cases, even damage the column or instruments. The raw data are previously analyzed using Skyline to extract LC-MS peaks possibly corresponding to contaminants. Then, a Risk level is assigned to each contaminant by comparing against the reference threshold (see Procedures for details). Finally, the Risk is similarly assessed at the Sample and whole Sample Set levels. These are indicative of the level of possible contamination.
 
 **Code author:** David Gomez-Zepeda (HI-TRON)
 
@@ -85,11 +85,8 @@ This report was generated with a prototype version of *HowDirty*. This is meant 
 ```{r setup, include=FALSE, warning=FALSE}
 #General parameters for knitr
 require("knitr")
-# opts_knit$set(root.dir = normalizePath("..")) #Set wd to folder above, currently not working
-# opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 print(getwd())
-# normalizePath("..")
 ```
 
 ```{r verify_files, include=FALSE, echo=FALSE}
@@ -105,9 +102,6 @@ if(any(!filecheck)){
    files_missing <-     data.frame(File=names(filenames[!filecheck] ), Entry=filenames[!filecheck] , row.names=NULL)
    files_missing$message <- paste0(files_missing$File, ": ", files_missing$Entry, "\n")
    files_missing
-  # files_missing <- filenames[!filecheck] %>% 
-  #   data.frame(File=names(.), Entry=., row.names=NULL) %>% 
-  #   mutate(message = paste0(File, ": ", Entry,"\n"))
   stop("The input files below were not found. Please verify that they are in the right location: \n ", files_missing$message)
 }
 ```
@@ -154,7 +148,7 @@ print_plot_or_plotly <- function(input, height_plotly = 500, width_plotly = 1000
 
 ## Warning
 
-The algorithm used for peak picking in Skyline is simple and based only on m/z and charge (z). Thus, some true analyte peaks (e.g. peptides) could be incorrectly assigned to contaminants (i.e. false positives). Therefore, it is recommended to also look into the Skyline file to evaluate other factors, such as patterns of contaminant groups elution across the retention time.
+The algorithm used for peak picking in Skyline is simple and based only on m/z and charge (z). Thus, some true contaminant peaks (e.g. peptides) could be incorrectly assigned to contaminants (i.e. false positives). Therefore, it is recommended to also look into the Skyline file to evaluate other factors, such as patterns of contaminant groups elution across the retention time.
 
 ## Calculations within *HowDirty*
 
@@ -173,7 +167,7 @@ The algorithm used for peak picking in Skyline is simple and based only on m/z a
 # Load thresholds
 if(params$RefThresholdsFile == FALSE){
   # set arbitrary thresholds
-  ref_conta_tshd <- get_simple_thresholds_analyte(conta_raw)
+  ref_conta_tshd <- get_simple_thresholds_contaminant(conta_raw)
   ref_conta_tshd_sample <- get_simple_thresholds_sample()
   message("WARNING: Reference Threshold File was not provided. Thus, threshold were set at the same level for all the contaminants")
 } else{ 
@@ -185,7 +179,7 @@ if(params$RefThresholdsFile == FALSE){
 }
 # read files
 ## Skyline results of contaminant peak area and height
-conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile, simplify_AnalyteGroup = TRUE)
+conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile, simplify_ContaminantGroup = TRUE)
 ## information about samples (annotation)
 samples_annot <- read_samples_annotation(params$AnnotationFile) 
 ## check if all samples are included in both results and annotation file
@@ -194,12 +188,13 @@ check_samples_in_results(conta_raw, samples_annot)
 
 ```{r annotate_results}
 # Annotate contamination results with samples_annot, multiply by dilution_factor, assign risk level
-conta <- conta_raw %>% 
+conta <-
+  conta_raw %>% 
   annotate_conta_samples(., samples_annot, # Annotate with samples_annot, multiply by dilution_factor
                          remove_missing = params$RemoveMissingContaminants, 
                          multiply_dilution_factor = params$MultiplyDilutionFactor) %>% 
   annotate_conta_thresholds(., ref_conta_tshd, Abundance)  %>%  # assign RiskLevel
-  arrange_analytegroup_levels(metric = "median") # arrange analyte group levels based on overall median abundance
+  arrange_contagroup_levels(metric = "median") # arrange contaminant group levels based on overall median abundance
 ```
 
 The data set contained the following:
@@ -215,25 +210,24 @@ count_factor_columns(conta) %>%
 ```{r summaries}
 #Summary of thresholds for each contaminant group
 ref_conta_tshd_sum <-  ref_conta_tshd %>% 
-  group_by(AnalyteGroup) %>% 
+  group_by(ContaminantGroup) %>% 
   summarise(across(starts_with("Tshd"), sum), .groups = "drop")
 
-## Summary by Analyte Group, needed to get top groups
-conta_summ_analytegroup <- summarize_conta(conta, AnalyteGroup)
-conta_summ_analyte <- summarize_conta(conta, AnalyteGroup, Analyte)
+## Summary by Contaminant Group, needed to get top groups
+conta_summ_contaminantgroup <- summarize_conta(conta, ContaminantGroup)
+conta_summ_contaminant <- summarize_conta(conta, ContaminantGroup, Contaminant)
 
 conta_summ_sample <-
   conta %>% 
   summarize_conta(Condition, Sample, ReplicateName) %>% 
   annotate_conta_thresholds_samples(ref_conta_tshd_sample) 
 
+conta_summ_contaminantgroup_sample <-
+  summarize_conta(conta, Condition, Sample, ReplicateName, ContaminantGroup)  %>% 
+  annotate_contagroup_thresholds(ref_conta_tshd, Abundance_median)
 
-conta_summ_analytegroup_sample <-
-  summarize_conta(conta, Condition, Sample, ReplicateName, AnalyteGroup)  %>% 
-  annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
-
-conta_summ_analyte_condition <-
-  summarize_conta(conta, Condition, AnalyteGroup, Analyte, AnalyteFull) %>% 
+conta_summ_contaminant_condition <-
+  summarize_conta(conta, Condition, ContaminantGroup, Contaminant) %>% 
   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
 
 #Dataset level
@@ -317,69 +311,69 @@ print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 
 ## Condition dotplot
 
-```{r plot_AnalyteGroupCondition}
+```{r plot_ContaminantGroupCondition}
 #dotplot
-## AnalyteGroup 
-dot_plot_conta_summ_analyte_condition_risk_analytegroup <-
-  plot_condition_risk_analyte(conta_summ_analytegroup_sample,
+## ContaminantGroup 
+dot_plot_conta_summ_contaminant_condition_risk_contaminantgroup <-
+  plot_condition_risk_contaminant(conta_summ_contaminantgroup_sample,
                               order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
 
 
 
-print_plot_or_plotly(dot_plot_conta_summ_analyte_condition_risk_analytegroup,
+print_plot_or_plotly(dot_plot_conta_summ_contaminant_condition_risk_contaminantgroup,
                      height_plotly = 400, width_plotly = 1000)
 ```
 
 ## Sample dotplot
 
-```{r plot_AnalyteGroupSample_abundance, fig.height=8, fig.width=8, }
+```{r plot_ContaminantGroupSample_abundance, fig.height=8, fig.width=8, }
 #dotplot
-## AnalyteGroup 
-dot_plot_conta_summ_sample_risk_analytegroup <-
+## ContaminantGroup 
+dot_plot_conta_summ_sample_risk_contaminantgroup <-
   # conta_summ_sample_risk %>% 
-  conta_summ_analytegroup_sample %>% 
-  plot_sample_risk_analyte(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
+  conta_summ_contaminantgroup_sample %>% 
+  plot_sample_risk_contaminant(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
 
 
-print_plot_or_plotly(dot_plot_conta_summ_sample_risk_analytegroup,
+print_plot_or_plotly(dot_plot_conta_summ_sample_risk_contaminantgroup,
                      height_plotly = 600, width_plotly = 1000)
 ```
 
 ## Sample boxplot
 
-```{r plot_abundance_analytegroup_sample, fig.height=8, fig.width=8, }
-plot_abundance_analytegroup_sample <- 
-   plot_abundance(conta_summ_analytegroup_sample, AnalyteGroup, Abundance_median)
+```{r plot_abundance_contaminantgroup_sample, fig.height=8, fig.width=8, }
+plot_abundance_contaminantgroup_sample <- 
+   plot_abundance(conta_summ_contaminantgroup_sample, ContaminantGroup, Abundance_median)
 
-print_plot_or_plotly(plot_abundance_analytegroup_sample)
+print_plot_or_plotly(plot_abundance_contaminantgroup_sample)
 ```
 
 # Contaminants per sample{.tabset}
 
-* A summary of the Abundance per AnalyteGroup was calculated and is reported in the annexed report (`r filedir_report` --> conta_summ_analytegroup).
+* A summary of the Abundance per ContaminantGroup was calculated and is reported in the annexed report (`r filedir_report` --> conta_summ_contaminantgroup).
 * The Abundance of the contaminants are reported in the plots below for all the samples in the data set.
 * The Pseudochromatograms represent the Abundance in function of the RentetionTime (Apex of the peak). Those can be useful to evaluate the presence of the usual patterns of polymers, i.e. from small to larger molecules; as well as the reproducibility of the RentetionTime across replicates.
 
 ## Abundance boxplot{.tabset}
 
-```{r plot_AnalyteGroupArea, results='asis', fig.height=6, fig.width=10, warning=FALSE}
-plot_abundance_analytegroup_list <-
-  lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
+```{r plot_ContaminantGroupArea, results='asis', fig.height=6, fig.width=10, warning=FALSE}
+plot_abundance_contaminantgroup_list <-
+  lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
-           plot_abundance(filter(conta, AnalyteGroup == x), Analyte, Abundance) %>%
+           plot_abundance(filter(conta, ContaminantGroup == x), Contaminant, Abundance) %>%
              ggplotly(width = get_w(), height = get_h()*1.1) %>% 
              htmltools::tagList()
          }
   )
-names(plot_abundance_analytegroup_list) <-
-  levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)]
+names(plot_abundance_contaminantgroup_list) <-
+  levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)]
 
-for (i in 1:length(plot_abundance_analytegroup_list)) {
-  cat("### ", names(plot_abundance_analytegroup_list)[i],"\n")
+for (i in 1:length(plot_abundance_contaminantgroup_list)) {
+  cat("### ", names(plot_abundance_contaminantgroup_list)[i],"\n")
   if(params$PlotsInteractive == TRUE){
-    print(htmltools::tagList(plot_abundance_analytegroup_list[[i]])) #required to print ggplotly inside asis
+    print(htmltools::tagList(plot_abundance_contaminantgroup_list[[i]])) #required to print ggplotly inside asis
   }else{if(params$PlotsInteractive == FALSE){
-    plot_abundance_analytegroup_list[[i]]
+    plot_abundance_contaminantgroup_list[[i]]
   }
   }
   cat('\n\n')
@@ -388,25 +382,25 @@ for (i in 1:length(plot_abundance_analytegroup_list)) {
 
 ## Pseudochromatograms (Abundance vs. RT){.tabset}
 
-```{r plot_AnalyteGroupPseudoChromato, results='asis', fig.height=5, fig.width=8, warning=FALSE}
-plot_seudochromatogram_analytegroup_list <-
-  lapply(levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)],
+```{r plot_ContaminantGroupPseudoChromato, results='asis', fig.height=5, fig.width=8, warning=FALSE}
+plot_seudochromatogram_contaminantgroup_list <-
+  lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
-           plot_pseudochromatogram(filter(conta, AnalyteGroup == x)) %>% 
+           plot_pseudochromatogram(filter(conta, ContaminantGroup == x)) %>% 
              ggplotly(width = get_w(), height = get_h()*0.8) %>%
              # layout_ggplotly_label_margin( x = 0.05, y = -0.05) %>%
              htmltools::tagList() 
          }
   )
-names(plot_seudochromatogram_analytegroup_list) <-
-  levels(conta$AnalyteGroup)[c(1:params$nTopContaminantGroups)]
+names(plot_seudochromatogram_contaminantgroup_list) <-
+  levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)]
 
-for (i in 1:length(plot_seudochromatogram_analytegroup_list)) {
-  cat("### ", names(plot_seudochromatogram_analytegroup_list)[i],"\n")
+for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
+  cat("### ", names(plot_seudochromatogram_contaminantgroup_list)[i],"\n")
   if(params$PlotsInteractive == TRUE){
-    print(htmltools::tagList(plot_seudochromatogram_analytegroup_list[[i]])) #required to print ggplotly inside asis
+    print(htmltools::tagList(plot_seudochromatogram_contaminantgroup_list[[i]])) #required to print ggplotly inside asis
   }else{if(params$PlotsInteractive == FALSE){
-    plot_seudochromatogram_analytegroup_list[[i]]
+    plot_seudochromatogram_contaminantgroup_list[[i]]
   }
   }
   cat('\n\n')
@@ -423,7 +417,7 @@ for (i in 1:length(plot_seudochromatogram_analytegroup_list)) {
 
 ```{r table_conta, echo=FALSE, warning=FALSE}
 # conta %>% 
-#   select(AnalyteGroup, Analyte, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
+#   select(ContaminantGroup, Contaminant, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
 #   arrange(desc(Abundance)) %>% 
 #   datatable(filter = 'top', 
 #             options = list(pageLength = 10, autoWidth = TRUE)) %>% 
@@ -440,7 +434,7 @@ for (i in 1:length(plot_seudochromatogram_analytegroup_list)) {
 res_list<- list(conta=conta, 
              conta_summ_sample=conta_summ_sample,
              conta_summ_sampleset=conta_summ_sampleset,
-             conta_summ_analytegroup=conta_summ_analytegroup,
+             conta_summ_contaminantgroup=conta_summ_contaminantgroup,
              ref_conta_tshd=ref_conta_tshd,
              ref_conta_tshd_sample=ref_conta_tshd_sample)
 write.xlsx(res_list,

@@ -14,12 +14,12 @@
 annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE){
   #Merge samples_annot and contamination
   ouptut <- inner_join(df_samples_annot, df_conta, by = "ReplicateName") %>%
-    relocate(c("Condition"), "Sample", "ReplicateName", "DilutionFactor", "AnalyteGroup", "Analyte", "AnalyteFull") %>%
-    arrange(Condition, AnalyteFull)
+    relocate(c("Condition"), "Sample", "ReplicateName", "DilutionFactor", "ContaminantGroup", "Contaminant") %>%
+    arrange(Condition)
   if(remove_missing == TRUE){
     ouptut <-
       ouptut %>%
-      group_by(ReplicateName, AnalyteGroup, Analyte, AnalyteFull) %>%
+      group_by(ReplicateName, ContaminantGroup, Contaminant) %>%
       filter(!all(Height == 0)) %>%
       ungroup() %>%
       droplevels()

@@ -4,7 +4,7 @@
 \alias{read_conta_results}
 \title{Short description}
 \usage{
-read_conta_results(file_report_skyline, simplify_AnalyteGroup = TRUE)
+read_conta_results(file_report_skyline, simplify_ContaminantGroup = TRUE)
 }
 \arguments{
 \item{x}{type of input object (e.g. numeric vector).}

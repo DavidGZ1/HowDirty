@@ -135,11 +135,11 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
 #   # plot the abundance
 #   # scale: changes the scale to linear or log10; options = c("linear", "log10")
 #   output <-
-#     ggplot(input_conta, aes(x = Analyte, y = Abundance)) +
+#     ggplot(input_conta, aes(x = Contaminant, y = Abundance)) +
 #     geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
 #     geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
 #     scale_color_risk(verbose = TRUE) +
-#     facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
+#     facet_wrap(~ContaminantGroup, scales = "free", nrow = 1) +
 #     scale_y_continuous(n.breaks = 5) +
 #     ylab("Abundance = Area/TICA") +
 #     xlab("Contaminant")+
@@ -162,7 +162,7 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
     geom_boxplot( alpha = 0.4, width = 0.5, size = 0.2, outlier.shape = NA, outlier.size = 0, outlier.alpha = 0, outlier.color = NA, outlier.fill = NA) +
     geom_point(aes(color=Risk, text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)) , alpha = 0.5, size = 1) +
     scale_color_risk(verbose = TRUE) +
-    # facet_wrap(~AnalyteGroup, scales = "free", nrow = 1) +
+    # facet_wrap(~ContaminantGroup, scales = "free", nrow = 1) +
     scale_y_continuous(n.breaks = 5) +
     ylab("Abundance = Area/TICA") +
     xlab("Contaminant")+
@@ -199,9 +199,9 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
   output <-
     ggplot(input_conta, aes(x = PeptideRetentionTime, y = Abundance, color = Sample)) +
     geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample,
-                                "\nContaminant: ", Analyte, "\nRisk: ", Risk)), alpha = 0.8, size = 1)  +
+                                "\nContaminant: ", Contaminant, "\nRisk: ", Risk)), alpha = 0.8, size = 1)  +
     scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
-    facet_wrap(~AnalyteGroup, scales = "free", ncol = 1) +
+    facet_wrap(~ContaminantGroup, scales = "free", ncol = 1) +
     scale_x_continuous(n.breaks = 10,
                        limits = c(0,round(max(input_conta$PeptideRetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
@@ -256,7 +256,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
   output <- input_conta_summ_sample %>%
     # arrange(!! order_x) %>%
     # mutate(Sample = factor(Sample, levels = unique(Sample))) %>%
-    mutate(AnalyteGroup = "Total") %>%
+    mutate(ContaminantGroup = "Total") %>%
     ggplot(aes(y = Abundance_total, x = Sample, color = RiskLevel, size = Abundance_total)) +
     geom_point(alpha = 1) +
     scale_y_continuous(n.breaks = 10) +
@@ -287,7 +287,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
 #' bmi3(bmi.vals)
 #'
 #' @export
-plot_sample_risk_analyte <- function(input_conta_summ_sample_risk,
+plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
                                      order_x = "Sample", order_y = "Abundance",
                                      show_zeros = FALSE){
   # plot Anaylte vs Sample, with color in function of risk and size in function of Abundance_median
@@ -296,15 +296,15 @@ plot_sample_risk_analyte <- function(input_conta_summ_sample_risk,
   # remove all zero values
   if(show_zeros == FALSE){
     # remove zero values
-    AnalyteGroup2Plot <-
+    ContaminantGroup2Plot <-
       input_conta_summ_sample_risk %>%
-      group_by(AnalyteGroup, Abundance_median) %>%
+      group_by(ContaminantGroup, Abundance_median) %>%
       summarise(Keep = all(Abundance_median > 0), .groups = "drop") %>%
       filter(Keep == TRUE) %>%
-      pull(AnalyteGroup) %>%
+      pull(ContaminantGroup) %>%
       unique()
     input_conta_summ_sample_risk <-
-      filter(input_conta_summ_sample_risk, AnalyteGroup %in% AnalyteGroup2Plot)
+      filter(input_conta_summ_sample_risk, ContaminantGroup %in% ContaminantGroup2Plot)
   }
   # arrange in function of Sample or Abundance, !!input$order_sample_total didn't work
   if(order_x == "Sample"){
@@ -324,31 +324,31 @@ plot_sample_risk_analyte <- function(input_conta_summ_sample_risk,
   input_conta_summ_sample_risk <-
     input_conta_summ_sample_risk %>%
     mutate(Sample = factor(Sample, levels = unique(Sample)))
-  # arrange in function of AnalyteGroup or Abundance_median, !!input$order_sample_total didn't work
+  # arrange in function of ContaminantGroup or Abundance_median, !!input$order_sample_total didn't work
   if(order_y == "Abundance"){
     input_conta_summ_sample_risk <-
       input_conta_summ_sample_risk %>%
       arrange(Abundance_median)
   }else{
-    if(order_y == "AnalyteGroup"){
+    if(order_y == "ContaminantGroup"){
       input_conta_summ_sample_risk <-
         input_conta_summ_sample_risk %>%
-        arrange(AnalyteGroup)
+        arrange(ContaminantGroup)
     }else{
-      stop("order_y must be AnalyteGroup or Abundance")}
+      stop("order_y must be ContaminantGroup or Abundance")}
   }
 
   input_conta_summ_sample_risk <-
     input_conta_summ_sample_risk %>%
-    mutate(AnalyteGroup = factor(AnalyteGroup, levels = unique(AnalyteGroup)))
+    mutate(ContaminantGroup = factor(ContaminantGroup, levels = unique(ContaminantGroup)))
 
 
   output <-
     input_conta_summ_sample_risk %>%
-    ggplot(aes(y = AnalyteGroup, x = Sample, color = RiskLevel, size = Abundance_median)) +
+    ggplot(aes(y = ContaminantGroup, x = Sample, color = RiskLevel, size = Abundance_median)) +
     geom_point() +
     scale_color_risk() +
-    ylab("Analyte Group") +
+    ylab("Contaminant Group") +
     xlab("Sample")+
     theme_hd +
     theme(plot.margin = margin(4,4,4,10)) +
@@ -369,7 +369,7 @@ plot_sample_risk_analyte <- function(input_conta_summ_sample_risk,
 #' bmi3(bmi.vals)
 #'
 #' @export
-plot_condition_risk_analyte <- function(input_conta_summ_sample_risk,
+plot_condition_risk_contaminant <- function(input_conta_summ_sample_risk,
                                         order_x = "Condition", order_y = "Abundance",
                                         show_zeros = FALSE){
   # plot Anaylte vs Condition, with color in function of risk and size in function of Abundance_median
@@ -378,15 +378,15 @@ plot_condition_risk_analyte <- function(input_conta_summ_sample_risk,
   # remove all zero values
   if(show_zeros == FALSE){
     # remove zero values
-    AnalyteGroup2Plot <-
+    ContaminantGroup2Plot <-
       input_conta_summ_sample_risk %>%
-      group_by(AnalyteGroup, Abundance_median) %>%
+      group_by(ContaminantGroup, Abundance_median) %>%
       summarise(Keep = all(Abundance_median > 0), .groups = "drop") %>%
       filter(Keep == TRUE) %>%
-      pull(AnalyteGroup) %>%
+      pull(ContaminantGroup) %>%
       unique()
     input_conta_summ_sample_risk <-
-      filter(input_conta_summ_sample_risk, AnalyteGroup %in% AnalyteGroup2Plot)
+      filter(input_conta_summ_sample_risk, ContaminantGroup %in% ContaminantGroup2Plot)
   }
   # arrange in function of Condition or Abundance, !!input$order_sample_total didn't work
   if(order_x == "Condition"){
@@ -406,31 +406,31 @@ plot_condition_risk_analyte <- function(input_conta_summ_sample_risk,
   input_conta_summ_sample_risk <-
     input_conta_summ_sample_risk %>%
     mutate(Condition = factor(Condition, levels = unique(Condition)))
-  # arrange in function of AnalyteGroup or Abundance_median, !!input$order_sample_total didn't work
+  # arrange in function of ContaminantGroup or Abundance_median, !!input$order_sample_total didn't work
   if(order_y == "Abundance"){
     input_conta_summ_sample_risk <-
       input_conta_summ_sample_risk %>%
       arrange(Abundance_median)
   }else{
-    if(order_y == "AnalyteGroup"){
+    if(order_y == "ContaminantGroup"){
       input_conta_summ_sample_risk <-
         input_conta_summ_sample_risk %>%
-        arrange(AnalyteGroup)
+        arrange(ContaminantGroup)
     }else{
-      stop("order_y must be AnalyteGroup or Abundance")}
+      stop("order_y must be ContaminantGroup or Abundance")}
   }
 
   input_conta_summ_sample_risk <-
     input_conta_summ_sample_risk %>%
-    mutate(AnalyteGroup = factor(AnalyteGroup, levels = unique(AnalyteGroup)))
+    mutate(ContaminantGroup = factor(ContaminantGroup, levels = unique(ContaminantGroup)))
 
 
   output <-
     input_conta_summ_sample_risk %>%
-    ggplot(aes(y = AnalyteGroup, x = Condition, color = RiskLevel, size = Abundance_median)) +
+    ggplot(aes(y = ContaminantGroup, x = Condition, color = RiskLevel, size = Abundance_median)) +
     geom_point() +
     scale_color_risk() +
-    ylab("Analyte Group") +
+    ylab("Contaminant Group") +
     xlab("Condition")+
     theme_hd +
     theme(plot.margin = margin(4,4,4,10)) +
