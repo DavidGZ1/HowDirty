@@ -1,14 +1,14 @@
-#' Short description
+#' Read Conta Results
 #'
-#' description
+#' This function reads the contaminants provided by Skyline and renames the contaminant groups.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param  file_report_skyline The file containing the Skyline report.
+#' @param  simplify_ContaminantGroup Flag if contaminant names should be simplified.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe with the transformed input.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' read_conta_results(file_report_skyline = PeaksAreasContaminantsFile, simplify_contaminantGroup = TRUE)
 #'
 #' @export
 read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = TRUE){
