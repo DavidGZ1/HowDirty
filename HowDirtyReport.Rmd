@@ -226,20 +226,22 @@ conta_summ_contaminantgroup_sample <-
   summarize_conta(conta, Condition, Sample, ReplicateName, ContaminantGroup)  %>% 
   annotate_contagroup_thresholds(ref_conta_tshd, Abundance_median)
 
-conta_summ_contaminant_condition <-
+conta_summ_condition <-
   summarize_conta(conta, Condition, ContaminantGroup, Contaminant) %>% 
   annotate_conta_thresholds(ref_conta_tshd, Abundance_median)
 
 #Dataset level
 conta_summ_sampleset <-
+  summarize_conta_sampleset(conta)
+risk_summ_sampleset <-
   conta_summ_sample %>%
   count(Risk, name = "Count") %>%
   mutate(Fraction = paste0(Count, "/", sum(Count)) ,
          Freq =  round(Count/sum(Count), 2),
          Perc = label_percent()(Freq),
          Tag = paste0(Risk, ": ", Perc, " (", Fraction, ")")) 
-conta_summ_sampleset_verbose <- 
-  conta_summ_sampleset %>% 
+risk_summ_sampleset_verbose <- 
+  risk_summ_sampleset %>% 
   summarise(Risk  =  paste0(Tag, collapse = "; "), .groups = "drop")
 # Verbose summary of the data set
 max_risklevel <- max(as.numeric(conta_summ_sample$RiskLevel))
@@ -262,11 +264,11 @@ summ_color <- summ_color_scale[max_risklevel]
 ## Global
 
 * The piechart below shows the percentages of samples associated to each risk level
-* The results were exported to `r filedir_report` --> conta_summ_sampleset
+* The results were exported to `r filedir_report` --> risk_summ_sampleset
 
-```{r plot_conta_summ_sampleset, fig.width= 4, fig.height=4}
-plot_pie_conta_summ_sampleset <- plot_conta_summ_sampleset(conta_summ_sampleset)
-plot_pie_conta_summ_sampleset
+```{r plot_risk_summ_sampleset, fig.width= 4, fig.height=4}
+plot_pie_risk_summ_sampleset <- plot_risk_summ_sampleset(risk_summ_sampleset)
+plot_pie_risk_summ_sampleset
 ```
 
 ## Conditions boxplot
@@ -314,13 +316,13 @@ print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 ```{r plot_ContaminantGroupCondition}
 #dotplot
 ## ContaminantGroup 
-dot_plot_conta_summ_contaminant_condition_risk_contaminantgroup <-
+dot_plot_conta_summ_condition_risk_contaminantgroup <-
   plot_condition_risk_contaminant(conta_summ_contaminantgroup_sample,
                               order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
 
 
 
-print_plot_or_plotly(dot_plot_conta_summ_contaminant_condition_risk_contaminantgroup,
+print_plot_or_plotly(dot_plot_conta_summ_condition_risk_contaminantgroup,
                      height_plotly = 400, width_plotly = 1000)
 ```
 
@@ -405,9 +407,7 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
   }
   cat('\n\n')
 }
-
 ```
-
 
 ## Table
 
@@ -425,24 +425,25 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
 #               backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
 ```
 
-
 # Appendixes
 
 * Result tables are exported in folder `r filedir_report`.
 
 ```{r echo=FALSE, warning=FALSE}
-res_list<- list(conta=conta, 
-             conta_summ_sample=conta_summ_sample,
-             conta_summ_sampleset=conta_summ_sampleset,
-             conta_summ_contaminantgroup=conta_summ_contaminantgroup,
-             ref_conta_tshd=ref_conta_tshd,
-             ref_conta_tshd_sample=ref_conta_tshd_sample)
+res_list<- list(
+  risk_summ_sampleset = risk_summ_sampleset,
+  conta_summ_sampleset = conta_summ_sampleset,
+  conta_summ_sample = conta_summ_sample,
+  conta_summ_condition = conta_summ_condition,
+  conta_summ_contaminantgroup = conta_summ_contaminantgroup,
+  conta=conta, 
+  ref_conta_tshd = ref_conta_tshd,
+  ref_conta_tshd_sample = ref_conta_tshd_sample
+)
 write.xlsx(res_list,
            file = filedir_report)
 writeLines(capture.output(sessionInfo()), filedir_sessioninfo)
-
 ```
-
 
 # References
 - Gomez-Zepeda *et al.*. HowDirty. Under preparation. (2023).

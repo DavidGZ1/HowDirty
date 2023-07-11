@@ -21,6 +21,7 @@ summarize_conta <- function(df_conta, ...){
                           quantile25 = ~quantile(.x, na.rm = TRUE)[2],
                           median = ~median(.x, na.rm = TRUE),
                           quantile75 = ~quantile(.x, na.rm = TRUE)[4],
+                          quantile90 = ~quantile(.x, probs = c(0.1,0.9))[2],
                           max = ~max(.x, na.rm = TRUE),
                           total = ~sum(.x, na.rm = TRUE))),
               .groups = "drop") %>%

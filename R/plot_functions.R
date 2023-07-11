@@ -449,7 +449,7 @@ layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
 #' bmi3(bmi.vals)
 #'
 #' @export
-plot_conta_summ_sampleset <- function(df_conta){
+plot_risk_summ_sampleset <- function(df_conta){
   df_conta %>%
     arrange(desc(Risk)) %>%
     mutate(ypos = cumsum(Freq) - 0.5*Freq) %>%
