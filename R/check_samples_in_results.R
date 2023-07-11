@@ -1,10 +1,11 @@
-#' Short description
+#' Check if samples are included in both results and annotation
 #'
-#' description
+#' This function checks if all samples in the provided results and annotation are present in both. If one sample is misssing in one, it will not be further processed.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing contaminant information.
+#' @param df_samples_annot dataframe containing sample annotation.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return None
 #'
 #' @examples
 #' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
