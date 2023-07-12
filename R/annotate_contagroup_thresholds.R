@@ -20,15 +20,16 @@ annotate_contagroup_thresholds <- function(df_conta, df_threshold, var){
     df_threshold_median <-  df_threshold %>%
       group_by(ContaminantGroup) %>%
       summarise(across(starts_with("Tshd"), ~sum(.x)))
-    output <- df_conta%>%
+    output <-
+      df_conta%>%
       left_join(., df_threshold_median %>%  select(ContaminantGroup, starts_with("Tshd")),
                 by = c("ContaminantGroup")) %>%
-      mutate(RiskLevel = case_when(Abundance_total ==0 ~ 0,
-                                   Abundance_total < Tshd_Area_TICA_perc25 ~ 1,
-                                   (Tshd_Area_TICA_perc25 <= Abundance_total & Abundance_total < Tshd_Area_TICA_perc50) ~ 2,
-                                   (Tshd_Area_TICA_perc50 <= Abundance_total & Abundance_total < Tshd_Area_TICA_perc75) ~ 3,
-                                   (Tshd_Area_TICA_perc75 <= Abundance_total & Abundance_total < Tshd_Area_TICA_perc90) ~ 4,
-                                   (Tshd_Area_TICA_perc90 <= Abundance_total) ~ 5,
+      mutate(RiskLevel = case_when({{ var }} ==0 ~ 0,
+                                   {{ var }} < Tshd_abundance_quantile25 ~ 1,
+                                   (Tshd_abundance_quantile25 <= {{ var }} & {{ var }} < Tshd_abundance_quantile50) ~ 2,
+                                   (Tshd_abundance_quantile50 <= {{ var }} & {{ var }} < Tshd_abundance_quantile75) ~ 3,
+                                   (Tshd_abundance_quantile75 <= {{ var }} & {{ var }} < Tshd_abundance_quantile90) ~ 4,
+                                   (Tshd_abundance_quantile90 <= {{ var }}) ~ 5,
                                    TRUE ~ 6),
              Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
                           rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",

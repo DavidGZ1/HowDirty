@@ -16,7 +16,7 @@ annotate_conta_thresholds_samples <- function(df_conta_summ_sample, df_threshold
   df_conta_summ_sample %>%
     mutate(Risk =
              cut(x = Abundance_total,
-                 breaks = df_threshold_sample$Break,
+                 breaks = df_threshold_sample$Breaks,
                  labels = df_threshold_sample$Labels[-1]))  %>%
     drop_na() %>%
     # select(Condition, Sample, ReplicateName, TotalAbundance = Abundance_total, Risk) %>%

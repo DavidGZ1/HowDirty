@@ -1,7 +1,0 @@
-,Sum,Breaks,Labels
-1,0,0,0) ERROR
-2,0.8304,0.83,1) Very Low (OK)
-3,1.511,1.5,2) Low (OK)
-4,4.572,4.6,3) Medium (Warning)
-5,11.9817,12,4) High (Warning)
-6,Inf,Inf,5) Very High (DO NOT PROCEED)
