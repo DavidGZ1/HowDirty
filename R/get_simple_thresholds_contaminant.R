@@ -16,8 +16,8 @@ get_simple_thresholds_contaminant <-function(df_conta){
   df_conta %>%
     select(ContaminantGroup, Contaminant) %>%
     unique() %>%
-    mutate(Tshd_Area_TICA_perc25 = 0.00015,
-           Tshd_Area_TICA_perc50 = 0.0005,
-           Tshd_Area_TICA_perc75 = 0.0015,
-           Tshd_Area_TICA_perc90 = 0.005)
+    mutate(Tshd_abundance_quantile25 = 0.00015,
+           Tshd_abundance_quantile50 = 0.0005,
+           Tshd_abundance_quantile75 = 0.0015,
+           Tshd_abundance_quantile90 = 0.005)
 }
