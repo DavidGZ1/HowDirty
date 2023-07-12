@@ -47,9 +47,6 @@ params:
   PlotsInteractive: 
     label: "Export interactive plots"
     value: TRUE #TRUE = interactive in html, FALSE = static
-  PlotsSave:
-    label: "Save all plots as .jpg files"
-    value: FALSE #Saves all the plots as .jpg
 ---
 
 <style type="text/css">
@@ -76,7 +73,7 @@ params:
 
 ## HowDirty evaluation of LC-MS results
 
-This report was generated with a prototype version of *HowDirty*. This is meant to help you evaluating *How Dirty* are your samples (or system) in LC-MS analyses. The possible contaminants reported hereby could impact the quality of the results (e.g. contaminant IDs and reproducibility) and, in extreme cases, even damage the column or instruments. The raw data are previously analyzed using Skyline to extract LC-MS peaks possibly corresponding to contaminants. Then, a Risk level is assigned to each contaminant by comparing against the reference threshold (see Procedures for details). Finally, the Risk is similarly assessed at the Sample and whole Sample Set levels. These are indicative of the level of possible contamination.
+This report was generated using *HowDirty*. This is meant to help you evaluating *How Dirty* are your samples (or system) in LC-MS analyses. The possible contaminants reported hereby could impact the quality of the results (e.g. contaminant IDs and reproducibility) and, in extreme cases, even damage the column or instruments. The raw data are previously analyzed using Skyline to extract LC-MS peaks possibly corresponding to contaminants. Then, a Risk level is assigned to each contaminant by comparing against the reference threshold (see Procedures for details). Finally, the Risk is similarly assessed at the Sample and whole Sample Set levels. These are indicative of the level of possible contamination.
 
 **Code author:** David Gomez-Zepeda (HI-TRON)
 
@@ -164,6 +161,13 @@ The algorithm used for peak picking in Skyline is simple and based only on m/z a
 # Input
 
 ```{r read_data}
+# read files
+## Skyline results of contaminant peak area and height
+conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile, simplify_ContaminantGroup = TRUE)
+## information about samples (annotation)
+samples_annot <- read_samples_annotation(params$AnnotationFile) 
+## check if all samples are included in both results and annotation file
+check_samples_in_results(conta_raw, samples_annot)
 # Load thresholds
 if(params$RefThresholdsFile == FALSE){
   # set arbitrary thresholds
@@ -177,13 +181,6 @@ if(params$RefThresholdsFile == FALSE){
   ref_conta_tshd_sample <- read.csv(params$RefThresholdsSampleLevelFile) %>% 
     select(-any_of("X"))
 }
-# read files
-## Skyline results of contaminant peak area and height
-conta_raw <- read_conta_results(file_report_skyline = params$PeakAreasContaminantsFile, simplify_ContaminantGroup = TRUE)
-## information about samples (annotation)
-samples_annot <- read_samples_annotation(params$AnnotationFile) 
-## check if all samples are included in both results and annotation file
-check_samples_in_results(conta_raw, samples_annot)
 ```
 
 ```{r annotate_results}
@@ -266,7 +263,7 @@ summ_color <- summ_color_scale[max_risklevel]
 * The piechart below shows the percentages of samples associated to each risk level
 * The results were exported to `r filedir_report` --> risk_summ_sampleset
 
-```{r plot_risk_summ_sampleset, fig.width= 4, fig.height=4}
+```{r plot_risk_summ_sampleset, fig.width= 4, fig.height=3}
 plot_pie_risk_summ_sampleset <- plot_risk_summ_sampleset(risk_summ_sampleset)
 plot_pie_risk_summ_sampleset
 ```
@@ -289,7 +286,7 @@ plot_conta_summ_condition_risk # note: the results of the statistical test can't
 * The table can also be found in `r filedir_report` --> conta_summ_sample.
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
 
-```{r plot_conta_summ_sample_risk_bysample, warning=FALSE}
+```{r plot_conta_summ_sample_risk_bysample, warning=FALSE, fig.width= 10, fig.height=4}
 dot_plot_sample_risk_total_bysample <-
   plot_sample_risk_total(conta_summ_sample, order_x = "Sample") +
   facet_wrap(~Condition, scales = "free_x") 
@@ -301,7 +298,7 @@ print_plot_or_plotly(dot_plot_sample_risk_total_bysample + rremove("xlab"))
 * The table can also be found in `r filedir_report` --> conta_summ_sample.
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
 
-```{r plot_conta_summ_sample_risk_byabundance, warning=FALSE, fig.width= 5, fig.height=10}
+```{r plot_conta_summ_sample_risk_byabundance, warning=FALSE, fig.width= 10, fig.height=4}
 dot_plot_sample_risk_total_byabundance <- 
   plot_sample_risk_total(conta_summ_sample, order_x = "Abundance") 
 print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
@@ -313,7 +310,7 @@ print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 
 ## Condition dotplot
 
-```{r plot_ContaminantGroupCondition}
+```{r plot_ContaminantGroupCondition, fig.width= 8, fig.height=5}
 #dotplot
 ## ContaminantGroup 
 dot_plot_conta_summ_condition_risk_contaminantgroup <-
@@ -328,7 +325,7 @@ print_plot_or_plotly(dot_plot_conta_summ_condition_risk_contaminantgroup,
 
 ## Sample dotplot
 
-```{r plot_ContaminantGroupSample_abundance, fig.height=8, fig.width=8, }
+```{r plot_ContaminantGroupSample_abundance, fig.width= 10, fig.height=5}
 #dotplot
 ## ContaminantGroup 
 dot_plot_conta_summ_sample_risk_contaminantgroup <-
@@ -343,7 +340,7 @@ print_plot_or_plotly(dot_plot_conta_summ_sample_risk_contaminantgroup,
 
 ## Sample boxplot
 
-```{r plot_abundance_contaminantgroup_sample, fig.height=8, fig.width=8, }
+```{r plot_abundance_contaminantgroup_sample, fig.width=6, fig.height=5}
 plot_abundance_contaminantgroup_sample <- 
    plot_abundance(conta_summ_contaminantgroup_sample, ContaminantGroup, Abundance_median)
 
@@ -358,15 +355,26 @@ print_plot_or_plotly(plot_abundance_contaminantgroup_sample)
 
 ## Abundance boxplot{.tabset}
 
-```{r plot_ContaminantGroupArea, results='asis', fig.height=6, fig.width=10, warning=FALSE}
-plot_abundance_contaminantgroup_list <-
+```{r plot_ContaminantGroupArea, results='asis', fig.height=5, fig.width=8, warning=FALSE}
+if(params$PlotsInteractive == TRUE){
+  plot_abundance_contaminantgroup_list <-
   lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
            plot_abundance(filter(conta, ContaminantGroup == x), Contaminant, Abundance) %>%
              ggplotly(width = get_w(), height = get_h()*1.1) %>% 
-             htmltools::tagList()
+             htmltools::tagList()#required to print ggplotly inside asis
          }
   )
+  }else{if(params$PlotsInteractive == FALSE){
+    plot_abundance_contaminantgroup_list <-
+      lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
+             function(x){
+               plot_abundance(filter(conta, ContaminantGroup == x), Contaminant, Abundance) 
+             }
+      )
+  }
+  }
+
 names(plot_abundance_contaminantgroup_list) <-
   levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)]
 
@@ -375,7 +383,7 @@ for (i in 1:length(plot_abundance_contaminantgroup_list)) {
   if(params$PlotsInteractive == TRUE){
     print(htmltools::tagList(plot_abundance_contaminantgroup_list[[i]])) #required to print ggplotly inside asis
   }else{if(params$PlotsInteractive == FALSE){
-    plot_abundance_contaminantgroup_list[[i]]
+    print(plot_abundance_contaminantgroup_list[[i]])
   }
   }
   cat('\n\n')
@@ -384,8 +392,11 @@ for (i in 1:length(plot_abundance_contaminantgroup_list)) {
 
 ## Pseudochromatograms (Abundance vs. RT){.tabset}
 
-```{r plot_ContaminantGroupPseudoChromato, results='asis', fig.height=5, fig.width=8, warning=FALSE}
-plot_seudochromatogram_contaminantgroup_list <-
+```{r plot_ContaminantGroupPseudoChromato, results='asis', fig.height=4, fig.width=8, warning=FALSE}
+
+
+if(params$PlotsInteractive == TRUE){
+  plot_seudochromatogram_contaminantgroup_list <-
   lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
          function(x){
            plot_pseudochromatogram(filter(conta, ContaminantGroup == x)) %>% 
@@ -394,6 +405,17 @@ plot_seudochromatogram_contaminantgroup_list <-
              htmltools::tagList() 
          }
   )
+  }else{if(params$PlotsInteractive == FALSE){
+  plot_seudochromatogram_contaminantgroup_list <-
+  lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
+         function(x){
+           plot_pseudochromatogram(filter(conta, ContaminantGroup == x))
+         }
+  )
+  }
+  }
+
+
 names(plot_seudochromatogram_contaminantgroup_list) <-
   levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)]
 
@@ -402,7 +424,7 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
   if(params$PlotsInteractive == TRUE){
     print(htmltools::tagList(plot_seudochromatogram_contaminantgroup_list[[i]])) #required to print ggplotly inside asis
   }else{if(params$PlotsInteractive == FALSE){
-    plot_seudochromatogram_contaminantgroup_list[[i]]
+    print(plot_seudochromatogram_contaminantgroup_list[[i]])
   }
   }
   cat('\n\n')
@@ -425,7 +447,7 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
 #               backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
 ```
 
-# Appendixes
+# Appendix
 
 * Result tables are exported in folder `r filedir_report`.
 
