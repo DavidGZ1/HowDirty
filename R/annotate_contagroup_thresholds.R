@@ -1,14 +1,15 @@
-#' Short description
+#' Annotate thresholds of contaminant groups
 #'
 #' description
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe with contaminants.
+#' @param df_threshold dataframe with thresholds.
+#' @param var column name used for calculations.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe containing the input dataframe
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' annotate_contagroup_thresholds(df_conta, Abundance_median)
 #'
 #' @export
 annotate_contagroup_thresholds <- function(df_conta, df_threshold, var){
