@@ -28,8 +28,13 @@ annotate_conta_thresholds <- function(df_conta, df_threshold, var){
                                    (Tshd_abundance_quantile90 <= {{ var }}) ~ 5,
                                    TRUE ~ 6),
              Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                          rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
-                                  "5) Very High", "6) No threshold in reference"))) %>%
+                          rep = c("0) Not Detected",
+                                  "1) Very Low",
+                                  "2) Low",
+                                  "3) Medium",
+                                  "4) High",
+                                  "5) Very High",
+                                  "6) No threshold in reference"))) %>%
       mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
       select(-starts_with("Tshd_"))
   }

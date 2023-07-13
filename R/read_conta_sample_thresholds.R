@@ -26,12 +26,12 @@ read_conta_sample_thresholds <- function(file_report_howdirty){
     arrange(Sum) %>%
     filter(!Quantile %in% c("min", "max")) %>%
     mutate(Breaks =signif(Sum, 2),
-           Labels = c("0) ERROR",
-                      "1) Very Low (OK)",
-                      "2) Low (OK)",
-                      "3) Medium (Warning)",
-                      "4) High (Warning)",
-                      "5) Very High (DO NOT PROCEED)")) %>%
+           Labels = c("0) Not Detected",
+                      "1) Very Low",
+                      "2) Low",
+                      "3) Medium",
+                      "4) High",
+                      "5) Very High")) %>%
     as.data.frame()
   return(output)
 }

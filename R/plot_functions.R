@@ -74,7 +74,13 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
   ggplot2:::manual_scale(
     'fill',
     values = setNames(colors_risk,
-                      c("1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference")),
+                      c("0) Not Detected",
+                        "1) Very Low",
+                        "2) Low",
+                        "3) Medium",
+                        "4) High",
+                        "5) Very High",
+                        "6) No threshold in reference")),
     ...
   )
 }

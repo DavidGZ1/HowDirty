@@ -257,6 +257,7 @@ summ_color <- summ_color_scale[max_risklevel]
 
 * The piechart below shows the percentages of samples associated to each risk level
 * The results were exported to `r filedir_report` --> risk_summ_sampleset
+* RiskLevel = "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"
 
 ```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=2.5}
 plot_pie_risk_summ_sampleset <- plot_risk_summ_sampleset(risk_summ_sampleset)
@@ -279,7 +280,6 @@ plot_conta_summ_condition_risk # note: the results of the statistical test can't
 ## Sample (ordered by name)
 
 * The table can also be found in `r filedir_report` --> conta_summ_sample.
-* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
 
 ```{r plot_conta_summ_sample_risk_bysample, warning=FALSE, fig.width= 10, fig.height=3}
 dot_plot_sample_risk_total_bysample <-
@@ -291,7 +291,6 @@ print_plot_or_plotly(dot_plot_sample_risk_total_bysample + rremove("xlab"))
 ## Sample (ordered by abundance)
 
 * The table can also be found in `r filedir_report` --> conta_summ_sample.
-* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No threshold in reference"
 
 ```{r plot_conta_summ_sample_risk_byabundance, warning=FALSE, fig.width= 10, fig.height=3}
 dot_plot_sample_risk_total_byabundance <- 
@@ -428,7 +427,7 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
 
 * The following table shows the results of possible contaminants detected in each sample.
 * An extended version of this table containing the Area and Total-Ion-Count-Area (TICA) can also be found in `r filedir_report` --> conta.
-* RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
+* RiskLevel = "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"
 
 ```{r table_conta, echo=FALSE, warning=FALSE}
 conta %>%
