@@ -1,14 +1,15 @@
-#' Short description
+#' Annotate the threshold for contaminants
 #'
-#' description
+#' Assigns the risk level
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing the contaminants.
+#' @param df_threshold dataframe containing the threshold information.
+#' @param var Abundance.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe containing the risk level.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' annotate_conta_thresholds(df_conta, ref_conta_tshd, Abundance)
 #'
 #' @export
 annotate_conta_thresholds <- function(df_conta, df_threshold, var){
