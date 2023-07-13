@@ -1,14 +1,14 @@
-#' Short description
+#' Summarize Contaminant Groups
 #'
-#' description
+#' Summarize the data by contaminant group
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing the contaminant groups.
+#' @param ... Variables to summarize by.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe with the summarized contaminant groups.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
+#' summarize_conta(df_conta, ...)
 #' #'
 #' @export
 summarize_conta <- function(df_conta, ...){
