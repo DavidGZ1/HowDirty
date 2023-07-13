@@ -1,15 +1,14 @@
-#' Short description
+#' Arrange contaminant group levels
 #'
-#' description
+#' Arranges the contaminant group levels based on overall median abundance.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing the contaminants.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe with the arranged contaminant group levels.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' arrange_contagroup_levels(df_conta, metric = "median")
+#'
 #' @export
 arrange_contagroup_levels <- function(df_conta, metric = "median"){
   #arrange column ContaminantGroup based on metric
