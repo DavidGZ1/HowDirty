@@ -36,7 +36,7 @@ params:
     value: TRUE
   nTopContaminantGroups:
     label: "Top n contaminant groups to show in plots"
-    value: 3
+    value: 10
     input: numeric
   MultiplyDilutionFactor:
     label:
@@ -258,7 +258,7 @@ summ_color <- summ_color_scale[max_risklevel]
 * The piechart below shows the percentages of samples associated to each risk level
 * The results were exported to `r filedir_report` --> risk_summ_sampleset
 
-```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=3}
+```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=2.5}
 plot_pie_risk_summ_sampleset <- plot_risk_summ_sampleset(risk_summ_sampleset)
 plot_pie_risk_summ_sampleset
 ```
@@ -267,7 +267,7 @@ plot_pie_risk_summ_sampleset
 
 * Statistical difference was assessed by a Wilcoxon signed-rank test
 
-```{r plot_conta_summ_condition_risk, warning=FALSE, fig.width=4, fig.height=3}
+```{r plot_conta_summ_condition_risk, warning=FALSE, fig.width=4, fig.height=2.5}
 plot_conta_summ_condition_risk <-
   plot_condition_risk_total_boxplot(conta_summ_sample,
                                     compare_means = TRUE,
@@ -348,7 +348,7 @@ print_plot_or_plotly(plot_abundance_contaminantgroup_sample)
 
 ## Abundance boxplot{.tabset}
 
-```{r plot_ContaminantGroupArea, results='asis', fig.height=5, fig.width=8, warning=FALSE}
+```{r plot_ContaminantGroupArea, results='asis', fig.height=4, fig.width=6, warning=FALSE}
 if(params$PlotsInteractive == TRUE){
   plot_abundance_contaminantgroup_list <-
   lapply(levels(conta$ContaminantGroup)[c(1:params$nTopContaminantGroups)],
@@ -431,13 +431,13 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
 * RiskLevel = "1) Very Low (OK)", "2) Low (OK)", "3) Medium (Warning)", "4) High (Warning)", "5) Very High (DO NOT PROCEED)", "6) No theshold in reference"
 
 ```{r table_conta, echo=FALSE, warning=FALSE}
-# conta %>% 
-#   select(ContaminantGroup, Contaminant, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>% 
-#   arrange(desc(Abundance)) %>% 
-#   datatable(filter = 'top', 
-#             options = list(pageLength = 10, autoWidth = TRUE)) %>% 
-#   formatStyle('RiskLevel',
-#               backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
+conta %>%
+  select(ContaminantGroup, Contaminant, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>%
+  arrange(desc(Abundance)) %>%
+  datatable(filter = 'top',
+            options = list(pageLength = 10, autoWidth = TRUE)) %>%
+  formatStyle('RiskLevel',
+              backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
 ```
 
 # Appendix
