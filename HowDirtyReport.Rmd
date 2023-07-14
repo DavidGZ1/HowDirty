@@ -430,13 +430,17 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
 * RiskLevel = "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"
 
 ```{r table_conta, echo=FALSE, warning=FALSE}
-conta %>%
+if(params$PlotsInteractive == TRUE){
+  conta %>%
   select(ContaminantGroup, Contaminant, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>%
   arrange(desc(Abundance)) %>%
   datatable(filter = 'top',
             options = list(pageLength = 10, autoWidth = TRUE)) %>%
   formatStyle('RiskLevel',
               backgroundColor = styleEqual(c(0, 1, 2, 3, 4, 5, 6),c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))))
+}else{
+  message("Report generated without interactive plots and tables. Please see the results in the Excel report")
+}
 ```
 
 # Appendix

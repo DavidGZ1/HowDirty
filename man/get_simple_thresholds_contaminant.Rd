@@ -4,7 +4,10 @@
 \alias{get_simple_thresholds_contaminant}
 \title{Short description}
 \usage{
-get_simple_thresholds_contaminant(df_conta)
+get_simple_thresholds_contaminant(
+  df_conta,
+  breaks = c(0.00016, 4e-04, 0.0013, 0.0057)
+)
 }
 \arguments{
 \item{x}{type of input object (e.g. numeric vector).}

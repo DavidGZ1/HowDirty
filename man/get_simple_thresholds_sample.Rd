@@ -4,7 +4,7 @@
 \alias{get_simple_thresholds_sample}
 \title{Short description}
 \usage{
-get_simple_thresholds_sample(breaks = c(0, 0.05, 0.1, 0.55, 1, Inf))
+get_simple_thresholds_sample(breaks = c(0.83, 1.5, 4.6, 12))
 }
 \arguments{
 \item{x}{type of input object (e.g. numeric vector).}

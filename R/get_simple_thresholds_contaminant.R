@@ -11,13 +11,17 @@
 #' bmi3(bmi.vals)
 #'
 #' @export
-get_simple_thresholds_contaminant <-function(df_conta){
+get_simple_thresholds_contaminant <- function(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057)){
   # Set arbitrary thresholds for the Contaminants found in df_conta
-  df_conta %>%
-    select(ContaminantGroup, Contaminant) %>%
-    unique() %>%
-    mutate(Tshd_abundance_quantile25 = 0.00015,
-           Tshd_abundance_quantile50 = 0.0005,
-           Tshd_abundance_quantile75 = 0.0015,
-           Tshd_abundance_quantile90 = 0.005)
+  # default thresholds based on the quantile75 of all contaminants in the reference dataset from two monts of analyses
+  conta_columns <- c("ContaminantGroup", "Contaminant")
+  if(length(breaks) != 4 | !is.numeric(breaks)) stop("breaks must be a numeric vector with four values")
+  if(!all(conta_columns%in% names(df_conta))) stop(paste0("df_conta must be a dataframe containing the columns: ", paste0(conta_columns, collapse = ", ")))
+
+  output <- unique(df_conta[, conta_columns])
+  output$Tshd_abundance_quantile25 = breaks[1]
+  output$Tshd_abundance_quantile50 = breaks[2]
+  output$Tshd_abundance_quantile75 = breaks[3]
+  output$Tshd_abundance_quantile90 = breaks[4]
+  return(output)
 }
