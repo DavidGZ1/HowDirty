@@ -20,6 +20,5 @@ get_simple_thresholds_sample <-function(breaks = c(0, 0.05, 0.1, 0.55, 1.0, Inf)
                         "2) Low",
                         "3) Medium",
                         "4) High",
-                        "5) Very High",
-                        "6) No threshold in reference"))
+                        "5) Very High"))
 }
