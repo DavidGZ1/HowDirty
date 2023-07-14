@@ -20,14 +20,14 @@ params:
     value:
     input: text
   PeakAreasContaminantsFile:
-    label: "PeakAreaContaminants report from Skyline"
-    value: data/PeakAreas_Contaminants_2021-231.csv # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
+    label: "PeakAreaContaminants report from Skyline" # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
+    value: data/PeakAreas_Contaminants_2021-231.csv 
   AnnotationFile:
-    label: "Sample annotation file"
-    value: data/samples_annotation_2021-231.csv # Samples Annotation directory/name
+    label: "Sample annotation file" # Samples Annotation directory/name
+    value: data/samples_annotation_2021-231.csv 
   RefThresholdsFile:
-    label: "Reference threshold file (total)"
-    value: data/2021-231_FASP_filters_report_contaminants_20230712_1821.xlsx # A file directory/name in or FALSE if no threshold available
+    label: "Reference threshold file" # file directory/name or FALSE
+    value: data/2021-231_FASP_filters_report_contaminants_20230712_1821.xlsx 
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
@@ -38,12 +38,12 @@ params:
     label: "Top n contaminant groups to show in plots"
     value: 10
     input: numeric
-  MultiplyDilutionFactor:
-    label:
-    value: FALSE #Use carefully, normalization by TIC already takes into account slight differences in injection amounts
+  MultiplyDilutionFactor: 
+    label: "Multiply abundance by DilutionFactor column" # Use carefully, normalization by TIC already takes into account slight differences in injection amounts
+    value: FALSE 
   PlotsInteractive: 
-    label: "Export interactive plots"
-    value: TRUE #TRUE = interactive in html, FALSE = static
+    label: "Export interactive plots" #TRUE = interactive in html, FALSE = static
+    value: TRUE 
 ---
 
 <style type="text/css">
