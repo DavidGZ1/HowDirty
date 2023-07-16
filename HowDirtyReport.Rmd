@@ -27,7 +27,7 @@ params:
     value: data/samples_annotation_2021-231.csv 
   RefThresholdsFile:
     label: "Reference threshold file" # file directory/name or FALSE
-    value: data/reference_E480_report_contaminants_20230714_2238.xlsx
+    value: data/reference_E480_report_contaminants_20230716_1138.xlsx
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
