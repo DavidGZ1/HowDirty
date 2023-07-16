@@ -526,3 +526,70 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
       ylab("log10(Total Abundance)")
     return(output)}
 }
+#' Plot functions for HowDirty
+#'
+#' diverse plot functions
+#'
+#' @param x type of input object (e.g. numeric vector).
+#'
+#' @return type of output object (e.g. numeric vector).
+#'
+#' @examples
+#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+#' bmi3(bmi.vals)
+#'
+#' @export
+#'
+#'
+plot_contaminantgroup_risk <- function(input_conta_summ_contaminantgroup_sample, x, size,
+                                       order_y = "Abundance",
+                                       show_zeros = FALSE){
+  # plot Contaminant group vs Condition or Sample, with color in function of risk and size in function of {{ size }}
+  # x = c(Condition, Sample), as objects
+  # size = any of the Abundance measures in the df:  c(Abundance_median, Abundance_total, Abundance_min, Abundance_quantile25, Abundance_quantile75, Abundance_quantile90, Abundance_max)
+  # order_y = c("Abundance", "ContaminantGroup")
+  # scale: changes the scale to linear or log10; options = c("linear", "log10")
+  # remove all zero values
+  if(show_zeros == FALSE){
+    # remove zero values
+    ContaminantGroup2Plot <-
+      input_conta_summ_contaminantgroup_sample %>%
+      group_by(ContaminantGroup, {{ size }}) %>%
+      summarise(Keep = all({{ size }} > 0), .groups = "drop") %>%
+      filter(Keep == TRUE) %>%
+      pull(ContaminantGroup) %>%
+      unique()
+    input_conta_summ_contaminantgroup_sample <-
+      filter(input_conta_summ_contaminantgroup_sample, ContaminantGroup %in% ContaminantGroup2Plot)
+  }
+  # arrange in function of ContaminantGroup or {{ size }}
+  if(order_y == "Abundance"){
+    input_conta_summ_contaminantgroup_sample <-
+      input_conta_summ_contaminantgroup_sample %>%
+      arrange({{ size }})
+  }else{
+    if(order_y == "ContaminantGroup"){
+      input_conta_summ_contaminantgroup_sample <-
+        input_conta_summ_contaminantgroup_sample %>%
+        arrange(ContaminantGroup)
+    }else{
+      stop("order_y must be ContaminantGroup or Abundance")}
+  }
+
+  input_conta_summ_contaminantgroup_sample <-
+    input_conta_summ_contaminantgroup_sample %>%
+    mutate(ContaminantGroup = factor(ContaminantGroup, levels = unique(ContaminantGroup)))
+
+
+  output <-
+    input_conta_summ_contaminantgroup_sample %>%
+    ggplot(aes(y = ContaminantGroup, x = {{ x }}, color = RiskLevel, size = {{ size }})) +
+    geom_point() +
+    scale_color_risk() +
+    ylab("Contaminant Group") +
+    # xlab("Condition")+
+    theme_hd +
+    theme(plot.margin = margin(4,4,4,10)) +
+    rotate_x_text(angle = 90)
+  return(output)
+}
