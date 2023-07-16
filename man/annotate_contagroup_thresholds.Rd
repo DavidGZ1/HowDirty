@@ -4,7 +4,7 @@
 \alias{annotate_contagroup_thresholds}
 \title{Short description}
 \usage{
-annotate_contagroup_thresholds(df_conta, df_threshold, var)
+annotate_contagroup_thresholds(df_conta, df_threshold)
 }
 \arguments{
 \item{x}{type of input object (e.g. numeric vector).}
