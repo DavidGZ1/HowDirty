@@ -6,7 +6,6 @@ output:
     toc_float: false
     theme: united
     number_sections: TRUE
-runtime: shiny
 params:
   DataSet: 
     label: "Data set or experiment (keep it short since it's used as prefix for output file names)"
@@ -217,7 +216,7 @@ conta_summ_sample <-
 
 conta_summ_contaminantgroup_sample <-
   summarize_conta(conta, Condition, Sample, ReplicateName, ContaminantGroup)  %>% 
-  annotate_contagroup_thresholds(ref_conta_tshd, Abundance_median)
+  annotate_contagroup_thresholds(ref_conta_tshd)
 
 conta_summ_condition <-
   summarize_conta(conta, Condition, ContaminantGroup, Contaminant) %>% 
@@ -301,6 +300,7 @@ print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 
 # Contaminant group {.tabset}
 
+* Contamination risk is calculated based on Abundance_total
 * y axis is ordered from highest to lowest abundance
 
 ## Condition dotplot
@@ -309,10 +309,11 @@ print_plot_or_plotly(dot_plot_sample_risk_total_byabundance + rremove("xlab"))
 #dotplot
 ## ContaminantGroup 
 dot_plot_conta_summ_condition_risk_contaminantgroup <-
-  plot_condition_risk_contaminant(conta_summ_contaminantgroup_sample,
-                              order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
-
-
+  # plot_condition_risk_contaminant(conta_summ_contaminantgroup_sample,
+  #                             order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
+  plot_contaminantgroup_risk(conta_summ_contaminantgroup_sample,
+                                       x = Condition, size =  Abundance_total,
+                                       order_y = "Abundance", show_zeros = FALSE)
 
 print_plot_or_plotly(dot_plot_conta_summ_condition_risk_contaminantgroup)
 ```
@@ -324,9 +325,11 @@ print_plot_or_plotly(dot_plot_conta_summ_condition_risk_contaminantgroup)
 ## ContaminantGroup 
 dot_plot_conta_summ_sample_risk_contaminantgroup <-
   # conta_summ_sample_risk %>% 
-  conta_summ_contaminantgroup_sample %>% 
-  plot_sample_risk_contaminant(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
-
+  # conta_summ_contaminantgroup_sample %>% 
+  # plot_sample_risk_contaminant(order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
+  plot_contaminantgroup_risk(conta_summ_contaminantgroup_sample,
+                                       x = Sample, size =  Abundance_total,
+                                       order_y = "Abundance", show_zeros = FALSE)
 
 print_plot_or_plotly(dot_plot_conta_summ_sample_risk_contaminantgroup)
 ```
@@ -334,8 +337,8 @@ print_plot_or_plotly(dot_plot_conta_summ_sample_risk_contaminantgroup)
 ## Sample boxplot
 
 ```{r plot_abundance_contaminantgroup_sample, fig.width=6, fig.height=5}
-plot_abundance_contaminantgroup_sample <- 
-   plot_abundance(conta_summ_contaminantgroup_sample, ContaminantGroup, Abundance_median)
+plot_abundance_contaminantgroup_sample <-
+   plot_abundance(conta_summ_contaminantgroup_sample, ContaminantGroup, Abundance_total)
 
 print_plot_or_plotly(plot_abundance_contaminantgroup_sample)
 ```
