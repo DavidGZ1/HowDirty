@@ -104,7 +104,7 @@ if(any(!filecheck)){
 #Install required packages
 ##Test whether all required packages, install packages needed and install if needed
 required_packages <- c('ggplot2', 'ggpubr', 'scales', 'plotly',
-              'openxlsx', 'mgsub', 'DT', 'shiny', 'tidyverse', 'HowDirty')
+              'openxlsx', 'mgsub', 'DT', 'tidyverse', 'HowDirty')
 # required_packages <- c(packages)
 installed_packages <- required_packages %in% installed.packages()[,"Package"]
 missing_packages <- required_packages[!installed_packages]
