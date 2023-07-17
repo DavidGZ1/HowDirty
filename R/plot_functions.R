@@ -1,16 +1,12 @@
 # Plot functions for HowDirty
 
-#' Plot functions for HowDirty
+#' HowDirty theme
 #'
-#' diverse plot functions
+#' sets the parameters of the HowDirty theme for plotting
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param None
 #'
-#' @return type of output object (e.g. numeric vector).
-#'
-#' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' @return None
 #'
 #' @export
 theme_hd <-
@@ -20,17 +16,14 @@ theme_hd <-
         strip.background = element_blank(),
         strip.text = element_text(face="bold"))
 
-#' Plot functions for HowDirty
+#' Fill scale risk
 #'
-#' diverse plot functions
+#' Sets fill scale of risk colours
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param option name of colour palette ("RdOrBlu", "plasma").
+#' @param direction value that sets the order of risk levels.
 #'
-#' @return type of output object (e.g. numeric vector).
-#'
-#' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' @return None
 #'
 #' @export
 scale_fill_risk <- function(..., option = "plasma", direction = 1){
@@ -49,17 +42,14 @@ scale_fill_risk <- function(..., option = "plasma", direction = 1){
     ...
   )
 }
-#' Plot functions for HowDirty
+#' Scale fill risk level
 #'
-#' diverse plot functions
+#' Sets the fill colour scale of the risk level
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param option name of colour scheme ("RdOrBlu", "plasma").
+#' @param direction sets order of risk levels.
 #'
-#' @return type of output object (e.g. numeric vector).
-#'
-#' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' @return None
 #'
 #' @export
 scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
@@ -79,11 +69,11 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
   )
 }
 
-#' Plot functions for HowDirty
+#' Colour scale risk
 #'
-#' diverse plot functions
+#' Set the colour scale and names for risk 
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param optin palatte name ("RdOrBlu", "plasma")
 #'
 #' @return type of output object (e.g. numeric vector).
 #'
