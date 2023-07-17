@@ -1,14 +1,16 @@
-#' Short description
+#' Annotate contaminated samples
 #'
-#' description
+#' Annotates the contamination results using the samples annotation, multiplies by dilution factor, and assigns risc level
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing the contaminated samples.
+#' @param df_samples_annot dataframe with annotated samples.
+#' @param remove_missing flag if missing values should be removed.
+#' @param multiply_dilution_factor flag if multiplication by dilution factor happens.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return merged dataframe containing contaminated and annotated samples.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' annotate_conta_samples(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE)
 #'
 #' @export
 annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE){

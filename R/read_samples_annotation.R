@@ -1,14 +1,13 @@
-#' Short description
+#' Read Sample Annotation
 #'
-#' description
+#' Reads the annotation in the sample input file and does renaming and missing value handling.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param file_samples_annotation Input file containing sample annotation.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return The input file with changed values.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' read_samples_annotation(file_samples_annotation)
 #'
 #' @export
 read_samples_annotation <- function(file_samples_annotation){

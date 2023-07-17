@@ -1,14 +1,13 @@
-#' Short description
+#' Get thresholds for sample file
 #'
-#' description
+#' If no threshold file is provided, thresholds are set using this function.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param None
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe containing break points and labels.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' get_simple_thresholds_sample()
 #'
 #' @export
 get_simple_thresholds_sample <-function(breaks = c(0.83, 1.50, 4.60, 12)){
