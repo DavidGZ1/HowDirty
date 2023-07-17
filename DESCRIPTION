@@ -4,9 +4,10 @@ Title: Evaluate How Dirty are LC-MS samples
 Version: 0.1.0
 Author: David Gomez-Zepeda
 Maintainer: David Gomez-Zepeda <davidgz.science@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Description: HowDirty facilitates the evaluation and reporting of molecular
+    contaminants in LC-MS experiments by importing results from Skyline
+    and generating a self-contained, interactive HTML report.
+License: GNU GENERAL PUBLIC LICENSE Version 3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
