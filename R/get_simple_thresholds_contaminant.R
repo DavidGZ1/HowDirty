@@ -13,7 +13,7 @@
 #' @export
 get_simple_thresholds_contaminant <- function(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057)){
   # Set arbitrary thresholds for the Contaminants found in df_conta
-  # default thresholds based on the quantile75 of all contaminants in the reference dataset from two monts of analyses
+  # default thresholds based on the quantile75 of all contaminants in the reference dataset from two months of analyses
   conta_columns <- c("ContaminantGroup", "Contaminant")
   if(length(breaks) != 4 | !is.numeric(breaks)) stop("breaks must be a numeric vector with four values")
   if(!all(conta_columns%in% names(df_conta))) stop(paste0("df_conta must be a dataframe containing the columns: ", paste0(conta_columns, collapse = ", ")))

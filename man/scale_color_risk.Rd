@@ -2,18 +2,18 @@
 % Please edit documentation in R/plot_functions.R
 \name{scale_color_risk}
 \alias{scale_color_risk}
-\title{Plot functions for HowDirty}
+\title{Colour scale risk}
 \usage{
 scale_color_risk(..., option = "plasma", direction = 1, verbose = FALSE)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{optin}{palatte name ("RdOrBlu", "plasma")}
 }
 \value{
 type of output object (e.g. numeric vector).
 }
 \description{
-diverse plot functions
+Set the colour scale and names for risk
 }
 \examples{
 bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)

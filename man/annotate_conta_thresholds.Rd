@@ -2,21 +2,24 @@
 % Please edit documentation in R/annotate_conta_thresholds.R
 \name{annotate_conta_thresholds}
 \alias{annotate_conta_thresholds}
-\title{Short description}
+\title{Annotate the threshold for contaminants}
 \usage{
 annotate_conta_thresholds(df_conta, df_threshold, var)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing the contaminants.}
+
+\item{df_threshold}{dataframe containing the threshold information.}
+
+\item{var}{Abundance.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe containing the risk level.
 }
 \description{
-description
+Assigns the risk level
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+annotate_conta_thresholds(df_conta, ref_conta_tshd, Abundance)
 
 }

@@ -3,7 +3,7 @@
 \docType{data}
 \name{theme_hd}
 \alias{theme_hd}
-\title{Plot functions for HowDirty}
+\title{HowDirty theme}
 \format{
 An object of class \code{theme} (inherits from \code{gg}) of length 97.
 }
@@ -11,17 +11,12 @@ An object of class \code{theme} (inherits from \code{gg}) of length 97.
 theme_hd
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{None}{}
 }
 \value{
-type of output object (e.g. numeric vector).
+None
 }
 \description{
-diverse plot functions
-}
-\examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
-
+sets the parameters of the HowDirty theme for plotting
 }
 \keyword{datasets}

@@ -2,21 +2,22 @@
 % Please edit documentation in R/summarize_conta.R
 \name{summarize_conta}
 \alias{summarize_conta}
-\title{Short description}
+\title{Summarize Contaminant Groups}
 \usage{
 summarize_conta(df_conta, ...)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing the contaminant groups.}
+
+\item{...}{Variables to summarize by.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe with the summarized contaminant groups.
 }
 \description{
-description
+Summarize the data by contaminant group
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
+summarize_conta(df_conta, ...)
 #'
 }

@@ -2,18 +2,20 @@
 % Please edit documentation in R/check_samples_in_results.R
 \name{check_samples_in_results}
 \alias{check_samples_in_results}
-\title{Short description}
+\title{Check if samples are included in both results and annotation}
 \usage{
 check_samples_in_results(df_conta, df_samples_annot)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing contaminant information.}
+
+\item{df_samples_annot}{dataframe containing sample annotation.}
 }
 \value{
-type of output object (e.g. numeric vector).
+None
 }
 \description{
-description
+This function checks if all samples in the provided results and annotation are present in both. If one sample is misssing in one, it will not be further processed.
 }
 \examples{
 bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)

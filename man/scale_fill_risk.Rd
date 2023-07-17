@@ -2,21 +2,18 @@
 % Please edit documentation in R/plot_functions.R
 \name{scale_fill_risk}
 \alias{scale_fill_risk}
-\title{Plot functions for HowDirty}
+\title{Fill scale risk}
 \usage{
 scale_fill_risk(..., option = "plasma", direction = 1)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{option}{name of colour palette ("RdOrBlu", "plasma").}
+
+\item{direction}{value that sets the order of risk levels.}
 }
 \value{
-type of output object (e.g. numeric vector).
+None
 }
 \description{
-diverse plot functions
-}
-\examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
-
+Sets fill scale of risk colours
 }

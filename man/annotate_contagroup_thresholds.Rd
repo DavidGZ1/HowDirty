@@ -2,21 +2,24 @@
 % Please edit documentation in R/annotate_contagroup_thresholds.R
 \name{annotate_contagroup_thresholds}
 \alias{annotate_contagroup_thresholds}
-\title{Short description}
+\title{Annotate thresholds of contaminant groups}
 \usage{
 annotate_contagroup_thresholds(df_conta, df_threshold)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe with contaminants.}
+
+\item{df_threshold}{dataframe with thresholds.}
+
+\item{var}{column name used for calculations.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe containing the input dataframe
 }
 \description{
 description
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+annotate_contagroup_thresholds(df_conta, Abundance_median)
 
 }

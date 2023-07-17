@@ -2,21 +2,20 @@
 % Please edit documentation in R/get_simple_thresholds_sample.R
 \name{get_simple_thresholds_sample}
 \alias{get_simple_thresholds_sample}
-\title{Short description}
+\title{Get thresholds for sample file}
 \usage{
 get_simple_thresholds_sample(breaks = c(0.83, 1.5, 4.6, 12))
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{None}{}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe containing break points and labels.
 }
 \description{
-description
+If no threshold file is provided, thresholds are set using this function.
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+get_simple_thresholds_sample()
 
 }

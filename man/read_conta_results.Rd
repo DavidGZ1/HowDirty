@@ -2,21 +2,22 @@
 % Please edit documentation in R/read_conta_results.R
 \name{read_conta_results}
 \alias{read_conta_results}
-\title{Short description}
+\title{Read Conta Results}
 \usage{
 read_conta_results(file_report_skyline, simplify_ContaminantGroup = TRUE)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{file_report_skyline}{The file containing the Skyline report.}
+
+\item{simplify_ContaminantGroup}{Flag if contaminant names should be simplified.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe with the transformed input.
 }
 \description{
-description
+This function reads the contaminants provided by Skyline and renames the contaminant groups.
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+read_conta_results(file_report_skyline = PeaksAreasContaminantsFile, simplify_contaminantGroup = TRUE)
 
 }

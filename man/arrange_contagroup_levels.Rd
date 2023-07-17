@@ -2,21 +2,20 @@
 % Please edit documentation in R/arrange_contagroup_levels.R
 \name{arrange_contagroup_levels}
 \alias{arrange_contagroup_levels}
-\title{Short description}
+\title{Arrange contaminant group levels}
 \usage{
 arrange_contagroup_levels(df_conta, metric = "median")
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing the contaminants.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe with the arranged contaminant group levels.
 }
 \description{
-description
+Arranges the contaminant group levels based on overall median abundance.
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+arrange_contagroup_levels(df_conta, metric = "median")
+
 }

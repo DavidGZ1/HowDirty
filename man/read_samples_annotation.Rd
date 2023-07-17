@@ -2,21 +2,20 @@
 % Please edit documentation in R/read_samples_annotation.R
 \name{read_samples_annotation}
 \alias{read_samples_annotation}
-\title{Short description}
+\title{Read Sample Annotation}
 \usage{
 read_samples_annotation(file_samples_annotation)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{file_samples_annotation}{Input file containing sample annotation.}
 }
 \value{
-type of output object (e.g. numeric vector).
+The input file with changed values.
 }
 \description{
-description
+Reads the annotation in the sample input file and does renaming and missing value handling.
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+read_samples_annotation(file_samples_annotation)
 
 }

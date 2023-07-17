@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotate_conta_samples.R
 \name{annotate_conta_samples}
 \alias{annotate_conta_samples}
-\title{Short description}
+\title{Annotate contaminated samples}
 \usage{
 annotate_conta_samples(
   df_conta,
@@ -12,16 +12,21 @@ annotate_conta_samples(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing the contaminated samples.}
+
+\item{df_samples_annot}{dataframe with annotated samples.}
+
+\item{remove_missing}{flag if missing values should be removed.}
+
+\item{multiply_dilution_factor}{flag if multiplication by dilution factor happens.}
 }
 \value{
-type of output object (e.g. numeric vector).
+merged dataframe containing contaminated and annotated samples.
 }
 \description{
-description
+Annotates the contamination results using the samples annotation, multiplies by dilution factor, and assigns risc level
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+annotate_conta_samples(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE)
 
 }
