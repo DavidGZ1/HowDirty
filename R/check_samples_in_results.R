@@ -8,8 +8,7 @@
 #' @return None
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' check_samples_in_results(df_conta, df_samples_annot)
 #'
 #' @export
 check_samples_in_results <- function(df_conta, df_samples_annot){

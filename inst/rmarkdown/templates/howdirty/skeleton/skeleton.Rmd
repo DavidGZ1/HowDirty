@@ -27,7 +27,7 @@ params:
     value: 
   RefThresholdsFile:
     label: "Reference threshold file" # file directory/name or FALSE
-    value:  
+    value:  TRUE
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
