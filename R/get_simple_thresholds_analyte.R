@@ -1,18 +1,17 @@
-#' Short description
+#' Set arbitrary contaminant threshold
 #'
-#' description
+#' Sets arbitrary thresholds for the contaminants found in the provided dataframe.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing contaminants.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' get_simple_thresholds_analyte(df_conta)
 #'
 #' @export
 get_simple_thresholds_analyte <-function(df_conta){
-  # Set arbitrary thresholds for the analytes found in df_conta
+  # Set arbitrary thresholds for the contaminants found in df_conta
   df_conta %>%
     select(AnalyteGroup, Analyte, AnalyteFull) %>%
     unique() %>%
