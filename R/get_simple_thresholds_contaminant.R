@@ -1,14 +1,14 @@
-#' Short description
+#' Set arbitrary contaminant threshold
 #'
-#' description
+#' Sets arbitrary thresholds for the contaminants found in the provided dataframe. Default thresholds are based on the qunatile75 of all conaminants in the reference dataset from two months of analyses
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing contaminants
+#' @param breaks numerical list containing default break values.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe with thresholds
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' get_simple_thresholds_contaminant(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057))
 #'
 #' @export
 get_simple_thresholds_contaminant <- function(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057)){
