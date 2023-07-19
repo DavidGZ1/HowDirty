@@ -108,7 +108,7 @@ required_packages <- c('ggplot2', 'ggpubr', 'scales', 'plotly',
 # required_packages <- c(packages)
 installed_packages <- required_packages %in% installed.packages()[,"Package"]
 missing_packages <- required_packages[!installed_packages]
-if ( length(missing_packages) > 0 ) install.packages(packages)
+if ( length(missing_packages) > 0 ) install.packages(missing_packages)
 ##Load libraries
 invisible(lapply(required_packages, require, character.only = TRUE))
 # names for output files
@@ -176,6 +176,7 @@ if(params$RefThresholdsFile == FALSE){
   ref_conta_tshd <-  read_conta_thresholds(params$RefThresholdsFile)
   ref_conta_tshd_sample <-  read_conta_sample_thresholds(params$RefThresholdsFile)
 }
+
 ```
 
 ```{r annotate_results}
@@ -259,7 +260,7 @@ summ_color <- summ_color_scale[max_risklevel]
 * The results were exported to `r filedir_report` --> risk_summ_sampleset
 * RiskLevel = "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"
 
-```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=2.5}
+```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=2.2}
 plot_pie_risk_summ_sampleset <- plot_risk_summ_sampleset(risk_summ_sampleset)
 plot_pie_risk_summ_sampleset
 ```

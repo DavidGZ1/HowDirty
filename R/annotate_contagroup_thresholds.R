@@ -12,37 +12,6 @@
 #' annotate_contagroup_thresholds(df_conta, Abundance_median)
 #'
 #' @export
-# annotate_contagroup_thresholds <- function(df_conta, df_threshold, var){
-#   # if only the ContaminantGroup is present, calculate for ContaminantGroup
-#   require(mgsub)
-#   if(!all((c("Contaminant") %in% names(df_conta))) & ("ContaminantGroup" %in% names(df_conta))){
-#     message("Thresholds assigned at the ContaminantGroup level (total sum of contaminant abundance)")
-#     # if only the ContaminantGroup is present, calculate for ContaminantGroup
-#     df_threshold_median <-  df_threshold %>%
-#       group_by(ContaminantGroup) %>%
-#       summarise(across(starts_with("Tshd"), ~sum(.x, na.rm = TRUE)))
-#     output <-
-#       df_conta%>%
-#       left_join(., df_threshold_median %>%  select(ContaminantGroup, starts_with("Tshd")),
-#                 by = c("ContaminantGroup")) %>%
-#       mutate(RiskLevel = case_when({{ var }} ==0 ~ 0,
-#                                    {{ var }} < Tshd_abundance_quantile25 ~ 1,
-#                                    (Tshd_abundance_quantile25 <= {{ var }} & {{ var }} < Tshd_abundance_quantile50) ~ 2,
-#                                    (Tshd_abundance_quantile50 <= {{ var }} & {{ var }} < Tshd_abundance_quantile75) ~ 3,
-#                                    (Tshd_abundance_quantile75 <= {{ var }} & {{ var }} < Tshd_abundance_quantile90) ~ 4,
-#                                    (Tshd_abundance_quantile90 <= {{ var }}) ~ 5,
-#                                    TRUE ~ 6),
-#              Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-#                           rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
-#                                   "5) Very High", "6) No threshold in reference"))) %>%
-#       mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
-#       select(-starts_with("Tshd_"))
-#   }
-#   if(!any(c("ContaminantGroup") %in% names(df_conta))){
-#     stop("At least one of these variables must be present to assign the risk levels: Contaminant or ContaminantGroup")
-#   }
-#   return(output)
-# } # forced the function to use Abundance_total, it makes more sense for contagroups
 annotate_contagroup_thresholds <- function(df_conta, df_threshold){
   # if only the ContaminantGroup is present, calculate for ContaminantGroup
   require(mgsub)
