@@ -2,13 +2,14 @@
 #'
 #' This is a wrapper using rmarkdown::draft to get the HowDirtyReport template copied in the working directory
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param file name of the report file to be copied.
+#' @param edit flag.
+#' @param create_dir flag if directory should be created.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return None
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' get_report_template(file = "HorDirtyReportTemplate", edit = TRUE, create_dir = FALSE)
 #'
 #' @export
 get_report_template <- function(file = "HowDirtyReportTemplate", edit = TRUE, create_dir = FALSE) {
