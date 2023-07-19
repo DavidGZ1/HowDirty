@@ -6,11 +6,10 @@
 #' @param edit flag.
 #' @param create_dir flag if directory should be created
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return None
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' get_template(file = "HowDirtyReportTemplate", edit = TRUE, create_dir = FALSE)
 #'
 #' @export
 get_template <- function(file = "HowDirtyReportTemplate", edit = TRUE, create_dir = FALSE) {
