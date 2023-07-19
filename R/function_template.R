@@ -2,7 +2,9 @@
 #'
 #' This is a wrapper using rmarkdown::draft to get the HowDirtyReport template copied in the working directory
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param file name of template to be copied.
+#' @param edit flag.
+#' @param create_dir flag if directory should be created
 #'
 #' @return type of output object (e.g. numeric vector).
 #'
