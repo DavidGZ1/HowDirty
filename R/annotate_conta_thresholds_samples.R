@@ -1,14 +1,14 @@
-#' Short description
+#' Annotate contaminant
 #'
-#' description
+#' Annotates the contaminants with risk level thresholds
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta_summ_sample dataframe containing the contaminant values.
+#' @param df_threshold_sample dataframe containing thresholds of risk level.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe with annotated thresholds.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' annotate_conta_tresholds_samples(df_conta_summ_sample, df_threshold_sample)
 #'
 #' @export
 annotate_conta_thresholds_samples <- function(df_conta_summ_sample, df_threshold_sample){
