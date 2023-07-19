@@ -25,18 +25,17 @@ min_no_zero <- function(x, na.rm = TRUE){
   min(x[x != 0], na.rm = na.rm)
 }
 
-#' Short description
+#' Count and factorize
 #'
-#' description
+#' Count distinct factors and rename column
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df dataframe.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' count_factor_columns(df)
+#'
 #' @export
 count_factor_columns <- function(df){
   df  %>%
@@ -47,18 +46,17 @@ count_factor_columns <- function(df){
     rownames_to_column("Variable")
 }
 
-#' Short description
+#' Get width
 #'
-#' description
+#' Get the current figure width in pixels
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param None
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return knitr object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' get_w()
+#'
 #' @export
 get_w <- function() {
   # Get the current figure width in pixels
@@ -68,18 +66,17 @@ get_w <- function() {
 }
 
 
-#' Short description
+#' Get height
 #'
-#' description
+#' Get the current figure height in pixels
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param None
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return knitr object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' get_h()
+#'
 #' @export
 get_h <- function() {
   # Get the current figure height in pixels
