@@ -170,13 +170,13 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
-    ggplot(input_conta, aes(x = RetentionTime, y = Abundance, color = RiskLevel)) +
+    ggplot(input_conta, aes(x = RetentionTime, y = Abundance, color = Risk)) +
     geom_point(aes(text = paste("Replicate: ", ReplicateName,
                                 "\nSample: ", Sample,
                                 "\nContaminant: ", Contaminant,
                                 "\nRisk: ", Risk)),
                alpha = 0.8, size = 1)  +
-    scale_color_risk() +
+    scale_color_risk(verbose = TRUE) +
     # scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
     facet_wrap(~ContaminantGroup, scales = "free", ncol = 1) +
     scale_x_continuous(n.breaks = 10,
