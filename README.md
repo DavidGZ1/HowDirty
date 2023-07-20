@@ -8,16 +8,15 @@ The presence of contaminants (e.g., PEG), and detergents (e.g., CHAPS, SDS) in s
 ## Requirements
 
 -	Raw LC-MS results to be evaluated
--	Skyline version > 4 [1,2].To install it, you can register online and download the latest version here:https://skyline.ms/project/home/software/Skyline/begin.view.
--	Skyline HowDirty template, including the Skyline molecular contaminant transition list [3] and reports configuration. Final link for download pending, for now download it from Seafile
--	Alternatively, you can set up Skyline yourself (further instructions in the Skyline tutorials)
-    -	Download the molecular contaminant transition list [3] from Panorama and load it into Skyline:File / Import / Transition List…
+-	Skyline version > 4 [1,2].To install it, you can register online and download the latest version here: https://skyline.ms/project/home/software/Skyline/begin.view
+-	Skyline HowDirty template, including the Skyline molecular contaminant transition list [3] and reports configuration
+-	Alternatively, you can set up Skyline yourself (further instructions in the [Skyline tutorials](https://skyline.ms/wiki/home/software/Skyline/page.view?name=tutorials))
+    -	Download the molecular contaminant transition list [3] from [Panorama](https://panoramaweb.org/project/Panorama%20Public/2018/Amgen%20-%20Molecular%20Contaminants/begin.view?) and load it into Skyline:File / Import / Transition List…
     -	Create the PeakAreas_Contaminants report: containing the columns: 
     -	Settings / Document Settings / Report / Add, then add a name and select the columns: "Protein", "Peptide", "Replicate Name", "Peptide Retention Time", "Total.Area.MS1", "Total.Ion.Current.Area"
+-  R software for data analysis and the R packages Rmarkdown, knitr, and HowDirty
 
 ## Installation
-
-R software for data analysis and the R packages Rmarkdown, knitr, and HowDirtyHowDirty can be installed by running the following code in R:
 
 ```r
 install.packages("devtools")
