@@ -5,11 +5,14 @@
 HowDirty is an R package that assesses the level of contamination of LC-MS results.
 The presence of contaminants (e.g., PEG), and detergents (e.g., CHAPS, SDS) in samples analyzed by LC-MS can be severely detrimental to identifying peptides/proteins or other molecules. Skyline is used to extra MS1 features of many known contaminant masses from raw files (e.g., .raw and .d). The results are exported to a .csv file, then processed in R using HowDirty to generate an HTML interactive report that evaluates sample contamination risks.
 
+## Tutorial
+Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1/HowDirty/blob/main/tutorial/HowDirty_tutorial.pdf)
+
 ## Requirements
 
 -	Raw LC-MS results to be evaluated
 -	Skyline version > 4 [1,2].To install it, you can register online and download the latest version here: https://skyline.ms/project/home/software/Skyline/begin.view
--	Skyline HowDirty template, including the Skyline molecular contaminant transition list [3] and reports configuration
+-	Skyline HowDirty [template](https://github.com/DavidGZ1/HowDirty/tree/main/tutorial), including the Skyline molecular contaminant transition list [3] and reports configuration
 -	Alternatively, you can set up Skyline yourself (further instructions in the [Skyline tutorials](https://skyline.ms/wiki/home/software/Skyline/page.view?name=tutorials))
     -	Download the molecular contaminant transition list [3] from [Panorama](https://panoramaweb.org/project/Panorama%20Public/2018/Amgen%20-%20Molecular%20Contaminants/begin.view?) and load it into Skyline:File / Import / Transition List…
     -	Create the PeakAreas_Contaminants report: containing the columns: 
