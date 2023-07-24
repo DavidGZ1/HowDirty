@@ -2,21 +2,22 @@
 % Please edit documentation in R/annotate_conta_thresholds_samples.R
 \name{annotate_conta_thresholds_samples}
 \alias{annotate_conta_thresholds_samples}
-\title{Short description}
+\title{Annotate contaminant}
 \usage{
 annotate_conta_thresholds_samples(df_conta_summ_sample, df_threshold_sample)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta_summ_sample}{dataframe containing the contaminant values.}
+
+\item{df_threshold_sample}{dataframe containing thresholds of risk level.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe with annotated thresholds.
 }
 \description{
-description
+Annotates the contaminants with risk level thresholds
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+annotate_conta_tresholds_samples(df_conta_summ_sample, df_threshold_sample)
 
 }

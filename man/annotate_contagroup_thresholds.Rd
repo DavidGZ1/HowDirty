@@ -17,7 +17,7 @@ annotate_contagroup_thresholds(df_conta, df_threshold)
 dataframe containing the input dataframe
 }
 \description{
-description
+Annotates the contaminant groups with thresholds
 }
 \examples{
 annotate_contagroup_thresholds(df_conta, Abundance_median)

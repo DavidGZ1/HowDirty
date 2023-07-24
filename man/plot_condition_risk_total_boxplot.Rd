@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_condition_risk_total_boxplot}
 \alias{plot_condition_risk_total_boxplot}
-\title{Plot functions for HowDirty}
+\title{Plot abundance}
 \usage{
 plot_condition_risk_total_boxplot(
   input_conta_summ_sample,
@@ -13,16 +13,21 @@ plot_condition_risk_total_boxplot(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{input_conta_summ_sample}{dataframe containing abundance and condition.}
+
+\item{scale}{changes the scale to linear or log10; options = c("linear", "log10").}
+
+\item{compare_means}{flag if means are compared via a statistical test.}
+
+\item{method}{test used to compare means ("wilcox.test", "anova", "kruskal.test", "t.test")}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots a boxplot of the abundance for each condition
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_condition_risk_total_boxplot(input_conta_summ_sample, scale = "linear", compare_means = TRUE, method = "wilcox.test")
 
 }

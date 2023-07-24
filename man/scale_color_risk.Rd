@@ -10,13 +10,8 @@ scale_color_risk(..., option = "plasma", direction = 1, verbose = FALSE)
 \item{optin}{palatte name ("RdOrBlu", "plasma")}
 }
 \value{
-type of output object (e.g. numeric vector).
+None
 }
 \description{
 Set the colour scale and names for risk
-}
-\examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
-
 }

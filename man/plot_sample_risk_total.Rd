@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_sample_risk_total}
 \alias{plot_sample_risk_total}
-\title{Plot functions for HowDirty}
+\title{Plot total abundance}
 \usage{
 plot_sample_risk_total(
   input_conta_summ_sample,
@@ -11,16 +11,19 @@ plot_sample_risk_total(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{input_conta_summ_sample}{dataframe containing the total abundance values as well as sample names.}
+
+\item{order_x}{column used for the x-axis order.}
+
+\item{scale}{changes the scale to linear or log10; options = c("linear", "log10").}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots the total abundance vs replicate name
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_sample_risk_total(input_conta_summ_sample, order_x = "Sample", scale = "linear")
 
 }

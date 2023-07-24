@@ -2,21 +2,26 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_abundance}
 \alias{plot_abundance}
-\title{Plot functions for HowDirty}
+\title{Plot abundance}
 \usage{
 plot_abundance(input_conta, level, variable, scale = "linear")
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{input_conta}{dataframe containing contaminants and abundances.}
+
+\item{level}{name of the column containing x-values.}
+
+\item{variable}{name of the column containing y-values.}
+
+\item{scale}{changes the scale to linear or log10; options = c("linear", "log10").}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots the abundance of contaminants as a boxplot
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_abundance(input_conta, level, variable, scale = "linear")
 
 }

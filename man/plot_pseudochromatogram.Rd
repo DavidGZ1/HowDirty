@@ -2,21 +2,22 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_pseudochromatogram}
 \alias{plot_pseudochromatogram}
-\title{Plot functions for HowDirty}
+\title{Plot pseudochromatogram}
 \usage{
 plot_pseudochromatogram(input_conta, scale = "linear")
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{input_conta}{dataframe containing abundance and retention time.}
+
+\item{scale}{changes the scale to linear or log10; options = c("linear", "log10").}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots the Abundance vs. Retention time
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_pseudochromatogram(input_conta, scale = "linear")
 
 }

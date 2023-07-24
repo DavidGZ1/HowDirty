@@ -2,21 +2,20 @@
 % Please edit documentation in R/summarize_conta_sampleset.R
 \name{summarize_conta_sampleset}
 \alias{summarize_conta_sampleset}
-\title{Short description}
+\title{Summarize the contaminant sample set}
 \usage{
 summarize_conta_sampleset(df_conta)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing the values to summarize.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe containing the summaries.
 }
 \description{
-description
+Summarizes the contaminant sample set to get a summary per sample, per condition, and for all samples
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+summarize_conta_sampleset(df_conta)
+
 }

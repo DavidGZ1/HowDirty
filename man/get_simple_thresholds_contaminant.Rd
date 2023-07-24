@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_simple_thresholds_contaminant.R
 \name{get_simple_thresholds_contaminant}
 \alias{get_simple_thresholds_contaminant}
-\title{Short description}
+\title{Set arbitrary contaminant threshold}
 \usage{
 get_simple_thresholds_contaminant(
   df_conta,
@@ -10,16 +10,17 @@ get_simple_thresholds_contaminant(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing contaminants}
+
+\item{breaks}{numerical list containing default break values.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe with thresholds
 }
 \description{
-description
+Sets arbitrary thresholds for the contaminants found in the provided dataframe. Default thresholds are based on the qunatile75 of all conaminants in the reference dataset from two months of analyses
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+get_simple_thresholds_contaminant(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057))
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_sample_risk_contaminant}
 \alias{plot_sample_risk_contaminant}
-\title{Plot functions for HowDirty}
+\title{Plot contaminant abundance}
 \usage{
 plot_sample_risk_contaminant(
   input_conta_summ_sample_risk,
@@ -12,16 +12,21 @@ plot_sample_risk_contaminant(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{input_conta_summ_sample_risk}{dataframe containing the contamintan abundance and sample names.}
+
+\item{order_x}{variable name for the order of x-axis.}
+
+\item{order_y}{variabel name for the order of y-axis}
+
+\item{show_zeros}{flag if zero values are removed.}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots contaminant vs sample abundance, with colour in function of risk and size in function of the median abundance
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_sample_risk_contaminant(input_conta_summ_sample_risk, order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
 
 }

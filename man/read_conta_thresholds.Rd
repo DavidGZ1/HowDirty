@@ -2,21 +2,20 @@
 % Please edit documentation in R/read_conta_thresholds.R
 \name{read_conta_thresholds}
 \alias{read_conta_thresholds}
-\title{Short description}
+\title{Read contaminant thresholds}
 \usage{
 read_conta_thresholds(file_report_howdirty)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{file_report_howdirty}{file name of another HowDirty output that inlcudes thresholds.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe containing the contaminant thresholds.
 }
 \description{
-description
+Reads the contaminant thresholds from a reference dataset and annotates a dataset which did not provide a threshold file
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+read_conta_thresholds(file_report_howdirty)
+
 }

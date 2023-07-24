@@ -11,16 +11,19 @@ get_report_template(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{file}{name of the report file to be copied.}
+
+\item{edit}{flag.}
+
+\item{create_dir}{flag if directory should be created.}
 }
 \value{
-type of output object (e.g. numeric vector).
+None
 }
 \description{
 This is a wrapper using rmarkdown::draft to get the HowDirtyReport template copied in the working directory
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+get_report_template(file = "HorDirtyReportTemplate", edit = TRUE, create_dir = FALSE)
 
 }

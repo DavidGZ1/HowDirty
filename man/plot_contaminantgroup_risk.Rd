@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_contaminantgroup_risk}
 \alias{plot_contaminantgroup_risk}
-\title{Plot functions for HowDirty}
+\title{Plot contaminant group risk}
 \usage{
 plot_contaminantgroup_risk(
   input_conta_summ_contaminantgroup_sample,
@@ -13,16 +13,23 @@ plot_contaminantgroup_risk(
 )
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{input_conta_summ_contaminantgroup_sample}{dataframe containing the abundance values as well as condition/sample information.}
+
+\item{x}{values used for x-axis ("Condition", "Sample")}
+
+\item{size}{any of the abundance measures in dataframe ("Abundance_median", "Abundance_total", "Abundance_min", "Abundance_quantile25", "Abundance_quantile75", "Abundance_quantile90", "Abundance_max")}
+
+\item{oder_y}{value to order y-axis by ("Abundance", "ContaminantGroup")}
+
+\item{show_zeroes}{flag if zero values should be removed}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots contaminant group vs condition/sample, with colour in function of risk and size in function of Abundance.
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeroes = FALSE)
 
 }

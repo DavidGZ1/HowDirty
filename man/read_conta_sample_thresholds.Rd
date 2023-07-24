@@ -2,21 +2,20 @@
 % Please edit documentation in R/read_conta_sample_thresholds.R
 \name{read_conta_sample_thresholds}
 \alias{read_conta_sample_thresholds}
-\title{Short description}
+\title{Read thresholds for sample level}
 \usage{
 read_conta_sample_thresholds(file_report_howdirty)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{file_report_howdirty}{path to an already processed HowDirty report excel file containing thresholds.}
 }
 \value{
-type of output object (e.g. numeric vector).
+dataframe with annotated thresholds on sample level.
 }
 \description{
-description
+Reads the thresholds used for annotation the dataset on sample level from a reference file if no arbitrary thresholds were set
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+read_conta_sample_thresholds(file_report_howdirty)
+
 }

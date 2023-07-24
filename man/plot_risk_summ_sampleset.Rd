@@ -2,21 +2,20 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_risk_summ_sampleset}
 \alias{plot_risk_summ_sampleset}
-\title{Plot functions for HowDirty}
+\title{Plot samples associated to risk level}
 \usage{
 plot_risk_summ_sampleset(df_conta)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df_conta}{dataframe containing abundance and risk level association.}
 }
 \value{
-type of output object (e.g. numeric vector).
+ggplot object.
 }
 \description{
-diverse plot functions
+Plots a pichart showing the percentages of samples associated to each risk level
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+plot_risk_summ_sampleset(df_conta)
 
 }
