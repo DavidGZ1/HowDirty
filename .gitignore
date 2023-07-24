@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 #all results files
-\results
+\example\results
 #*.html
