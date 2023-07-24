@@ -84,11 +84,7 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
 #'
 #' @param optin palatte name ("RdOrBlu", "plasma")
 #'
-#' @return type of output object (e.g. numeric vector).
-#'
-#' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' @return None
 #'
 #' @export
 scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FALSE){
@@ -117,17 +113,19 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
   )
 }
 
-#' Plot functions for HowDirty
+#' Plot abundance
 #'
-#' diverse plot functions
+#' Plots the abundance of contaminants as a boxplot
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta dataframe containing contaminants and abundances.
+#' @param level name of the column containing x-values.
+#' @param variable name of the column containing y-values.
+#' @param scale changes the scale to linear or log10; options = c("linear", "log10").
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_abundance(input_conta, level, variable, scale = "linear")
 #'
 #' @export
 plot_abundance <- function(input_conta, level, variable, scale = "linear"){
@@ -156,17 +154,17 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
 
 
 
-#' Plot functions for HowDirty
+#' Plot pseudochromatogram
 #'
-#' diverse plot functions
+#' Plots the Abundance vs. Retention time
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta dataframe containing abundance and retention time.
+#' @param scale changes the scale to linear or log10; options = c("linear", "log10").
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_pseudochromatogram(input_conta, scale = "linear")
 #'
 #' @export
 plot_pseudochromatogram <- function(input_conta, scale = "linear"){
@@ -196,17 +194,18 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
     return(output)}
 }
 
-#' Plot functions for HowDirty
+#' Plot total abundance
 #'
-#' diverse plot functions
+#' Plots the total abundance vs replicate name
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta_summ_sample dataframe containing the total abundance values as well as sample names.
+#' @param order_x column used for the x-axis order.
+#' @param scale changes the scale to linear or log10; options = c("linear", "log10").
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_sample_risk_total(input_conta_summ_sample, order_x = "Sample", scale = "linear")
 #'
 #' @export
 plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", scale = "linear"){
@@ -252,23 +251,25 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     return(output)}
 }
 
-#' Plot functions for HowDirty
+#' Plot contaminant abundance
 #'
-#' diverse plot functions
+#' Plots contaminant vs sample abundance, with colour in function of risk and size in function of the median abundance
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta_summ_sample_risk dataframe containing the contamintan abundance and sample names.
+#' @param order_x variable name for the order of x-axis.
+#' @param order_y variabel name for the order of y-axis
+#' @param show_zeros flag if zero values are removed.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_sample_risk_contaminant(input_conta_summ_sample_risk, order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
 #'
 #' @export
 plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
                                      order_x = "Sample", order_y = "Abundance",
                                      show_zeros = FALSE){
-  # plot Anaylte vs Sample, with color in function of risk and size in function of Abundance_median
+  # plot Contaminant vs Sample, with color in function of risk and size in function of Abundance_median
   # order = c("Sample", "Abundance")
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   # remove all zero values
@@ -334,23 +335,25 @@ plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
   return(output)
 }
 
-#' Plot functions for HowDirty
+#' Plot contaminant vs condition
 #'
-#' diverse plot functions
+#' Plots contaminant vs condition, with colour in function of risk and size in function of median abundance
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta_summ_sample_risk dataframe containing the contaminant abundance values as well as the condition.
+#' @param order_x variable name for the order of x-axis.
+#' @param order_y variable name for the order of y-axis
+#' @param show_zeros flag if zero values should be removed.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_condition_risk_contaminant(input_conta_summ_sample_risk, order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
 #'
 #' @export
 plot_condition_risk_contaminant <- function(input_conta_summ_sample_risk,
                                         order_x = "Condition", order_y = "Abundance",
                                         show_zeros = FALSE){
-  # plot Anaylte vs Condition, with color in function of risk and size in function of Abundance_median
+  # plot Contaminant vs Condition, with color in function of risk and size in function of Abundance_median
   # order = c("Condition", "Abundance")
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   # remove all zero values
@@ -417,17 +420,15 @@ plot_condition_risk_contaminant <- function(input_conta_summ_sample_risk,
 }
 
 
-#' Plot functions for HowDirty
+#' Label margin
 #'
-#' diverse plot functions
+#' Sets the layout of the ggplot label margin
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param gg ggplot object.
+#' @param x numerical value.
+#' @param y numerical value.
 #'
-#' @return type of output object (e.g. numeric vector).
-#'
-#' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' @return None
 #'
 #' @export
 layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
@@ -437,17 +438,16 @@ layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
   gg
 }
 
-#' Plot functions for HowDirty
+#' Plot samples associated to risk level
 #'
-#' diverse plot functions
+#' Plots a pichart showing the percentages of samples associated to each risk level
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing abundance and risk level association.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_risk_summ_sampleset(df_conta)
 #'
 #' @export
 plot_risk_summ_sampleset <- function(df_conta){
@@ -463,17 +463,19 @@ plot_risk_summ_sampleset <- function(df_conta){
 }
 
 
-#' Plot functions for HowDirty
+#' Plot abundance
 #'
-#' diverse plot functions
+#' Plots a boxplot of the abundance for each condition
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta_summ_sample dataframe containing abundance and condition.
+#' @param scale changes the scale to linear or log10; options = c("linear", "log10").
+#' @param compare_means flag if means are compared via a statistical test.
+#' @param method test used to compare means ("wilcox.test", "anova", "kruskal.test", "t.test")
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_condition_risk_total_boxplot(input_conta_summ_sample, scale = "linear", compare_means = TRUE, method = "wilcox.test")
 #'
 #' @export
 plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test",  ...){
@@ -521,17 +523,20 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
       ylab("log10(Total Abundance)")
     return(output)}
 }
-#' Plot functions for HowDirty
+#' Plot contaminant group risk
 #'
-#' diverse plot functions
+#' Plots contaminant group vs condition/sample, with colour in function of risk and size in function of Abundance.
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param input_conta_summ_contaminantgroup_sample dataframe containing the abundance values as well as condition/sample information.
+#' @param x values used for x-axis ("Condition", "Sample")
+#' @param size any of the abundance measures in dataframe ("Abundance_median", "Abundance_total", "Abundance_min", "Abundance_quantile25", "Abundance_quantile75", "Abundance_quantile90", "Abundance_max")
+#' @param oder_y value to order y-axis by ("Abundance", "ContaminantGroup")
+#' @param show_zeroes flag if zero values should be removed
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return ggplot object.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' bmi3(bmi.vals)
+#' plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeroes = FALSE)
 #'
 #' @export
 #'
@@ -543,7 +548,6 @@ plot_contaminantgroup_risk <- function(input_conta_summ_contaminantgroup_sample,
   # x = c(Condition, Sample), as objects
   # size = any of the Abundance measures in the df:  c(Abundance_median, Abundance_total, Abundance_min, Abundance_quantile25, Abundance_quantile75, Abundance_quantile90, Abundance_max)
   # order_y = c("Abundance", "ContaminantGroup")
-  # scale: changes the scale to linear or log10; options = c("linear", "log10")
   # remove all zero values
   if(show_zeros == FALSE){
     # remove zero values

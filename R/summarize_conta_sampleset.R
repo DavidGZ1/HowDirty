@@ -1,15 +1,14 @@
-#' Short description
+#' Summarize the contaminant sample set
 #'
-#' description
+#' Summarizes the contaminant sample set to get a summary per sample, per condition, and for all samples
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df_conta dataframe containing the values to summarize.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe containing the summaries.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' summarize_conta_sampleset(df_conta)
+#'
 #' @export
 summarize_conta_sampleset <- function(df_conta){
   #get summary per sample

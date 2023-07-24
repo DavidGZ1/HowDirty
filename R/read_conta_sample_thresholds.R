@@ -1,15 +1,14 @@
-#' Short description
+#' Read thresholds for sample level
 #'
-#' description
+#' Reads the thresholds used for annotation the dataset on sample level from a reference file if no arbitrary thresholds were set
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param file_report_howdirty path to an already processed HowDirty report excel file containing thresholds.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return dataframe with annotated thresholds on sample level.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' read_conta_sample_thresholds(file_report_howdirty)
+#'
 #' @export
 read_conta_sample_thresholds <- function(file_report_howdirty){
   # read the HowDirty Excel report file from a reference dataset and get the thresholds (sample leve) to annotate another dataset

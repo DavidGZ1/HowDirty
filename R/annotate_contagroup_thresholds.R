@@ -1,6 +1,6 @@
 #' Annotate thresholds of contaminant groups
 #'
-#' description
+#' Annotates the contaminant groups with thresholds
 #'
 #' @param df_conta dataframe with contaminants.
 #' @param df_threshold dataframe with thresholds.
