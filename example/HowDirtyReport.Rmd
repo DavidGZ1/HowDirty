@@ -7,6 +7,7 @@ output:
     theme: united
     number_sections: TRUE
 params:
+  # fill the space next to "value:" with your values
   DataSet: 
     label: "Data set or experiment (keep it short since it's used as prefix for output file names)"
     value: 2021-231_FASP_filters

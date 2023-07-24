@@ -6,7 +6,8 @@ output:
     toc_float: false
     theme: united
     number_sections: TRUE
-params:
+params:  
+  # fill the space next to "value:" with your values
   DataSet: 
     label: "Data set or experiment (keep it short since it's used as prefix for output file names)"
     value: HowDirty
@@ -27,7 +28,7 @@ params:
     value: 
   RefThresholdsFile:
     label: "Reference threshold file" # file directory/name or FALSE
-    value:  TRUE
+    value:  FALSE
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
