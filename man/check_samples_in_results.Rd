@@ -18,7 +18,6 @@ None
 This function checks if all samples in the provided results and annotation are present in both. If one sample is misssing in one, it will not be further processed.
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-bmi3(bmi.vals)
+check_samples_in_results(df_conta, df_samples_annot)
 
 }

@@ -1,5 +1,8 @@
 # Plot functions for HowDirty
 
+palette_RdOrBlu <- c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4', 'gray') #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
+palette_plasma <- c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF", 'gray')  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+
 #' HowDirty theme
 #'
 #' sets the parameters of the HowDirty theme for plotting
@@ -28,8 +31,8 @@ theme_hd <-
 #' @export
 scale_fill_risk <- function(..., option = "plasma", direction = 1){
   # options = "RdOrBlu", "plasma"
-  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
-  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
+  if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
   if(direction == 1){colors_risk = colors_risk}
   if(direction == 1){colors_risk = rev(colors_risk)}
@@ -54,8 +57,8 @@ scale_fill_risk <- function(..., option = "plasma", direction = 1){
 #' @export
 scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
   # options = "RdOrBlu", "plasma"
-  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
-  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
+  if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
   if(direction == 1){colors_risk = colors_risk}
   if(direction == 1){colors_risk = rev(colors_risk)}
@@ -77,7 +80,7 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
 
 #' Colour scale risk
 #'
-#' Set the colour scale and names for risk 
+#' Set the colour scale and names for risk
 #'
 #' @param optin palatte name ("RdOrBlu", "plasma")
 #'
@@ -86,8 +89,8 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
 #' @export
 scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FALSE){
   # options = "RdOrBlu", "plasma"
-  if(option ==  "RdOrBlu"){colors_risk = c('#d73027','#f46d43','#fdae61', '#fee090','#abd9e9','#74add1','#4575b4')} #https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=8
-  if(option ==  "plasma"){colors_risk = c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D35171FF", "#ED7953FF", "#FCA636FF")}  #c(scales::viridis_pal(end=0.8, option =  "plasma", direction = 1)(7))
+  if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
+  if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdOrBlu, plasma)")
   if(direction == 1){colors_risk = colors_risk}
   if(direction == 1){colors_risk = rev(colors_risk)}
@@ -168,18 +171,20 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   output <-
-    ggplot(input_conta, aes(x = RetentionTime, y = Abundance, color = Sample)) +
-    geom_point(aes(text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample,
-                                "\nContaminant: ", Contaminant, "\nRisk: ", Risk)), alpha = 0.8, size = 1)  +
-    scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
+    ggplot(input_conta, aes(x = RetentionTime, y = Abundance, color = Risk)) +
+    geom_point(aes(text = paste("Replicate: ", ReplicateName,
+                                "\nSample: ", Sample,
+                                "\nContaminant: ", Contaminant,
+                                "\nRisk: ", Risk)),
+               alpha = 0.8, size = 1)  +
+    scale_color_risk(verbose = TRUE) +
+    # scale_color_viridis_d(end=0.9, option =  "viridis", direction = 1) +
     facet_wrap(~ContaminantGroup, scales = "free", ncol = 1) +
     scale_x_continuous(n.breaks = 10,
                        limits = c(0,round(max(input_conta$RetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
-    # ylab("Abundance") +
     xlab("Retention time (min)")+
     theme_hd
-    # ggtitle("abundance vs. RT")
 
   if(scale == "linear"){return(output)}
   if(scale == "log10"){

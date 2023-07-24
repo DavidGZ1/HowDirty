@@ -27,7 +27,7 @@ params:
     value: 
   RefThresholdsFile:
     label: "Reference threshold file" # file directory/name or FALSE
-    value:  
+    value:  TRUE
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
@@ -104,11 +104,11 @@ if(any(!filecheck)){
 #Install required packages
 ##Test whether all required packages, install packages needed and install if needed
 required_packages <- c('ggplot2', 'ggpubr', 'scales', 'plotly',
-              'openxlsx', 'mgsub', 'DT', 'shiny', 'tidyverse', 'HowDirty')
+              'openxlsx', 'mgsub', 'DT', 'tidyverse', 'HowDirty')
 # required_packages <- c(packages)
 installed_packages <- required_packages %in% installed.packages()[,"Package"]
 missing_packages <- required_packages[!installed_packages]
-if ( length(missing_packages) > 0 ) install.packages(packages)
+if ( length(missing_packages) > 0 ) install.packages(missing_packages)
 ##Load libraries
 invisible(lapply(required_packages, require, character.only = TRUE))
 # names for output files
@@ -176,6 +176,7 @@ if(params$RefThresholdsFile == FALSE){
   ref_conta_tshd <-  read_conta_thresholds(params$RefThresholdsFile)
   ref_conta_tshd_sample <-  read_conta_sample_thresholds(params$RefThresholdsFile)
 }
+
 ```
 
 ```{r annotate_results}
@@ -259,7 +260,7 @@ summ_color <- summ_color_scale[max_risklevel]
 * The results were exported to `r filedir_report` --> risk_summ_sampleset
 * RiskLevel = "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"
 
-```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=2.5}
+```{r plot_risk_summ_sampleset, fig.width= 5, fig.height=2.2}
 plot_pie_risk_summ_sampleset <- plot_risk_summ_sampleset(risk_summ_sampleset)
 plot_pie_risk_summ_sampleset
 ```
@@ -271,7 +272,7 @@ plot_pie_risk_summ_sampleset
 ```{r plot_conta_summ_condition_risk, warning=FALSE, fig.width=4, fig.height=2.5}
 plot_conta_summ_condition_risk <-
   plot_condition_risk_total_boxplot(conta_summ_sample,
-                                    compare_means = TRUE,
+                                    compare_means = (n_distinct(conta_summ_sample$Condition) > 1), # only if at least 2 conditions
                                     method = "wilcox.test") 
 plot_conta_summ_condition_risk # note: the results of the statistical test can't be shown as interactive plot with ggplotly
 ```
@@ -433,7 +434,7 @@ for (i in 1:length(plot_seudochromatogram_contaminantgroup_list)) {
 * An extended version of this table containing the Area and Total-Ion-Count-Area (TICA) can also be found in `r filedir_report` --> conta.
 * RiskLevel = "1) Very Low", "2) Low", "3) Medium", "4) High", "5) Very High", "6) No threshold in reference"
 
-```{r table_conta, echo=FALSE, warning=FALSE}
+```{r table_conta, echo=FALSE, warning=FALSE, message=TRUE}
 if(params$PlotsInteractive == TRUE){
   conta %>%
   select(ContaminantGroup, Contaminant, Condition, Sample, ReplicateName, RiskLevel, Abundance) %>%

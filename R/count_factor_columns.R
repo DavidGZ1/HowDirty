@@ -11,7 +11,11 @@
 #' *' bmi3(bmi.vals)
 #' #'
 #' @export
-bmi3 <- function(x) {
-  bmi.groups <- cut(x, breaks = c(0, 25, 30, Inf), right = FALSE)
-  return(bmi.groups)
+count_factor_columns <- function(df){
+  df  %>%
+    summarise(across(where(is.factor), ~n_distinct(.x))) %>%
+    t() %>%
+    as.data.frame() %>%
+    rename("Count" = 1) %>%
+    rownames_to_column("Variable")
 }
