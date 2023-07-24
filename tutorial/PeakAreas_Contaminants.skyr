@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<views>
+  <view name="PeakAreas_Contaminants" rowsource="pwiz.Skyline.Model.Databinding.Entities.Transition" sublist="Results!*" uimode="proteomic">
+    <column name="Precursor.Peptide.Protein" />
+    <column name="Precursor.Peptide" />
+    <column name="Results!*.Value.PrecursorResult.PeptideResult.ResultFile.Replicate.Name" />
+    <column name="Results!*.Value.Height" />
+    <column name="Results!*.Value.PrecursorResult.PeptideResult.PeptideRetentionTime" />
+    <column name="Results!*.Value.PrecursorResult.TotalAreaMs1" />
+    <column name="Results!*.Value.PrecursorResult.PeptideResult.ResultFile.TicArea" />
+  </view>
+</views>
