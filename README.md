@@ -3,7 +3,7 @@
 ## About
 
 HowDirty is an R package that assesses the level of contamination of LC-MS results.
-The presence of contaminants (e.g., PEG), and detergents (e.g., CHAPS, SDS) in samples analyzed by LC-MS can be severely detrimental to identifying peptides/proteins or other molecules. Skyline is used to extra MS1 features of many known contaminant masses from raw files (e.g., .raw and .d). The results are exported to a .csv file, then processed in R using HowDirty to generate an HTML interactive report that evaluates sample contamination risks.
+The presence of contaminants (e.g., PEG), and detergents (e.g., CHAPS, SDS) in samples analyzed by LC-MS can be severely detrimental to identifying peptides/proteins or other molecules. Skyline is used to extra MS1 features of many known contaminant masses from raw files (e.g., .raw and .d). The results are exported to a .csv file, then processed in R using HowDirty to generate an HTML interactive report that evaluates sample contamination risks. For more details, please see our [preprint](https://www.authorea.com/users/643346/articles/656759-howdirty-an-r-package-to-evaluate-molecular-contaminants-in-lc-ms-experiments) and the tutorial (below).
 
 ## Tutorial
 Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1/HowDirty/blob/main/tutorial/HowDirty_tutorial.pdf)
