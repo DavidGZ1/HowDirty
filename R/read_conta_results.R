@@ -41,7 +41,6 @@ read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = 
            Contaminant = as.character(Contaminant), #needed to enable reordering below
            # ContaminantFull = paste(ContaminantGroup, Contaminant, sep = "_"),
            TotalAreaMS1 = replace_na(TotalAreaMS1, rep= 0), #Convert NAs to 0, avoid loosing info
-           Height = replace_na(Height, rep= 0),
            Abundance = signif(TotalAreaMS1/TotalIonCurrentArea, 4)) %>%
     arrange(Contaminant) %>%
     mutate(across(all_of(c("ContaminantGroup", "Contaminant","ReplicateName")), as.factor)) %>%
