@@ -27,8 +27,9 @@ params:
     label: "Sample annotation file"  # Samples Annotation directory/name
     value: 
   RefThresholdsFile:
-    label: "Reference threshold file" # file directory/name or FALSE
+    label: "Reference threshold file (or FALSE if not available)" # file directory/name or FALSE
     value:  FALSE
+    input: text
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results
