@@ -22,7 +22,7 @@ annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = 
     ouptut <-
       ouptut %>%
       group_by(ReplicateName, ContaminantGroup, Contaminant) %>%
-      filter(!all(Height == 0)) %>%
+      filter(!all(TotalAreaMS1 == 0)) %>%
       ungroup() %>%
       droplevels()
   }
