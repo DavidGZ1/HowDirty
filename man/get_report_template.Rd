@@ -6,7 +6,7 @@
 \usage{
 get_report_template(
   file = "HowDirtyReportTemplate",
-  edit = TRUE,
+  edit = FALSE,
   create_dir = FALSE
 )
 }
