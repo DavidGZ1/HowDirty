@@ -14,7 +14,7 @@
 #' @export
 get_report_template <- function(file = "HowDirtyReportTemplate", edit = FALSE, create_dir = FALSE) {
   rmarkdown::draft(file = file,
-                   template = "HowDirty",
+                   template = "howdirty",
                    edit = edit,
                    package = "HowDirty",
                    create_dir = create_dir)
