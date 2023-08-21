@@ -42,7 +42,7 @@ library(HowDirty)
 get_annotation_template(file_report_skyline  = "PeakAreas_Contaminants.csv")
 
 # Create HowDirty template with the name "example.Rmd"
-HowDirty::get_template(file = "example")
+HowDirty::get_report_template(file = "example")
 
 # Knit template file using button in RStudio
 ```
