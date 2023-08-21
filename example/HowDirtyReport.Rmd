@@ -22,13 +22,16 @@ params:
     input: text
   PeakAreasContaminantsFile:
     label: "PeakAreaContaminants report from Skyline" # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
-    value: data/PeakAreas_Contaminants_2021-231.csv 
+    value: data/PeakAreas_Contaminants_2021-231.csv
+    input: text  
   AnnotationFile:
     label: "Sample annotation file" # Samples Annotation directory/name
-    value: data/samples_annotation_2021-231.csv 
+    value: data/samples_annotation_2021-231.csv
+    input: text 
   RefThresholdsFile:
     label: "Reference threshold file" # file directory/name or FALSE
     value: data/reference_E480_report_contaminants_20230716_1138.xlsx
+    input: text 
   OutputDirectory:
     label: "Directory where the report and the results are exported"
     value: results

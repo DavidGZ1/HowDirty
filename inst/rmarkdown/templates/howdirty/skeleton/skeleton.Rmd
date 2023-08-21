@@ -14,18 +14,20 @@ params:
     input: text
   UserNames: 
     label: "User(s)"
-    value: 
+    value: ""
     input: text
   Notes:
     label:
-    value:
+    value: ""
     input: text
   PeakAreasContaminantsFile:
     label: "PeakAreaContaminants report from Skyline"  # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
-    value: 
+    value: ""
+    input: text 
   AnnotationFile:
     label: "Sample annotation file"  # Samples Annotation directory/name
-    value: 
+    value: ""
+    input: text 
   RefThresholdsFile:
     label: "Reference threshold file (or FALSE if not available)" # file directory/name or FALSE
     value:  FALSE
