@@ -11,7 +11,7 @@ Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1
 ## Requirements
 
 -	Raw LC-MS results to be evaluated
--	Skyline version > 4 [1,2].To install it, you can register online and download the latest version here: https://skyline.ms/project/home/software/Skyline/begin.view
+-	Skyline version > 4 [1,2]. To install it, you can register online and download the latest version here: https://skyline.ms/project/home/software/Skyline/begin.view
 -	Skyline HowDirty [template](https://github.com/DavidGZ1/HowDirty/tree/main/tutorial), including the Skyline molecular contaminant transition list [3] and reports configuration
 -	Alternatively, you can set up Skyline yourself (further instructions in the [Skyline tutorials](https://skyline.ms/wiki/home/software/Skyline/page.view?name=tutorials))
     -	Download the molecular contaminant transition list [3] from [Panorama](https://panoramaweb.org/project/Panorama%20Public/2018/Amgen%20-%20Molecular%20Contaminants/begin.view?) and load it into Skyline:File / Import / Transition List…
@@ -34,13 +34,13 @@ install_github("DavidGZ1/HowDirty", force = TRUE)
 See tutorial for detailed instructions on how to extract MS1 features from Skyline and on pipeline usage.
 
 ```r
-#  Sets the working directory to the desired folder (e.g., where the PeakAreas_Contaminants.csv is stored)
-setwd(“C:/Users/Name/ExampleHowDirty”)
+#  Set the working directory to the desired folder (e.g., where the PeakAreas_Contaminants.csv is stored)
+setwd("C:/Users/Name/ExampleHowDirty")
 
-# Loads HowDirty package
+# Load HowDirty package
 library(HowDirty)
 
-# Creates sample annotation or experiment design file
+# Create sample annotation or experiment design file
 get_annotation_template(file_report_skyline  = "PeakAreas_Contaminants.csv")
 
 # Create HowDirty template with the name "example.Rmd"
@@ -54,7 +54,7 @@ HowDirty::get_report_template(file = "example")
 #       The values are entered after "value: "
 #       Do not modify the text after "label: " or "input: "
 ```
-Knit buttons in RStudio:
+Knit button in RStudio:
 
 ![Button options in RStudio for knitting a markdown file. Shots the Knit button with a dropdown menu, that includes 'Knit to HTML', 'Knit to PDF', 'Knit to Word', 'Knit with Parameters'.](https://github.com/DavidGZ1/HowDirty/assets/134387857/be25535d-6583-4b75-8f64-09a407d1d5cf)
 
