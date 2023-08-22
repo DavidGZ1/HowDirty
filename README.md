@@ -6,7 +6,7 @@ HowDirty is an R package that assesses the level of contamination of LC-MS resul
 The presence of contaminants (e.g., PEG), and detergents (e.g., CHAPS, SDS) in samples analyzed by LC-MS can be severely detrimental to identifying peptides/proteins or other molecules. Skyline is used to extra MS1 features of many known contaminant masses from raw files (e.g., .raw and .d). The results are exported to a .csv file, then processed in R using HowDirty to generate an HTML interactive report that evaluates sample contamination risks. For more details, please see our [preprint](https://www.authorea.com/users/643346/articles/656759-howdirty-an-r-package-to-evaluate-molecular-contaminants-in-lc-ms-experiments) and the tutorial (below).
 
 ## Tutorial
-Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1/HowDirty/blob/main/tutorial/HowDirty_tutorial.pdf)
+Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1/HowDirty/blob/main/tutorial/HowDirty_tutorial.pdf).
 
 ## Requirements
 
@@ -16,7 +16,8 @@ Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1
 -	Alternatively, you can set up Skyline yourself (further instructions in the [Skyline tutorials](https://skyline.ms/wiki/home/software/Skyline/page.view?name=tutorials))
     -	Download the molecular contaminant transition list [3] from [Panorama](https://panoramaweb.org/project/Panorama%20Public/2018/Amgen%20-%20Molecular%20Contaminants/begin.view?) and load it into Skyline:File / Import / Transition List…
     -	Create the PeakAreas_Contaminants report: containing the columns: 
-    -	Settings / Document Settings / Report / Add, then add a name and select the columns: "Protein", "Peptide", "Replicate Name", "Peptide Retention Time", "Total.Area.MS1", "Total.Ion.Current.Area"
+    -	Settings / Document Settings / Report / Add, then add a name and select the columns: "Protein", "Peptide", "Replicate Name", "Peptide Retention Time", "Total Area MS1", "Total Ion Current Area"
+    -	Enable the report form by ticking the box next to its name, then click OK
 -  R software for data analysis and the R packages Rmarkdown, knitr, and HowDirty
 
 ## Installation
@@ -24,6 +25,7 @@ Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1
 ```r
 install.packages("devtools")
 library(devtools)
+install_github("kassambara/ggpubr")
 install_github("DavidGZ1/HowDirty", force = TRUE)
 ```
 
@@ -44,8 +46,26 @@ get_annotation_template(file_report_skyline  = "PeakAreas_Contaminants.csv")
 # Create HowDirty template with the name "example.Rmd"
 HowDirty::get_report_template(file = "example")
 
-# Knit template file using button in RStudio
+# Fill the parameters in the header and “knit” (compile) the report. There are two options for this (see screenshots below).
+# Using RStudio:
+#    a) Click on "Knit with parameters"
+#    b) Fill out the parameters values manually, then click "Knit"
+#       The parameters are in the header of the .Rmd document after "params:"
+#       The values are entered after "value: "
+#       Do not modify the text after "label: " or "input: "
 ```
+Knit buttons in RStudio:
+
+![Button options in RStudio for knitting a markdown file. Shots the Knit button with a dropdown menu, that includes 'Knit to HTML', 'Knit to PDF', 'Knit to Word', 'Knit with Parameters'.](https://github.com/DavidGZ1/HowDirty/assets/134387857/be25535d-6583-4b75-8f64-09a407d1d5cf)
+
+a)
+
+![Screenshot of the window popping up when using 'Knit with Parameters'. It shows several text fields with descriptions.](https://github.com/DavidGZ1/HowDirty/assets/134387857/407eba9a-fe0a-47d4-99e6-21874aa47943)
+
+b)
+
+![Screenshot of the parameters section of the .Rmd file, showing where the file names for the PeakAreasContaminantsFile, the AnnotationFile, and (if applicable) the RefThresholdsFile need to be added with examples.](https://github.com/DavidGZ1/HowDirty/assets/134387857/dff65428-d7d0-4e12-9039-49941954cafd)
+
 
 ## References
 
