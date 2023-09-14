@@ -11,7 +11,7 @@
 #'
 #' @export
 read_samples_annotation <- function(file_samples_annotation){
-  output <-   read.csv(file_samples_annotation)
+  output <-   read.csv_auto_sep(file_samples_annotation, na.strings = c("", "#N/A"))
   # fill columns if not included
   if(is.null(output$Sample)) output$Sample = output$ReplicateName
   if(is.null(output$Condition)) output$Condition = "All Samples"
