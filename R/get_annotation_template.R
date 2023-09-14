@@ -19,7 +19,7 @@ get_annotation_template <-function(file_report_skyline = NULL, save = TRUE){
                                  DilutionFactor = 1)
   }
   if(is.character(file_report_skyline)){
-    df_conta_tmp <- read.csv(file_report_skyline)
+    df_conta_tmp <- read.csv_auto_sep(file_report_skyline, na.strings = c("", "#N/A"))
     check_conta_columns(df_conta_tmp, verbose = FALSE)
     replicate_names <- unique(df_conta_tmp$Replicate.Name)
     rm(df_conta_tmp)

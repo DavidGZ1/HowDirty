@@ -13,7 +13,7 @@
 #' @export
 read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = TRUE){
   output <-
-    read.csv(file_report_skyline, na.strings = c("", "#N/A"))
+    read.csv_auto_sep(file_report_skyline, na.strings = c("", "#N/A"))
   #rename columns
   # Skyline generates reports with different column names in function of the steps followed to export the report (e.g., from the Document Grid or from File), and the language (e.g., English or Invariant)
   colnames_f1 <-c("Protein",	"Peptide",	"ReplicateName",	"PeptideRetentionTime",	  "TotalAreaMs1", 	"TicArea") # format when exported with language = Invariant
