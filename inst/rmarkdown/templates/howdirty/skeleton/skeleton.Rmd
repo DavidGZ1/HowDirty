@@ -474,5 +474,5 @@ writeLines(capture.output(sessionInfo()), filedir_sessioninfo)
 ```
 
 # References
-- Gomez-Zepeda *et al.*. HowDirty. Under preparation. (2023).
-- Rardin, M. J. Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline. J. Am. Soc. Mass Spectrom. 29, 1327–1330 (2018).
+- D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler, S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in LC‐MS experiments, Proteomics. (2023) 1–6. https://doi.org/10.1002/pmic.202300134.
+- M.J. Rardin, Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline. J. Am. Soc. Mass Spectrom. 29, 1327–1330 (2018).
