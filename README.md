@@ -5,9 +5,13 @@
 HowDirty is an R package that assesses the level of contamination of LC-MS results.
 The presence of contaminants (e.g., PEG), and detergents (e.g., CHAPS, SDS) in samples analyzed by LC-MS can be severely detrimental to identifying peptides/proteins or other molecules. Skyline is used to extra MS1 features of many known contaminant masses from raw files (e.g., .raw and .d). The results are exported to a .csv file, then processed in R using HowDirty to generate an HTML interactive report that evaluates sample contamination risks. For more details, please see our [publication](https://doi.org/10.1002/pmic.202300134) and the tutorial (below).
 
-Please cite:
+## References - please cite:
 
-D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler, S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in LC‐MS experiments, Proteomics. (2023) 1–6. https://doi.org/10.1002/pmic.202300134.
+Skyline: B. MacLean, D.M. Tomazela, N. Shulman, M. Chambers, G.L. Finney, B. Frewen, R. Kern, D.L. Tabb, D.C. Liebler, M.J. MacCoss, Skyline: an open source document editor for creating and analyzing targeted proteomics experiments, Bioinformatics. 26 (2010) 966–968. [https://doi.org/10.1093/bioinformatics/btq054].
+
+Molecular contaminant transition list: M.J. Rardin, Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline, J. Am. Soc. Mass Spectrom. 29 (2018) 1327–1330. https://doi.org/10.1007/s13361-018-1940-z.
+
+HowDirty R package: D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler, S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in LC‐MS experiments, Proteomics. (2023) 1–6. https://doi.org/10.1002/pmic.202300134.
 
 ## Tutorial
 Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1/HowDirty/blob/main/tutorial/HowDirty_tutorial.pdf).
@@ -69,15 +73,6 @@ a)
 b)
 
 ![Screenshot of the parameters section of the .Rmd file, showing where the file names for the PeakAreasContaminantsFile, the AnnotationFile, and (if applicable) the RefThresholdsFile need to be added with examples.](https://github.com/DavidGZ1/HowDirty/assets/134387857/dff65428-d7d0-4e12-9039-49941954cafd)
-
-
-## References
-
-[1] L.K. Pino, B.C. Searle, J.G. Bollinger, B. Nunn, B. MacLean, M.J. MacCoss, The Skyline ecosystem: Informatics for quantitative mass spectrometry proteomics, Mass Spectrom. Rev. 39 (2020) 229–244. [https://doi.org/10.1002/mas.21540].
-
-[2] B. MacLean, D.M. Tomazela, N. Shulman, M. Chambers, G.L. Finney, B. Frewen, R. Kern, D.L. Tabb, D.C. Liebler, M.J. MacCoss, Skyline: an open source document editor for creating and analyzing targeted proteomics experiments, Bioinformatics. 26 (2010) 966–968. [https://doi.org/10.1093/bioinformatics/btq054].
-
-[3] M.J. Rardin, Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline, J. Am. Soc. Mass Spectrom. 29 (2018) 1327–1330. [https://doi.org/10.1007/s13361-018-1940-z].
 
 
 ## License

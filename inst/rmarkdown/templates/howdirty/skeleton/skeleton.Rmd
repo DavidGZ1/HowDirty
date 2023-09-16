@@ -139,8 +139,8 @@ print_plot_or_plotly <- function(input, height_plotly = 450, width_plotly = 1000
 
 ## Data analysis
 
-* Raw data was imported into Skyline to extract the features corresponding to possible contaminants (ToDo: add references)
-* For this purpose, the Molecular Contaminant List template was used (Gomez-Zepeda *et al.*, 2023; modified from Rardin, 2018)
+* Raw data was imported into Skyline (MacLean *et al.*, 2010) to extract the features corresponding to possible contaminants (ToDo: add references)
+* For this purpose, the Molecular Contaminant List template was used (Rardin, 2018)
 * The feature area of extracted ion chromatograms was processed using *HowDirty* to generate this report (Gomez-Zepeda *et al.*, 2023)
 
 ## Warning
@@ -473,6 +473,10 @@ write.xlsx(res_list,
 writeLines(capture.output(sessionInfo()), filedir_sessioninfo)
 ```
 
-# References
-- D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler, S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in LC‐MS experiments, Proteomics. (2023) 1–6. https://doi.org/10.1002/pmic.202300134.
-- M.J. Rardin, Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline. J. Am. Soc. Mass Spectrom. 29, 1327–1330 (2018).
+## References - please cite:
+
+Skyline: B. MacLean, D.M. Tomazela, N. Shulman, M. Chambers, G.L. Finney, B. Frewen, R. Kern, D.L. Tabb, D.C. Liebler, M.J. MacCoss, Skyline: an open source document editor for creating and analyzing targeted proteomics experiments, Bioinformatics. 26 (2010) 966–968. [https://doi.org/10.1093/bioinformatics/btq054].
+
+Molecular contaminant transition list: M.J. Rardin, Rapid Assessment of Contaminants and Interferences in Mass Spectrometry Data Using Skyline, J. Am. Soc. Mass Spectrom. 29 (2018) 1327–1330. https://doi.org/10.1007/s13361-018-1940-z.
+
+HowDirty R package: D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler, S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in LC‐MS experiments, Proteomics. (2023) 1–6. https://doi.org/10.1002/pmic.202300134.
