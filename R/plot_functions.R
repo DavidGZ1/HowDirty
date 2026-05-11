@@ -12,12 +12,14 @@ palette_plasma <- c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D3517
 #' @return None
 #'
 #' @export
-theme_hd <-
+theme_hd <- function(){
   theme_classic(base_size = 10) +
-  theme(plot.margin = margin(4,4,4,4),
-        legend.position = "right",
-        strip.background = element_blank(),
-        strip.text = element_text(face="bold"))
+    theme(plot.margin = margin(4,4,4,4),
+          legend.position = "right",
+          # legend.box.background = element_rect(colour = NA ),
+          strip.background = element_blank(),
+          strip.text = element_text(face="bold"))  
+}
 
 #' Fill scale risk
 #'
@@ -140,7 +142,7 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
     scale_y_continuous(n.breaks = 5) +
     # ylab("Abundance") +
     # xlab("Contaminant")+
-    theme_hd +
+    theme_hd( ) +
     # ggtitle("Abundance of contaminants") +
     rotate() #needed to rotate the boxplot
 
@@ -184,7 +186,7 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
                        limits = c(0,round(max(input_conta$RetentionTime, na.rm = TRUE)*1.1, 0))) +
     scale_y_continuous(n.breaks = 5) +
     xlab("Retention time (min)")+
-    theme_hd
+    theme_hd( )
 
   if(scale == "linear"){return(output)}
   if(scale == "log10"){
@@ -240,7 +242,7 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
     scale_color_risk() +
     ylab("Total Abundance") +
     xlab("Sample")+
-    theme_hd +
+    theme_hd( ) +
     rotate_x_text(angle=90)
   # adapt scale
   if(scale == "linear"){return(output)}
@@ -329,7 +331,7 @@ plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
     scale_color_risk() +
     ylab("Contaminant Group") +
     xlab("Sample")+
-    theme_hd +
+    theme_hd( ) +
     theme(plot.margin = margin(4,4,4,10)) +
     rotate_x_text(angle = 90)
   return(output)
@@ -413,7 +415,7 @@ plot_condition_risk_contaminant <- function(input_conta_summ_sample_risk,
     scale_color_risk() +
     ylab("Contaminant Group") +
     xlab("Condition")+
-    theme_hd +
+    theme_hd( ) +
     theme(plot.margin = margin(4,4,4,10)) +
     rotate_x_text(angle = 90)
   return(output)
@@ -478,7 +480,7 @@ plot_risk_summ_sampleset <- function(df_conta){
 #' plot_condition_risk_total_boxplot(input_conta_summ_sample, scale = "linear", compare_means = TRUE, method = "wilcox.test")
 #'
 #' @export
-plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test",  ...){
+plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
   require(ggpubr)
@@ -487,21 +489,21 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
     geom_boxplot(alpha = 0.4, width = 0.5, size = 0.2,
                  outlier.shape = NA, outlier.size = 0, outlier.alpha = 0,
                  outlier.color = NA, outlier.fill = NA) +
-    geom_point(aes(group = Condition, color = RiskLevel,
-                   text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)),
+    geom_point(aes(group = Condition, color = RiskLevel),
+               # text = paste("Replicate: ", ReplicateName, "\nSample: ", Sample)),
                alpha = 0.5, size = 1) +
     scale_color_risk() +
     scale_y_continuous(n.breaks = 5) +
     xlab("Contaminant")+
     ylab("Total Abundance") +
-    theme_hd
-
-
+    theme_hd( )
+  
+  
   if(compare_means == TRUE){
     # add stats
     if(any(method %in% c("anova", "kruskal.test"))){
       output <- output +
-        ggpubr::stat_compare_means(method = method, size = 2.5, ...)
+        ggpubr::stat_compare_means(method = method, size = 2.5)
     }
     if(any(method %in% c("t.test", "wilcox.test"))){
       # get conditions to compare
@@ -513,7 +515,7 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
       output <- output +
         ggpubr::stat_compare_means(method = method,
                                    comparisons = conditions_to_compare,
-                                   size = 2.5, ...)
+                                   size = 2.5)
     }
   }
   if(scale == "linear"){return(output)}
@@ -587,7 +589,7 @@ plot_contaminantgroup_risk <- function(input_conta_summ_contaminantgroup_sample,
     scale_color_risk() +
     ylab("Contaminant Group") +
     # xlab("Condition")+
-    theme_hd +
+    theme_hd( ) +
     theme(plot.margin = margin(4,4,4,10)) +
     rotate_x_text(angle = 90)
   return(output)

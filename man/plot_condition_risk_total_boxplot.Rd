@@ -8,8 +8,7 @@ plot_condition_risk_total_boxplot(
   input_conta_summ_sample,
   scale = "linear",
   compare_means = TRUE,
-  method = "wilcox.test",
-  ...
+  method = "wilcox.test"
 )
 }
 \arguments{
