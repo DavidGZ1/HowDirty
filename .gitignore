@@ -6,4 +6,8 @@
 \example\results
 #*.html
 \issues
+<<<<<<< HEAD
 \tutorial\archive\
+=======
+\tutorial\archive
+>>>>>>> 61c2a4cb1595d7509ff9595aee85059455bc1863
