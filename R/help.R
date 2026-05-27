@@ -14,4 +14,5 @@
 #' @import dplyr
 #' @import tidyr
 #' @import forcats
+#' @importFrom ggpubr rotate rotate_x_text
 NULL
