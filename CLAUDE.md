@@ -16,8 +16,8 @@ devtools::check()
 # Rebuild documentation from roxygen2 comments
 devtools::document()
 
-# Run tests (tests/ folder, not testthat — see below)
-source("tests/test_howdirty_20260511.R")
+# Run tests
+devtools::test()
 ```
 
 ## Branch strategy
@@ -86,11 +86,20 @@ devtools::test()          # run full testthat suite
 devtools::test_file("tests/testthat/test-read_conta_results.R")  # single file
 ```
 
-Tests live in `tests/testthat/` (testthat edition 3). Four test files cover `read_conta_results`, `annotate_conta_thresholds`, `summarize_conta`, and `annotate_conta_samples`. The old plain scripts in `tests/` are legacy and not part of CI.
+Tests live in `tests/testthat/` (testthat edition 3). Test files cover `read_conta_results`, `annotate_conta_thresholds`, `summarize_conta`, `annotate_conta_samples`, `get_annotation_template`, `plot_heatmap_conta`, `generate_report`, and trend/comparison functions.
 
 ### Package imports
 
 `tidyverse` was replaced with the three specific sub-packages actually used: `dplyr`, `tidyr`, `forcats`. The `%>%` pipe is re-exported by `dplyr`. Internal `require()` calls have been removed — all dependencies are declared in `DESCRIPTION` and imported via `@import` in `R/help.R`.
+
+**DESCRIPTION split**: `DT`, `openxlsx`, `plotly`, `scales` are in **Suggests** (only used inside the Rmd template, not via `::` in `R/` files). `knitr` is in **Imports** (used via `::` in `get_h`, `get_w`, `colorize_text`).
+
+### NAMESPACE and man/ files
+
+NAMESPACE is **manually maintained** — `devtools::document()` regenerates it and will overwrite manual edits. When adding new exported functions:
+1. Add the `export(fn_name)` line to NAMESPACE by hand.
+2. Create a matching `man/fn_name.Rd` file (use an existing one as template).
+3. Wrap all `\examples{}` in `\dontrun{}` — R CMD CHECK has no real data to run examples against.
 
 ## v2 roadmap
 
