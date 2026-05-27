@@ -4,3 +4,6 @@
 ^\.Rproj\.user$
 ^\.github$
 ^example$
+^CLAUDE\.md$
+^samples_annotation_template\.csv$
+^tutorial$

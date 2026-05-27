@@ -4,7 +4,7 @@
 #' Use four spaces when indenting paragraphs within the Description.
 #'
 #'
-#' @docType _PACKAGE
+#' @docType package
 #'
 #' @author David Gomez-Zepeda \email{davidgz.science@gmail.com}
 #'

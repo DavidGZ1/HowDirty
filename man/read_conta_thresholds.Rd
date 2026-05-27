@@ -16,6 +16,7 @@ dataframe containing the contaminant thresholds.
 Reads the contaminant thresholds from a reference dataset and annotates a dataset which did not provide a threshold file
 }
 \examples{
-read_conta_thresholds(file_report_howdirty)
-
+\dontrun{
+read_conta_thresholds("howdirty_report.xlsx")
+}
 }

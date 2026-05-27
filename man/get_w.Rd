@@ -16,7 +16,7 @@ type of output object (e.g. numeric vector).
 description
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+\dontrun{
+get_w()
+}
 }

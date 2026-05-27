@@ -24,6 +24,7 @@ ggplot object.
 Plots the total abundance vs replicate name
 }
 \examples{
-plot_sample_risk_total(input_conta_summ_sample, order_x = "Sample", scale = "linear")
-
+\dontrun{
+plot_sample_risk_total(input_conta_summ_sample)
+}
 }

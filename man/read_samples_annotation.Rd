@@ -16,6 +16,7 @@ The input file with changed values.
 Reads the annotation in the sample input file and does renaming and missing value handling.
 }
 \examples{
-read_samples_annotation(file_samples_annotation)
-
+\dontrun{
+read_samples_annotation("samples_annotation.csv")
+}
 }

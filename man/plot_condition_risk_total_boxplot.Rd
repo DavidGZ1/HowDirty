@@ -27,6 +27,7 @@ ggplot object.
 Plots a boxplot of the abundance for each condition
 }
 \examples{
-plot_condition_risk_total_boxplot(input_conta_summ_sample, scale = "linear", compare_means = TRUE, method = "wilcox.test")
-
+\dontrun{
+plot_condition_risk_total_boxplot(input_conta_summ_sample)
+}
 }

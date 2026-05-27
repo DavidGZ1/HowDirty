@@ -16,6 +16,7 @@ dataframe with the arranged contaminant group levels.
 Arranges the contaminant group levels based on overall median abundance.
 }
 \examples{
+\dontrun{
 arrange_contagroup_levels(df_conta, metric = "median")
-
+}
 }

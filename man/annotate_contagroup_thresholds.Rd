@@ -20,6 +20,7 @@ dataframe containing the input dataframe
 Annotates the contaminant groups with thresholds
 }
 \examples{
+\dontrun{
 annotate_contagroup_thresholds(df_conta, Abundance_median)
-
+}
 }

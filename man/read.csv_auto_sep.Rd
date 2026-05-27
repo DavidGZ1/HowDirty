@@ -18,6 +18,7 @@ None
 read.csv using sep = "," or sep = ";" (read.csv) in function of the header
 }
 \examples{
-read.csv_auto_sep(PeakAreas_Contaminants.csv)
-
+\dontrun{
+read.csv_auto_sep("PeakAreas_Contaminants.csv")
+}
 }

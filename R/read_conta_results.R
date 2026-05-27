@@ -49,7 +49,7 @@ read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = 
                                     "Nylon_C24H44N4O4H" = "C24H44N4O4H", "Nylon_C36H66N6O6H" = "C36H66N6O6H", "Nylon_C48H88N8O8H" = "C48H88N8O8H"),
            Contaminant = as.character(Contaminant), #needed to enable reordering below
            # ContaminantFull = paste(ContaminantGroup, Contaminant, sep = "_"),
-           TotalAreaMS1 = replace_na(TotalAreaMS1, rep= 0), #Convert NAs to 0, avoid loosing info
+           TotalAreaMS1 = replace_na(TotalAreaMS1, replace = 0), #Convert NAs to 0, avoid loosing info
            Abundance = signif(TotalAreaMS1/TotalIonCurrentArea, 4)) %>%
     arrange(Contaminant) %>%
     mutate(across(all_of(c("ContaminantGroup", "Contaminant","ReplicateName")), as.factor)) %>%

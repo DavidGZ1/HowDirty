@@ -18,6 +18,7 @@ ggplot object.
 Plots the Abundance vs. Retention time
 }
 \examples{
-plot_pseudochromatogram(input_conta, scale = "linear")
-
+\dontrun{
+plot_pseudochromatogram(input_conta)
+}
 }

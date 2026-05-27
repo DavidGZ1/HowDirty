@@ -16,6 +16,7 @@ dataframe with annotated thresholds on sample level.
 Reads the thresholds used for annotation the dataset on sample level from a reference file if no arbitrary thresholds were set
 }
 \examples{
-read_conta_sample_thresholds(file_report_howdirty)
-
+\dontrun{
+read_conta_sample_thresholds("howdirty_report.xlsx")
+}
 }

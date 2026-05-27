@@ -24,6 +24,7 @@ None
 This is a wrapper using rmarkdown::draft to get the HowDirtyReport template copied in the working directory
 }
 \examples{
-get_report_template(file = "HorDirtyReportTemplate", edit = TRUE, create_dir = FALSE)
-
+\dontrun{
+get_report_template()
+}
 }
