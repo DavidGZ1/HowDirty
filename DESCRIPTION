@@ -1,13 +1,14 @@
 Package: HowDirty
 Type: Package
-Title: Evaluate How Dirty are LC-MS samples
+Title: Evaluate How Dirty are LC-MS Samples
 Version: 0.1.0
-Author: David Gomez-Zepeda
-Maintainer: David Gomez-Zepeda <davidgz.science@gmail.com>
+Authors@R: person("David", "Gomez-Zepeda",
+    email = "davidgz.science@gmail.com",
+    role = c("aut", "cre"))
 Description: HowDirty facilitates the evaluation and reporting of molecular
     contaminants in LC-MS experiments by importing results from Skyline
     and generating a self-contained, interactive HTML report.
-License: GNU GENERAL PUBLIC LICENSE Version 3
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
