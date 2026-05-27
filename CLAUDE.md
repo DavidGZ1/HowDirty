@@ -86,3 +86,26 @@ Tests live in `tests/` but are **not** a `testthat` suite — they are plain R s
 ### Package imports
 
 `tidyverse` was replaced with the three specific sub-packages actually used: `dplyr`, `tidyr`, `forcats`. The `%>%` pipe is re-exported by `dplyr`. Internal `require()` calls have been removed — all dependencies are declared in `DESCRIPTION` and imported via `@import` in `R/help.R`.
+
+### Known bugs (to fix in v2)
+
+- `rotate()` and `rotate_x_text()` are called in 5 plot functions (`plot_abundance`, `plot_sample_risk_total`, `plot_sample_risk_contaminant`, `plot_condition_risk_contaminant`, `plot_contaminantgroup_risk`) but never defined — these plots will crash at render time.
+- `scale_fill_risk()`, `scale_fill_risk_level()`, `scale_color_risk()` in `R/plot_functions.R`: the `direction == -1` branch incorrectly checks `direction == 1`, so palette reversal never works.
+- `summarize_conta_sampleset()` references the global variable `ref_conta_tshd_sample` (line 18) instead of accepting it as a parameter — breaks outside the Rmd context.
+- Typo: variable named `ouptut` in `R/annotate_conta_samples.R` (lines 18, 22, 31).
+
+## v2 roadmap
+
+Prioritized improvement plan (full details in memory):
+
+| Priority | Item |
+|---|---|
+| 1 | Fix bugs listed above |
+| 2 | Add `testthat` suite |
+| 3 | Extract `RISK_LABELS` constant + shared risk assignment helper |
+| 4 | Batch processing (`run_howdirty_batch`) + programmatic render (`generate_howdirty_report`) |
+| 5 | Heatmap plot (`plot_heatmap_conta`) |
+| 6 | Custom metadata columns in annotation file |
+| 7 | pkgdown site + quickstart vignette |
+| 8 | Longitudinal trend plot + multi-dataset comparison |
+| 9 | Dockerize |
