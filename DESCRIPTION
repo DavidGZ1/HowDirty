@@ -13,4 +13,6 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
 Imports: ggplot2, ggpubr, scales, plotly, openxlsx, mgsub, DT, dplyr, tidyr, forcats
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
 
