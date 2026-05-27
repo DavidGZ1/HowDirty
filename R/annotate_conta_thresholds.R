@@ -27,7 +27,7 @@ annotate_conta_thresholds <- function(df_conta, df_threshold, var){
                                    (Tshd_abundance_quantile75 <= {{ var }} & {{ var }} < Tshd_abundance_quantile90) ~ 4,
                                    (Tshd_abundance_quantile90 <= {{ var }}) ~ 5,
                                    TRUE ~ 6),
-             Risk = .apply_risk_labels(RiskLevel))) %>%
+             Risk = .apply_risk_labels(RiskLevel)) %>%
       mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
       select(-starts_with("Tshd_"))
   }
