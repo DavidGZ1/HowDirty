@@ -66,14 +66,7 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
 
   ggplot2:::manual_scale(
     'fill',
-    values = setNames(colors_risk,
-                      c("0) Not Detected",
-                        "1) Very Low",
-                        "2) Low",
-                        "3) Medium",
-                        "4) High",
-                        "5) Very High",
-                        "6) No threshold in reference")),
+    values = setNames(colors_risk, unname(RISK_LABELS)),
     ...
   )
 }
@@ -95,13 +88,7 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
   if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
   if(verbose == FALSE) names_levels = c(0, 1, 2, 3, 4, 5, 6)
-  if(verbose == TRUE) names_levels = c("0) Not Detected",
-                                       "1) Very Low",
-                                       "2) Low",
-                                       "3) Medium",
-                                       "4) High",
-                                       "5) Very High",
-                                       "6) No threshold in reference")
+  if(verbose == TRUE)  names_levels = unname(RISK_LABELS)
 
 
   ggplot2:::manual_scale(

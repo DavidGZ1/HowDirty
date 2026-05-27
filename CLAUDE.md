@@ -81,7 +81,12 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 
 ### Tests
 
-Tests live in `tests/` but are **not** a `testthat` suite — they are plain R scripts that exercise the full pipeline using example data in `example/data/`. Run them by sourcing the script after `devtools::load_all()`.
+```r
+devtools::test()          # run full testthat suite
+devtools::test_file("tests/testthat/test-read_conta_results.R")  # single file
+```
+
+Tests live in `tests/testthat/` (testthat edition 3). Four test files cover `read_conta_results`, `annotate_conta_thresholds`, `summarize_conta`, and `annotate_conta_samples`. The old plain scripts in `tests/` are legacy and not part of CI.
 
 ### Package imports
 
