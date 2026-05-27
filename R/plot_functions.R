@@ -611,3 +611,53 @@ plot_heatmap_conta <- function(df_conta, x = ReplicateName, y = Contaminant, fac
   }
   return(output)
 }
+
+#' Longitudinal trend plot of total contamination
+#'
+#' Plots total contamination abundance over run order, coloured by RiskLevel.
+#' Rows are treated as ordered runs; preserve the desired sequence before calling.
+#'
+#' @param df_summ_sample per-sample summary dataframe (output of \code{summarize_conta} at sample level with RiskLevel annotated).
+#' @param x character; column name to use as x-axis labels (default: "ReplicateName").
+#' @param add_smooth logical; overlay a loess trend line (default: TRUE).
+#' @param facet_by optional character; column name to facet by (e.g. "Condition").
+#' @param scale "linear" or "log10" for the y-axis (default: "linear").
+#'
+#' @return ggplot object.
+#'
+#' @examples
+#' plot_trend_conta(conta_summ_sample)
+#' plot_trend_conta(conta_summ_sample, x = "Sample", facet_by = "Condition")
+#'
+#' @export
+plot_trend_conta <- function(df_summ_sample, x = "ReplicateName",
+                              add_smooth = TRUE, facet_by = NULL, scale = "linear"){
+  if(!x %in% names(df_summ_sample)) stop("Column '", x, "' not found in df_summ_sample")
+
+  df_plot <- df_summ_sample %>%
+    mutate(.RunOrder = row_number(),
+           .Label    = as.character(.data[[x]]))
+
+  output <- df_plot %>%
+    ggplot(aes(x = .RunOrder, y = Abundance_total, color = RiskLevel)) +
+    geom_point(size = 2) +
+    scale_x_continuous(breaks = df_plot$.RunOrder, labels = df_plot$.Label) +
+    scale_color_risk() +
+    xlab(x) +
+    ylab("Total Abundance") +
+    theme_hd() +
+    rotate_x_text(angle = 90)
+
+  if(add_smooth){
+    output <- output +
+      geom_smooth(aes(group = 1), method = "loess", formula = y ~ x,
+                  color = "black", linewidth = 0.5, se = FALSE)
+  }
+  if(!is.null(facet_by)){
+    output <- output + facet_wrap(as.formula(paste("~", facet_by)), scales = "free_x")
+  }
+  if(scale == "log10"){
+    output <- output + scale_y_log10() + ylab("log10(Total Abundance)")
+  }
+  return(output)
+}

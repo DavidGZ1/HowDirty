@@ -2,8 +2,11 @@
 
 export(RISK_LABELS)
 export(annotate_conta_samples)
+export(compare_howdirty)
 export(generate_howdirty_report)
+export(plot_comparison_conta)
 export(plot_heatmap_conta)
+export(plot_trend_conta)
 export(run_howdirty_batch)
 export(annotate_conta_thresholds)
 export(annotate_conta_thresholds_samples)

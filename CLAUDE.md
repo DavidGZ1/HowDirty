@@ -92,25 +92,18 @@ Tests live in `tests/testthat/` (testthat edition 3). Four test files cover `rea
 
 `tidyverse` was replaced with the three specific sub-packages actually used: `dplyr`, `tidyr`, `forcats`. The `%>%` pipe is re-exported by `dplyr`. Internal `require()` calls have been removed — all dependencies are declared in `DESCRIPTION` and imported via `@import` in `R/help.R`.
 
-### Known bugs (to fix in v2)
-
-- `rotate()` and `rotate_x_text()` are called in 5 plot functions (`plot_abundance`, `plot_sample_risk_total`, `plot_sample_risk_contaminant`, `plot_condition_risk_contaminant`, `plot_contaminantgroup_risk`) but never defined — these plots will crash at render time.
-- `scale_fill_risk()`, `scale_fill_risk_level()`, `scale_color_risk()` in `R/plot_functions.R`: the `direction == -1` branch incorrectly checks `direction == 1`, so palette reversal never works.
-- `summarize_conta_sampleset()` references the global variable `ref_conta_tshd_sample` (line 18) instead of accepting it as a parameter — breaks outside the Rmd context.
-- Typo: variable named `ouptut` in `R/annotate_conta_samples.R` (lines 18, 22, 31).
-
 ## v2 roadmap
 
 Prioritized improvement plan (full details in memory):
 
-| Priority | Item |
-|---|---|
-| 1 | Fix bugs listed above |
-| 2 | Add `testthat` suite |
-| 3 | Extract `RISK_LABELS` constant + shared risk assignment helper |
+| Priority | Item | Status |
+|---|---|---|
+| 1 | Fix bugs (missing `rotate`/`rotate_x_text`, color scale direction, global var in `summarize_conta_sampleset`, typo `ouptut`) | ✅ Done |
+| 2 | Add `testthat` suite | ✅ Done |
+| 3 | Extract `RISK_LABELS` constant + `.apply_risk_labels()` helper | ✅ Done |
 | 4 | Custom metadata columns in annotation file | ✅ Done |
 | 5 | Heatmap plot (`plot_heatmap_conta`) | ✅ Done |
 | 6 | Batch processing (`run_howdirty_batch`) + programmatic render (`generate_howdirty_report`) | ✅ Done |
-| 7 | Longitudinal trend plot + multi-dataset comparison |
-| 8 | pkgdown site + quickstart vignette |
-| 9 | Dockerize |
+| 7 | Longitudinal trend plot + multi-dataset comparison | ✅ Done |
+| 8 | pkgdown site + quickstart vignette | TODO |
+| 9 | Dockerize | TODO |
