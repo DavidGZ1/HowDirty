@@ -14,7 +14,6 @@
 #' @export
 annotate_conta_thresholds <- function(df_conta, df_threshold, var){
   # if only the ContaminantGroup is present, calculate for ContaminantGroup
-  require(mgsub)
   if("Contaminant" %in% names(df_conta) & "ContaminantGroup" %in% names(df_conta)){
     message("Thresholds assigned at the Contaminant level")
     output <-

@@ -12,7 +12,6 @@
 #'
 #' @export
 annotate_conta_thresholds_samples <- function(df_conta_summ_sample, df_threshold_sample){
-  require(mgsub)
   df_conta_summ_sample %>%
     mutate(Risk =
              cut(x = Abundance_total,

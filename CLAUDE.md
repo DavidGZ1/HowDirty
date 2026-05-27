@@ -83,7 +83,6 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 
 Tests live in `tests/` but are **not** a `testthat` suite — they are plain R scripts that exercise the full pipeline using example data in `example/data/`. Run them by sourcing the script after `devtools::load_all()`.
 
-### Known technical debt
+### Package imports
 
-- `Imports` in `DESCRIPTION` lists `tidyverse` (the meta-package) rather than the individual packages actually used. This will need to be resolved before CRAN submission.
-- Several functions use `require()` internally instead of relying on `DESCRIPTION` imports.
+`tidyverse` was replaced with the three specific sub-packages actually used: `dplyr`, `tidyr`, `forcats`. The `%>%` pipe is re-exported by `dplyr`. Internal `require()` calls have been removed — all dependencies are declared in `DESCRIPTION` and imported via `@import` in `R/help.R`.

@@ -14,7 +14,6 @@
 #' @export
 annotate_contagroup_thresholds <- function(df_conta, df_threshold){
   # if only the ContaminantGroup is present, calculate for ContaminantGroup
-  require(mgsub)
   if(!all((c("Contaminant") %in% names(df_conta))) & ("ContaminantGroup" %in% names(df_conta))){
     message("Thresholds assigned at the ContaminantGroup level (total sum of contaminant abundance)")
     # if only the ContaminantGroup is present, calculate for ContaminantGroup

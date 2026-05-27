@@ -11,5 +11,7 @@
 #' @name HowDirty
 #'
 #' @import ggplot2
-#' @import tidyverse
+#' @import dplyr
+#' @import tidyr
+#' @import forcats
 NULL

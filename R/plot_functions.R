@@ -483,7 +483,6 @@ plot_risk_summ_sampleset <- function(df_conta){
 plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
-  require(ggpubr)
   output <-
     ggplot(input_conta_summ_sample, aes(x = Condition, y = Abundance_total)) +
     geom_boxplot(alpha = 0.4, width = 0.5, size = 0.2,
