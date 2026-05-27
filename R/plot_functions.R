@@ -36,8 +36,7 @@ scale_fill_risk <- function(..., option = "plasma", direction = 1){
   if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
   if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
 
   ggplot2:::manual_scale(
@@ -62,8 +61,7 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
   if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
   if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
 
   ggplot2:::manual_scale(
@@ -94,8 +92,7 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
   if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
   if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdOrBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
   if(verbose == FALSE) names_levels = c(0, 1, 2, 3, 4, 5, 6)
   if(verbose == TRUE) names_levels = c("0) Not Detected",
