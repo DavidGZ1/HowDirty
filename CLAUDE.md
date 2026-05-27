@@ -108,9 +108,9 @@ Prioritized improvement plan (full details in memory):
 | 1 | Fix bugs listed above |
 | 2 | Add `testthat` suite |
 | 3 | Extract `RISK_LABELS` constant + shared risk assignment helper |
-| 4 | Custom metadata columns in annotation file |
-| 5 | Heatmap plot (`plot_heatmap_conta`) |
-| 6 | Batch processing (`run_howdirty_batch`) + programmatic render (`generate_howdirty_report`) |
+| 4 | Custom metadata columns in annotation file | ✅ Done |
+| 5 | Heatmap plot (`plot_heatmap_conta`) | ✅ Done |
+| 6 | Batch processing (`run_howdirty_batch`) + programmatic render (`generate_howdirty_report`) | ✅ Done |
 | 7 | Longitudinal trend plot + multi-dataset comparison |
 | 8 | pkgdown site + quickstart vignette |
 | 9 | Dockerize |

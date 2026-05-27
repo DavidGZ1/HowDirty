@@ -577,3 +577,37 @@ plot_contaminantgroup_risk <- function(input_conta_summ_contaminantgroup_sample,
     rotate_x_text(angle = 90)
   return(output)
 }
+
+#' Heatmap of contamination risk
+#'
+#' Plots a sample x contaminant heatmap with RiskLevel as fill colour.
+#' Provides an overview of all contaminants across all samples in a single plot.
+#'
+#' @param df_conta dataframe containing annotated contaminant results with RiskLevel column.
+#' @param x column to use on the x-axis (default: ReplicateName).
+#' @param y column to use on the y-axis (default: Contaminant).
+#' @param facet_by optional character string naming a column to facet by (e.g. "Condition", "ContaminantGroup").
+#'
+#' @return ggplot object.
+#'
+#' @examples
+#' plot_heatmap_conta(conta)
+#' plot_heatmap_conta(conta, x = Sample, facet_by = "ContaminantGroup")
+#'
+#' @export
+plot_heatmap_conta <- function(df_conta, x = ReplicateName, y = Contaminant, facet_by = NULL){
+  output <-
+    df_conta %>%
+    ggplot(aes(x = {{ x }}, y = {{ y }}, fill = RiskLevel)) +
+    geom_tile() +
+    scale_fill_risk() +
+    theme_hd() +
+    theme(panel.grid = element_blank()) +
+    xlab(NULL) +
+    ylab(NULL) +
+    rotate_x_text(angle = 90)
+  if(!is.null(facet_by)){
+    output <- output + facet_wrap(as.formula(paste("~", facet_by)), scales = "free")
+  }
+  return(output)
+}
