@@ -11,7 +11,7 @@ annotate_contagroup_thresholds(df_conta, df_threshold)
 
 \item{df_threshold}{dataframe with thresholds.}
 
-\item{var}{column name used for calculations.}
+
 }
 \value{
 dataframe containing the input dataframe

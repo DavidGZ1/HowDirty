@@ -6,14 +6,11 @@
 \usage{
 get_h()
 }
-\arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\description{
+Returns the current figure height in pixels from knitr chunk options.
 }
 \value{
-type of output object (e.g. numeric vector).
-}
-\description{
-description
+Numeric. Figure height in pixels.
 }
 \examples{
 \dontrun{

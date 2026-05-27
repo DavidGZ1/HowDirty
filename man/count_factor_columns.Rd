@@ -7,7 +7,7 @@
 count_factor_columns(df)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df}{dataframe whose factor columns are counted.}
 }
 \value{
 type of output object (e.g. numeric vector).

@@ -38,7 +38,7 @@ get_annotation_template <- function(file_report_skyline = NULL, save = TRUE,
   }
   if(!is.null(extra_cols)){
     extra_df <- as.data.frame(
-      setNames(replicate(list(rep("Example", nrow(annot_template))), length(extra_cols)),
+      setNames(replicate(length(extra_cols), rep("Example", nrow(annot_template)), simplify = FALSE),
                extra_cols)
     )
     annot_template <- cbind(annot_template, extra_df)

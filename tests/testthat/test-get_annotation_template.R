@@ -45,9 +45,12 @@ test_that("extra columns survive annotate_conta_samples join", {
 })
 
 test_that("overwrite = FALSE stops if file exists", {
-  f <- tempfile(fileext = ".csv")
-  file.create(f)
-  on.exit(unlink(f))
+  tmp_dir <- tempdir()
+  old_wd  <- setwd(tmp_dir)
+  on.exit(setwd(old_wd), add = TRUE)
+  out_file <- file.path(tmp_dir, "samples_annotation_template.csv")
+  writeLines("", out_file)
+  on.exit(unlink(out_file), add = TRUE)
   expect_error(
     get_annotation_template(save = TRUE, overwrite = FALSE),
     regexp = "already exists"
