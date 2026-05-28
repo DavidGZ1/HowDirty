@@ -7,6 +7,8 @@
 scale_fill_risk_level(..., option = "plasma", direction = 1)
 }
 \arguments{
+\item{...}{additional arguments passed to the underlying ggplot2 scale function.}
+
 \item{option}{name of colour scheme ("RdOrBlu", "plasma").}
 
 \item{direction}{sets order of risk levels.}

@@ -27,7 +27,6 @@ ggplot object.
 Plots contaminant vs condition, with colour in function of risk and size in function of median abundance
 }
 \examples{
-\dontrun{
-plot_condition_risk_contaminant(input_conta_summ_sample_risk)
-}
+plot_condition_risk_contaminant(input_conta_summ_sample_risk, order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
+
 }

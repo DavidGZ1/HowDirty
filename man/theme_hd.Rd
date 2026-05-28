@@ -6,9 +6,6 @@
 \usage{
 theme_hd()
 }
-\arguments{
-\item{None}{}
-}
 \value{
 None
 }

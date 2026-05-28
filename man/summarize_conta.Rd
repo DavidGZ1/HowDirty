@@ -18,7 +18,6 @@ dataframe with the summarized contaminant groups.
 Summarize the data by contaminant group
 }
 \examples{
-\dontrun{
-summarize_conta(df_conta, ContaminantGroup)
-}
+summarize_conta(df_conta, ...)
+#'
 }

@@ -8,8 +8,6 @@ arrange_contagroup_levels(df_conta, metric = "median")
 }
 \arguments{
 \item{df_conta}{dataframe containing the contaminants.}
-
-\item{metric}{character; aggregation metric to order by ("median" or "mean"). Default: "median".}
 }
 \value{
 dataframe with the arranged contaminant group levels.
@@ -18,7 +16,6 @@ dataframe with the arranged contaminant group levels.
 Arranges the contaminant group levels based on overall median abundance.
 }
 \examples{
-\dontrun{
 arrange_contagroup_levels(df_conta, metric = "median")
-}
+
 }

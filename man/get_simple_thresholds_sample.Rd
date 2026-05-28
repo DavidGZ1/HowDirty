@@ -7,7 +7,7 @@
 get_simple_thresholds_sample(breaks = c(0.83, 1.5, 4.6, 12))
 }
 \arguments{
-\item{breaks}{numeric vector of break points (default: c(0.83, 1.5, 4.6, 12)).}
+\item{None}{}
 }
 \value{
 dataframe containing break points and labels.

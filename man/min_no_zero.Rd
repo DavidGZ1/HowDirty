@@ -8,8 +8,6 @@ min_no_zero(x, na.rm = TRUE)
 }
 \arguments{
 \item{x}{numeric vector.}
-
-\item{na.rm}{logical; remove NA values before computing minimum (default: TRUE).}
 }
 \value{
 numeric vector.

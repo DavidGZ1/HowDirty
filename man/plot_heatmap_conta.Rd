@@ -4,7 +4,12 @@
 \alias{plot_heatmap_conta}
 \title{Heatmap of contamination risk}
 \usage{
-plot_heatmap_conta(df_conta, x = ReplicateName, y = Contaminant, facet_by = NULL)
+plot_heatmap_conta(
+  df_conta,
+  x = ReplicateName,
+  y = Contaminant,
+  facet_by = NULL
+)
 }
 \arguments{
 \item{df_conta}{dataframe containing annotated contaminant results with RiskLevel column.}
@@ -23,8 +28,7 @@ Plots a sample x contaminant heatmap with RiskLevel as fill colour.
 Provides an overview of all contaminants across all samples in a single plot.
 }
 \examples{
-\dontrun{
 plot_heatmap_conta(conta)
-plot_heatmap_conta(conta, facet_by = "ContaminantGroup")
-}
+plot_heatmap_conta(conta, x = Sample, facet_by = "ContaminantGroup")
+
 }

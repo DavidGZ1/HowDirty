@@ -18,7 +18,6 @@ dataframe with annotated thresholds.
 Annotates the contaminants with risk level thresholds
 }
 \examples{
-\dontrun{
-annotate_conta_thresholds_samples(df_conta_summ_sample, df_threshold_sample)
-}
+annotate_conta_tresholds_samples(df_conta_summ_sample, df_threshold_sample)
+
 }

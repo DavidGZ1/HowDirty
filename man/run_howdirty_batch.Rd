@@ -29,7 +29,6 @@ Each row represents one dataset; failed datasets are reported but do not stop
 the batch.
 }
 \examples{
-\dontrun{
 manifest <- data.frame(
   dataset         = c("Exp1", "Exp2"),
   file_peak_areas = c("exp1/PeakAreas.csv", "exp2/PeakAreas.csv"),
@@ -37,5 +36,5 @@ manifest <- data.frame(
   stringsAsFactors = FALSE
 )
 run_howdirty_batch(manifest, output_dir = "reports")
-}
+
 }

@@ -21,8 +21,7 @@ Boxplot of total contamination abundance per dataset. Useful for comparing
 contamination levels across instruments, batches, or time periods.
 }
 \examples{
-\dontrun{
 plot_comparison_conta(combined)
 plot_comparison_conta(combined, scale = "log10", compare_means = TRUE)
-}
+
 }

@@ -7,8 +7,6 @@ palette_plasma <- c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D3517
 #'
 #' sets the parameters of the HowDirty theme for plotting
 #'
-#' @param None
-#'
 #' @return None
 #'
 #' @export
@@ -25,6 +23,7 @@ theme_hd <- function(){
 #'
 #' Sets fill scale of risk colours
 #'
+#' @param ... additional arguments passed to the underlying ggplot2 scale function.
 #' @param option name of colour palette ("RdOrBlu", "plasma").
 #' @param direction value that sets the order of risk levels.
 #'
@@ -50,6 +49,7 @@ scale_fill_risk <- function(..., option = "plasma", direction = 1){
 #'
 #' Sets the fill colour scale of the risk level
 #'
+#' @param ... additional arguments passed to the underlying ggplot2 scale function.
 #' @param option name of colour scheme ("RdOrBlu", "plasma").
 #' @param direction sets order of risk levels.
 #'
@@ -75,7 +75,10 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
 #'
 #' Set the colour scale and names for risk
 #'
-#' @param optin palatte name ("RdOrBlu", "plasma")
+#' @param ... additional arguments passed to the underlying ggplot2 scale function.
+#' @param option colour palette name ("RdOrBlu", "plasma").
+#' @param direction integer; sets the order of the risk level colour scale.
+#' @param verbose logical; if TRUE uses risk label names instead of integers.
 #'
 #' @return None
 #'

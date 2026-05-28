@@ -18,7 +18,6 @@ dataframe containing the summaries.
 Summarizes the contaminant sample set to get a summary per sample, per condition, and for all samples
 }
 \examples{
-\dontrun{
-summarize_conta_sampleset(df_conta, df_threshold_sample)
-}
+summarize_conta_sampleset(df_conta, ref_conta_tshd_sample)
+
 }

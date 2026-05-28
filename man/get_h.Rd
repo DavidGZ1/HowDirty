@@ -6,14 +6,17 @@
 \usage{
 get_h()
 }
-\description{
-Returns the current figure height in pixels from knitr chunk options.
+\arguments{
+\item{x}{type of input object (e.g. numeric vector).}
 }
 \value{
-Numeric. Figure height in pixels.
+type of output object (e.g. numeric vector).
+}
+\description{
+description
 }
 \examples{
-\dontrun{
-get_h()
-}
+bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+*' bmi3(bmi.vals)
+#'
 }

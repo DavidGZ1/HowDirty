@@ -31,8 +31,7 @@ Plots total contamination abundance over run order, coloured by RiskLevel.
 Rows are treated as ordered runs; preserve the desired sequence before calling.
 }
 \examples{
-\dontrun{
 plot_trend_conta(conta_summ_sample)
 plot_trend_conta(conta_summ_sample, x = "Sample", facet_by = "Condition")
-}
+
 }

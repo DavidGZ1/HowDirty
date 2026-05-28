@@ -18,7 +18,6 @@ dataframe with the transformed input.
 This function reads the contaminants provided by Skyline and renames the contaminant groups.
 }
 \examples{
-\dontrun{
-read_conta_results(file_report_skyline = "PeakAreas_Contaminants.csv")
-}
+read_conta_results(file_report_skyline = PeaksAreasContaminantsFile, simplify_contaminantGroup = TRUE)
+
 }

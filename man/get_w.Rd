@@ -6,14 +6,17 @@
 \usage{
 get_w()
 }
-\description{
-Returns the current figure width in pixels from knitr chunk options.
+\arguments{
+\item{x}{type of input object (e.g. numeric vector).}
 }
 \value{
-Numeric. Figure width in pixels.
+type of output object (e.g. numeric vector).
+}
+\description{
+description
 }
 \examples{
-\dontrun{
-get_w()
-}
+bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
+*' bmi3(bmi.vals)
+#'
 }

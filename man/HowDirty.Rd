@@ -2,6 +2,7 @@
 % Please edit documentation in R/help.R
 \docType{package}
 \name{HowDirty}
+\alias{HowDirty-package}
 \alias{HowDirty}
 \title{Evaluate How Dirty are LC-MS samples}
 \description{

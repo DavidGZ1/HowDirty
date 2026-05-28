@@ -27,7 +27,6 @@ ggplot object.
 Plots contaminant vs sample abundance, with colour in function of risk and size in function of the median abundance
 }
 \examples{
-\dontrun{
-plot_sample_risk_contaminant(input_conta_summ_sample_risk)
-}
+plot_sample_risk_contaminant(input_conta_summ_sample_risk, order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
+
 }
