@@ -9,6 +9,10 @@ navbar:
       href: https://github.com/DavidGZ1/HowDirty
 
 reference:
+  - title: Package
+    contents:
+      - HowDirty
+
   - title: Data import
     contents:
       - read_conta_results
