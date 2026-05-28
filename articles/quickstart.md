@@ -175,7 +175,7 @@ run_howdirty_batch(
 ## Further reading
 
 - Full function reference:
-  [`help(package = "HowDirty")`](https://rdrr.io/pkg/HowDirty/man)
+  [`help(package = "HowDirty")`](https://davidgz1.github.io/HowDirty/reference)
 - Parameterised RMarkdown template:
   [`get_report_template()`](https://davidgz1.github.io/HowDirty/reference/get_report_template.md)
 - Multi-dataset comparison:

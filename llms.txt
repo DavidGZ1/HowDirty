@@ -15,6 +15,11 @@ tutorial (below).
 
 ## References - please cite:
 
+HowDirty R package: D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler,
+S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in
+LC‐MS experiments, Proteomics. (2023) 1–6.
+<https://doi.org/10.1002/pmic.202300134>.
+
 Skyline: B. MacLean, D.M. Tomazela, N. Shulman, M. Chambers, G.L.
 Finney, B. Frewen, R. Kern, D.L. Tabb, D.C. Liebler, M.J. MacCoss,
 Skyline: an open source document editor for creating and analyzing
@@ -25,11 +30,6 @@ Molecular contaminant transition list: M.J. Rardin, Rapid Assessment of
 Contaminants and Interferences in Mass Spectrometry Data Using Skyline,
 J. Am. Soc. Mass Spectrom. 29 (2018) 1327–1330.
 <https://doi.org/10.1007/s13361-018-1940-z>.
-
-HowDirty R package: D. Gomez‐Zepeda, T. Michna, T. Ziesmann, U. Distler,
-S. Tenzer, HowDirty: An R package to evaluate molecular contaminants in
-LC‐MS experiments, Proteomics. (2023) 1–6.
-<https://doi.org/10.1002/pmic.202300134>.
 
 ## Tutorial
 
