@@ -12,11 +12,14 @@ get_maintainer <- function(email='davidgz.science@gmail.com', github='https://gi
 #' Returns the minima of the input values while ignoring zero values.
 #'
 #' @param x numeric vector.
+#' @param na.rm logical; if TRUE (default) NAs are removed before computing the minimum.
 #'
 #' @return numeric vector.
 #'
 #' @examples
+#' \dontrun{
 #' min_no_zero(c(0,1,2,3,10))
+#' }
 #'
 #' @export
 min_no_zero <- function(x, na.rm = TRUE){

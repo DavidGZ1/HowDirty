@@ -4,10 +4,12 @@
 \alias{summarize_conta_sampleset}
 \title{Summarize the contaminant sample set}
 \usage{
-summarize_conta_sampleset(df_conta)
+summarize_conta_sampleset(df_conta, df_threshold_sample)
 }
 \arguments{
 \item{df_conta}{dataframe containing the values to summarize.}
+
+\item{df_threshold_sample}{dataframe containing sample-level thresholds (from read_conta_sample_thresholds or get_simple_thresholds_sample).}
 }
 \value{
 dataframe containing the summaries.
@@ -16,6 +18,8 @@ dataframe containing the summaries.
 Summarizes the contaminant sample set to get a summary per sample, per condition, and for all samples
 }
 \examples{
-summarize_conta_sampleset(df_conta)
+\dontrun{
+summarize_conta_sampleset(df_conta, ref_conta_tshd_sample)
+}
 
 }

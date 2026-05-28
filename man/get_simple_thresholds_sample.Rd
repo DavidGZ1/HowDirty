@@ -7,7 +7,7 @@
 get_simple_thresholds_sample(breaks = c(0.83, 1.5, 4.6, 12))
 }
 \arguments{
-\item{None}{}
+\item{breaks}{numeric vector of length 4; abundance quantile breakpoints defining risk levels 1-4.}
 }
 \value{
 dataframe containing break points and labels.
@@ -16,6 +16,8 @@ dataframe containing break points and labels.
 If no threshold file is provided, thresholds are set using this function.
 }
 \examples{
+\dontrun{
 get_simple_thresholds_sample()
+}
 
 }

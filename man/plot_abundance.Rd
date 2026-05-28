@@ -22,6 +22,8 @@ ggplot object.
 Plots the abundance of contaminants as a boxplot
 }
 \examples{
+\dontrun{
 plot_abundance(input_conta, level, variable, scale = "linear")
+}
 
 }

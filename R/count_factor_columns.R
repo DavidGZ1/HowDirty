@@ -2,14 +2,14 @@
 #'
 #' description
 #'
-#' @param x type of input object (e.g. numeric vector).
+#' @param df data frame whose factor columns are counted.
 #'
-#' @return type of output object (e.g. numeric vector).
+#' @return data frame with one row per factor column and a Count column.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' \dontrun{
+#' count_factor_columns(my_df)
+#' }
 #' @export
 count_factor_columns <- function(df){
   df  %>%

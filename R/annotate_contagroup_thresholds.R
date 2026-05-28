@@ -4,17 +4,17 @@
 #'
 #' @param df_conta dataframe with contaminants.
 #' @param df_threshold dataframe with thresholds.
-#' @param var column name used for calculations.
 #'
 #' @return dataframe containing the input dataframe
 #'
 #' @examples
-#' annotate_contagroup_thresholds(df_conta, Abundance_median)
+#' \dontrun{
+#' annotate_contagroup_thresholds(df_conta, thresholds)
+#' }
 #'
 #' @export
 annotate_contagroup_thresholds <- function(df_conta, df_threshold){
   # if only the ContaminantGroup is present, calculate for ContaminantGroup
-  require(mgsub)
   if(!all((c("Contaminant") %in% names(df_conta))) & ("ContaminantGroup" %in% names(df_conta))){
     message("Thresholds assigned at the ContaminantGroup level (total sum of contaminant abundance)")
     # if only the ContaminantGroup is present, calculate for ContaminantGroup
@@ -32,9 +32,7 @@ annotate_contagroup_thresholds <- function(df_conta, df_threshold){
                                    (Tshd_abundance_quantile75 <= Abundance_total & Abundance_total < Tshd_abundance_quantile90) ~ 4,
                                    (Tshd_abundance_quantile90 <= Abundance_total) ~ 5,
                                    TRUE ~ 6),
-             Risk = mgsub(RiskLevel, patt=c(0, 1, 2, 3, 4, 5, 6) ,
-                          rep = c("0) Not Detected", "1) Very Low", "2) Low", "3) Medium", "4) High",
-                                  "5) Very High", "6) No threshold in reference"))) %>%
+             Risk = .apply_risk_labels(RiskLevel)) %>%
       mutate(across(c(Risk, RiskLevel), ~as.factor(.x))) %>%
       select(-starts_with("Tshd_"))
   }

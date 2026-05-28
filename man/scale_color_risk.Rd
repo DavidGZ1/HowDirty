@@ -7,7 +7,13 @@
 scale_color_risk(..., option = "plasma", direction = 1, verbose = FALSE)
 }
 \arguments{
-\item{optin}{palatte name ("RdOrBlu", "plasma")}
+\item{...}{additional arguments passed to the underlying ggplot2 scale function.}
+
+\item{option}{colour palette name ("RdOrBlu", "plasma").}
+
+\item{direction}{integer; sets the order of the risk level colour scale.}
+
+\item{verbose}{logical; if TRUE uses risk label names instead of integers.}
 }
 \value{
 None

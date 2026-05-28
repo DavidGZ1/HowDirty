@@ -2,12 +2,14 @@
 #'
 #' If no threshold file is provided, thresholds are set using this function.
 #'
-#' @param None
+#' @param breaks numeric vector of length 4; abundance quantile breakpoints defining risk levels 1-4.
 #'
 #' @return dataframe containing break points and labels.
 #'
 #' @examples
+#' \dontrun{
 #' get_simple_thresholds_sample()
+#' }
 #'
 #' @export
 get_simple_thresholds_sample <-function(breaks = c(0.83, 1.50, 4.60, 12)){
@@ -17,10 +19,5 @@ get_simple_thresholds_sample <-function(breaks = c(0.83, 1.50, 4.60, 12)){
   breaks = c(0, breaks, Inf)
   data.frame(Breaks = breaks,
              # Sum = c(0, 0.5, 1.0, 5, 10, Inf), #TODO remove if ok
-             Labels = c("0) Not Detected",
-                        "1) Very Low",
-                        "2) Low",
-                        "3) Medium",
-                        "4) High",
-                        "5) Very High"))
+             Labels = unname(RISK_LABELS[1:6]))
 }

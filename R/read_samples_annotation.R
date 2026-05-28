@@ -1,13 +1,18 @@
 #' Read Sample Annotation
 #'
-#' Reads the annotation in the sample input file and does renaming and missing value handling.
+#' Reads the annotation CSV and handles renaming and missing value defaults.
+#' Required columns: ReplicateNameSkyline. Optional: Sample, Condition, DilutionFactor.
+#' Any additional columns (e.g. Batch, Instrument, Operator) are preserved as-is and
+#' carried through the pipeline by \code{annotate_conta_samples()}.
 #'
 #' @param file_samples_annotation Input file containing sample annotation.
 #'
-#' @return The input file with changed values.
+#' @return dataframe with annotation columns; extra metadata columns are retained.
 #'
 #' @examples
-#' read_samples_annotation(file_samples_annotation)
+#' \dontrun{
+#' read_samples_annotation("samples_annotation.csv")
+#' }
 #'
 #' @export
 read_samples_annotation <- function(file_samples_annotation){

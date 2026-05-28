@@ -8,7 +8,9 @@
 #' @return dataframe with thresholds
 #'
 #' @examples
+#' \dontrun{
 #' get_simple_thresholds_contaminant(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057))
+#' }
 #'
 #' @export
 get_simple_thresholds_contaminant <- function(df_conta, breaks = c(0.00016, 0.0004, 0.0013, 0.0057)){

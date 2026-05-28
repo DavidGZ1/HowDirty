@@ -7,7 +7,9 @@
 #' @return dataframe containing the contaminant thresholds.
 #'
 #' @examples
-#' read_conta_thresholds(file_report_howdirty)
+#' \dontrun{
+#' read_conta_thresholds("reference_report.xlsx")
+#' }
 #'
 #' @export
 read_conta_thresholds <- function(file_report_howdirty){

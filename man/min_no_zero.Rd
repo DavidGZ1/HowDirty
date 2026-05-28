@@ -8,6 +8,8 @@ min_no_zero(x, na.rm = TRUE)
 }
 \arguments{
 \item{x}{numeric vector.}
+
+\item{na.rm}{logical; if TRUE (default) NAs are removed before computing the minimum.}
 }
 \value{
 numeric vector.
@@ -16,6 +18,8 @@ numeric vector.
 Returns the minima of the input values while ignoring zero values.
 }
 \examples{
+\dontrun{
 min_no_zero(c(0,1,2,3,10))
+}
 
 }

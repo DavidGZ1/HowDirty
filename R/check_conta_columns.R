@@ -8,7 +8,9 @@
 #' @return None
 #'
 #' @examples
+#' \dontrun{
 #' check_conta_columns(conta)
+#' }
 #'
 #' @export
 check_conta_columns <- function(df_conta, verbose = TRUE){

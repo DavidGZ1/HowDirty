@@ -7,8 +7,6 @@ palette_plasma <- c("#0D0887FF", "#5002A2FF", "#8405A7FF", "#B12A90FF",  "#D3517
 #'
 #' sets the parameters of the HowDirty theme for plotting
 #'
-#' @param None
-#'
 #' @return None
 #'
 #' @export
@@ -25,6 +23,7 @@ theme_hd <- function(){
 #'
 #' Sets fill scale of risk colours
 #'
+#' @param ... additional arguments passed to the underlying ggplot2 scale function.
 #' @param option name of colour palette ("RdOrBlu", "plasma").
 #' @param direction value that sets the order of risk levels.
 #'
@@ -36,8 +35,7 @@ scale_fill_risk <- function(..., option = "plasma", direction = 1){
   if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
   if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
 
   ggplot2:::manual_scale(
@@ -51,6 +49,7 @@ scale_fill_risk <- function(..., option = "plasma", direction = 1){
 #'
 #' Sets the fill colour scale of the risk level
 #'
+#' @param ... additional arguments passed to the underlying ggplot2 scale function.
 #' @param option name of colour scheme ("RdOrBlu", "plasma").
 #' @param direction sets order of risk levels.
 #'
@@ -62,20 +61,12 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
   if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
   if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdYlBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
 
   ggplot2:::manual_scale(
     'fill',
-    values = setNames(colors_risk,
-                      c("0) Not Detected",
-                        "1) Very Low",
-                        "2) Low",
-                        "3) Medium",
-                        "4) High",
-                        "5) Very High",
-                        "6) No threshold in reference")),
+    values = setNames(colors_risk, unname(RISK_LABELS)),
     ...
   )
 }
@@ -84,7 +75,10 @@ scale_fill_risk_level <- function(..., option = "plasma", direction = 1){
 #'
 #' Set the colour scale and names for risk
 #'
-#' @param optin palatte name ("RdOrBlu", "plasma")
+#' @param ... additional arguments passed to the underlying ggplot2 scale function.
+#' @param option colour palette name ("RdOrBlu", "plasma").
+#' @param direction integer; sets the order of the risk level colour scale.
+#' @param verbose logical; if TRUE uses risk label names instead of integers.
 #'
 #' @return None
 #'
@@ -94,17 +88,10 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
   if(option ==  "RdOrBlu"){colors_risk = palette_RdOrBlu}
   if(option ==  "plasma"){colors_risk = palette_plasma}
   if(!option %in% c("RdOrBlu", "plasma")) stop("option must be = c(RdOrBlu, plasma)")
-  if(direction == 1){colors_risk = colors_risk}
-  if(direction == 1){colors_risk = rev(colors_risk)}
+  if(direction == -1){colors_risk = rev(colors_risk)}
   if(!direction %in% c(-1,1))stop("risk must be = c(0,1)")
   if(verbose == FALSE) names_levels = c(0, 1, 2, 3, 4, 5, 6)
-  if(verbose == TRUE) names_levels = c("0) Not Detected",
-                                       "1) Very Low",
-                                       "2) Low",
-                                       "3) Medium",
-                                       "4) High",
-                                       "5) Very High",
-                                       "6) No threshold in reference")
+  if(verbose == TRUE)  names_levels = unname(RISK_LABELS)
 
 
   ggplot2:::manual_scale(
@@ -127,7 +114,9 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_abundance(input_conta, level, variable, scale = "linear")
+#' }
 #'
 #' @export
 plot_abundance <- function(input_conta, level, variable, scale = "linear"){
@@ -166,7 +155,9 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_pseudochromatogram(input_conta, scale = "linear")
+#' }
 #'
 #' @export
 plot_pseudochromatogram <- function(input_conta, scale = "linear"){
@@ -207,7 +198,9 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_sample_risk_total(input_conta_summ_sample, order_x = "Sample", scale = "linear")
+#' }
 #'
 #' @export
 plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", scale = "linear"){
@@ -265,7 +258,9 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_sample_risk_contaminant(input_conta_summ_sample_risk, order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
+#' }
 #'
 #' @export
 plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
@@ -349,7 +344,9 @@ plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_condition_risk_contaminant(input_conta_summ_sample_risk, order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
+#' }
 #'
 #' @export
 plot_condition_risk_contaminant <- function(input_conta_summ_sample_risk,
@@ -449,7 +446,9 @@ layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_risk_summ_sampleset(df_conta)
+#' }
 #'
 #' @export
 plot_risk_summ_sampleset <- function(df_conta){
@@ -477,13 +476,14 @@ plot_risk_summ_sampleset <- function(df_conta){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_condition_risk_total_boxplot(input_conta_summ_sample, scale = "linear", compare_means = TRUE, method = "wilcox.test")
+#' }
 #'
 #' @export
 plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test"){
   # plot the abundance
   # scale: changes the scale to linear or log10; options = c("linear", "log10")
-  require(ggpubr)
   output <-
     ggplot(input_conta_summ_sample, aes(x = Condition, y = Abundance_total)) +
     geom_boxplot(alpha = 0.4, width = 0.5, size = 0.2,
@@ -532,13 +532,15 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
 #' @param input_conta_summ_contaminantgroup_sample dataframe containing the abundance values as well as condition/sample information.
 #' @param x values used for x-axis ("Condition", "Sample")
 #' @param size any of the abundance measures in dataframe ("Abundance_median", "Abundance_total", "Abundance_min", "Abundance_quantile25", "Abundance_quantile75", "Abundance_quantile90", "Abundance_max")
-#' @param oder_y value to order y-axis by ("Abundance", "ContaminantGroup")
-#' @param show_zeroes flag if zero values should be removed
+#' @param order_y value to order y-axis by ("Abundance", "ContaminantGroup")
+#' @param show_zeros logical; if FALSE (default) contaminant groups with all-zero abundance are removed
 #'
 #' @return ggplot object.
 #'
 #' @examples
-#' plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeroes = FALSE)
+#' \dontrun{
+#' plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeros = FALSE)
+#' }
 #'
 #' @export
 #'
@@ -592,5 +594,93 @@ plot_contaminantgroup_risk <- function(input_conta_summ_contaminantgroup_sample,
     theme_hd( ) +
     theme(plot.margin = margin(4,4,4,10)) +
     rotate_x_text(angle = 90)
+  return(output)
+}
+
+#' Heatmap of contamination risk
+#'
+#' Plots a sample x contaminant heatmap with RiskLevel as fill colour.
+#' Provides an overview of all contaminants across all samples in a single plot.
+#'
+#' @param df_conta dataframe containing annotated contaminant results with RiskLevel column.
+#' @param x column to use on the x-axis (default: ReplicateName).
+#' @param y column to use on the y-axis (default: Contaminant).
+#' @param facet_by optional character string naming a column to facet by (e.g. "Condition", "ContaminantGroup").
+#'
+#' @return ggplot object.
+#'
+#' @examples
+#' \dontrun{
+#' plot_heatmap_conta(conta)
+#' plot_heatmap_conta(conta, x = Sample, facet_by = "ContaminantGroup")
+#' }
+#'
+#' @export
+plot_heatmap_conta <- function(df_conta, x = ReplicateName, y = Contaminant, facet_by = NULL){
+  output <-
+    df_conta %>%
+    ggplot(aes(x = {{ x }}, y = {{ y }}, fill = RiskLevel)) +
+    geom_tile() +
+    scale_fill_risk() +
+    theme_hd() +
+    theme(panel.grid = element_blank()) +
+    xlab(NULL) +
+    ylab(NULL) +
+    rotate_x_text(angle = 90)
+  if(!is.null(facet_by)){
+    output <- output + facet_wrap(as.formula(paste("~", facet_by)), scales = "free")
+  }
+  return(output)
+}
+
+#' Longitudinal trend plot of total contamination
+#'
+#' Plots total contamination abundance over run order, coloured by RiskLevel.
+#' Rows are treated as ordered runs; preserve the desired sequence before calling.
+#'
+#' @param df_summ_sample per-sample summary dataframe (output of \code{summarize_conta} at sample level with RiskLevel annotated).
+#' @param x character; column name to use as x-axis labels (default: "ReplicateName").
+#' @param add_smooth logical; overlay a loess trend line (default: TRUE).
+#' @param facet_by optional character; column name to facet by (e.g. "Condition").
+#' @param scale "linear" or "log10" for the y-axis (default: "linear").
+#'
+#' @return ggplot object.
+#'
+#' @examples
+#' \dontrun{
+#' plot_trend_conta(conta_summ_sample)
+#' plot_trend_conta(conta_summ_sample, x = "Sample", facet_by = "Condition")
+#' }
+#'
+#' @export
+plot_trend_conta <- function(df_summ_sample, x = "ReplicateName",
+                              add_smooth = TRUE, facet_by = NULL, scale = "linear"){
+  if(!x %in% names(df_summ_sample)) stop("Column '", x, "' not found in df_summ_sample")
+
+  df_plot <- df_summ_sample %>%
+    mutate(.RunOrder = row_number(),
+           .Label    = as.character(.data[[x]]))
+
+  output <- df_plot %>%
+    ggplot(aes(x = .RunOrder, y = Abundance_total, color = RiskLevel)) +
+    geom_point(size = 2) +
+    scale_x_continuous(breaks = df_plot$.RunOrder, labels = df_plot$.Label) +
+    scale_color_risk() +
+    xlab(x) +
+    ylab("Total Abundance") +
+    theme_hd() +
+    rotate_x_text(angle = 90)
+
+  if(add_smooth){
+    output <- output +
+      geom_smooth(aes(group = 1), method = "loess", formula = y ~ x,
+                  color = "black", linewidth = 0.5, se = FALSE)
+  }
+  if(!is.null(facet_by)){
+    output <- output + facet_wrap(as.formula(paste("~", facet_by)), scales = "free_x")
+  }
+  if(scale == "log10"){
+    output <- output + scale_y_log10() + ylab("log10(Total Abundance)")
+  }
   return(output)
 }

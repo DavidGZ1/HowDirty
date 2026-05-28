@@ -8,7 +8,9 @@
 #' @return None
 #'
 #' @examples
-#' read.csv_auto_sep(PeakAreas_Contaminants.csv)
+#' \dontrun{
+#' read.csv_auto_sep("PeakAreas_Contaminants.csv")
+#' }
 #'
 #' @export
 read.csv_auto_sep <- function(file, ...){

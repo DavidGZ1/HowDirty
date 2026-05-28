@@ -20,6 +20,8 @@ dataframe containing the risk level.
 Assigns the risk level
 }
 \examples{
+\dontrun{
 annotate_conta_thresholds(df_conta, ref_conta_tshd, Abundance)
+}
 
 }

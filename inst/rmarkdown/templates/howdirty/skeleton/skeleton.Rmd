@@ -229,7 +229,7 @@ conta_summ_condition <-
 
 #Dataset level
 conta_summ_sampleset <-
-  summarize_conta_sampleset(conta)
+  summarize_conta_sampleset(conta, ref_conta_tshd_sample)
 risk_summ_sampleset <-
   conta_summ_sample %>%
   count(Risk, name = "Count") %>%

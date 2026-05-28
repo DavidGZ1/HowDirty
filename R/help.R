@@ -4,12 +4,15 @@
 #' Use four spaces when indenting paragraphs within the Description.
 #'
 #'
-#' @docType _PACKAGE
+#' @docType package
 #'
 #' @author David Gomez-Zepeda \email{davidgz.science@gmail.com}
 #'
 #' @name HowDirty
 #'
 #' @import ggplot2
-#' @import tidyverse
+#' @import dplyr
+#' @import tidyr
+#' @import forcats
+#' @importFrom ggpubr rotate rotate_x_text
 NULL

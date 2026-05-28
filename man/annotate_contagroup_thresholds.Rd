@@ -10,8 +10,6 @@ annotate_contagroup_thresholds(df_conta, df_threshold)
 \item{df_conta}{dataframe with contaminants.}
 
 \item{df_threshold}{dataframe with thresholds.}
-
-\item{var}{column name used for calculations.}
 }
 \value{
 dataframe containing the input dataframe
@@ -20,6 +18,8 @@ dataframe containing the input dataframe
 Annotates the contaminant groups with thresholds
 }
 \examples{
-annotate_contagroup_thresholds(df_conta, Abundance_median)
+\dontrun{
+annotate_contagroup_thresholds(df_conta, thresholds)
+}
 
 }
