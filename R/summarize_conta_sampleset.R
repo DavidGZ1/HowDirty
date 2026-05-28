@@ -8,7 +8,9 @@
 #' @return dataframe containing the summaries.
 #'
 #' @examples
+#' \dontrun{
 #' summarize_conta_sampleset(df_conta, ref_conta_tshd_sample)
+#' }
 #'
 #' @export
 summarize_conta_sampleset <- function(df_conta, df_threshold_sample){

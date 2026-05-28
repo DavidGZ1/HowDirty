@@ -3,11 +3,14 @@
 #' Arranges the contaminant group levels based on overall median abundance.
 #'
 #' @param df_conta dataframe containing the contaminants.
+#' @param metric character; column used to order groups ("min", "median", "max", "total").
 #'
 #' @return dataframe with the arranged contaminant group levels.
 #'
 #' @examples
+#' \dontrun{
 #' arrange_contagroup_levels(df_conta, metric = "median")
+#' }
 #'
 #' @export
 arrange_contagroup_levels <- function(df_conta, metric = "median"){

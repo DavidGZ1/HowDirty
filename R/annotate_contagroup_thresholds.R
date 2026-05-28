@@ -4,12 +4,13 @@
 #'
 #' @param df_conta dataframe with contaminants.
 #' @param df_threshold dataframe with thresholds.
-#' @param var column name used for calculations.
 #'
 #' @return dataframe containing the input dataframe
 #'
 #' @examples
-#' annotate_contagroup_thresholds(df_conta, Abundance_median)
+#' \dontrun{
+#' annotate_contagroup_thresholds(df_conta, thresholds)
+#' }
 #'
 #' @export
 annotate_contagroup_thresholds <- function(df_conta, df_threshold){

@@ -2,14 +2,12 @@
 #'
 #' description
 #'
-#' @param x type of input object (e.g. numeric vector).
-#'
-#' @return type of output object (e.g. numeric vector).
+#' @return numeric; figure width in pixels for the current knitr chunk.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' \dontrun{
+#' get_w()
+#' }
 #' @export
 get_w <- function() {
   # Get the current figure width in pixels

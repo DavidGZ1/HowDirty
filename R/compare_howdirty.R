@@ -11,11 +11,13 @@
 #'   added \code{Dataset} factor column.
 #'
 #' @examples
+#' \dontrun{
 #' combined <- compare_howdirty(c(
 #'   Instrument_A = "results/A_report.xlsx",
 #'   Instrument_B = "results/B_report.xlsx"
 #' ))
 #' plot_comparison_conta(combined)
+#' }
 #'
 #' @export
 compare_howdirty <- function(files){
@@ -51,8 +53,10 @@ compare_howdirty <- function(files){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_comparison_conta(combined)
 #' plot_comparison_conta(combined, scale = "log10", compare_means = TRUE)
+#' }
 #'
 #' @export
 plot_comparison_conta <- function(df_combined, scale = "linear", compare_means = FALSE){

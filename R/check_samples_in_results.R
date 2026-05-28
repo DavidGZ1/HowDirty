@@ -8,7 +8,9 @@
 #' @return None
 #'
 #' @examples
+#' \dontrun{
 #' check_samples_in_results(df_conta, df_samples_annot)
+#' }
 #'
 #' @export
 check_samples_in_results <- function(df_conta, df_samples_annot){

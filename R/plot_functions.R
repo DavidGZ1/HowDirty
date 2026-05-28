@@ -114,7 +114,9 @@ scale_color_risk <- function(..., option = "plasma", direction = 1, verbose = FA
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_abundance(input_conta, level, variable, scale = "linear")
+#' }
 #'
 #' @export
 plot_abundance <- function(input_conta, level, variable, scale = "linear"){
@@ -153,7 +155,9 @@ plot_abundance <- function(input_conta, level, variable, scale = "linear"){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_pseudochromatogram(input_conta, scale = "linear")
+#' }
 #'
 #' @export
 plot_pseudochromatogram <- function(input_conta, scale = "linear"){
@@ -194,7 +198,9 @@ plot_pseudochromatogram <- function(input_conta, scale = "linear"){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_sample_risk_total(input_conta_summ_sample, order_x = "Sample", scale = "linear")
+#' }
 #'
 #' @export
 plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", scale = "linear"){
@@ -252,7 +258,9 @@ plot_sample_risk_total <- function(input_conta_summ_sample, order_x = "Sample", 
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_sample_risk_contaminant(input_conta_summ_sample_risk, order_x = "Sample", order_y = "Abundance", show_zeros = FALSE)
+#' }
 #'
 #' @export
 plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
@@ -336,7 +344,9 @@ plot_sample_risk_contaminant <- function(input_conta_summ_sample_risk,
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_condition_risk_contaminant(input_conta_summ_sample_risk, order_x = "Condition", order_y = "Abundance", show_zeros = FALSE)
+#' }
 #'
 #' @export
 plot_condition_risk_contaminant <- function(input_conta_summ_sample_risk,
@@ -436,7 +446,9 @@ layout_ggplotly_label_margin <- function(gg, x = -0.02, y = -0.08){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_risk_summ_sampleset(df_conta)
+#' }
 #'
 #' @export
 plot_risk_summ_sampleset <- function(df_conta){
@@ -464,7 +476,9 @@ plot_risk_summ_sampleset <- function(df_conta){
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_condition_risk_total_boxplot(input_conta_summ_sample, scale = "linear", compare_means = TRUE, method = "wilcox.test")
+#' }
 #'
 #' @export
 plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = "linear", compare_means = TRUE, method ="wilcox.test"){
@@ -518,13 +532,15 @@ plot_condition_risk_total_boxplot <- function(input_conta_summ_sample,  scale = 
 #' @param input_conta_summ_contaminantgroup_sample dataframe containing the abundance values as well as condition/sample information.
 #' @param x values used for x-axis ("Condition", "Sample")
 #' @param size any of the abundance measures in dataframe ("Abundance_median", "Abundance_total", "Abundance_min", "Abundance_quantile25", "Abundance_quantile75", "Abundance_quantile90", "Abundance_max")
-#' @param oder_y value to order y-axis by ("Abundance", "ContaminantGroup")
-#' @param show_zeroes flag if zero values should be removed
+#' @param order_y value to order y-axis by ("Abundance", "ContaminantGroup")
+#' @param show_zeros logical; if FALSE (default) contaminant groups with all-zero abundance are removed
 #'
 #' @return ggplot object.
 #'
 #' @examples
-#' plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeroes = FALSE)
+#' \dontrun{
+#' plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeros = FALSE)
+#' }
 #'
 #' @export
 #'
@@ -594,8 +610,10 @@ plot_contaminantgroup_risk <- function(input_conta_summ_contaminantgroup_sample,
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_heatmap_conta(conta)
 #' plot_heatmap_conta(conta, x = Sample, facet_by = "ContaminantGroup")
+#' }
 #'
 #' @export
 plot_heatmap_conta <- function(df_conta, x = ReplicateName, y = Contaminant, facet_by = NULL){
@@ -629,8 +647,10 @@ plot_heatmap_conta <- function(df_conta, x = ReplicateName, y = Contaminant, fac
 #' @return ggplot object.
 #'
 #' @examples
+#' \dontrun{
 #' plot_trend_conta(conta_summ_sample)
 #' plot_trend_conta(conta_summ_sample, x = "Sample", facet_by = "Condition")
+#' }
 #'
 #' @export
 plot_trend_conta <- function(df_summ_sample, x = "ReplicateName",

@@ -8,7 +8,9 @@
 #' @return dataframe with the transformed input.
 #'
 #' @examples
-#' read_conta_results(file_report_skyline = PeaksAreasContaminantsFile, simplify_contaminantGroup = TRUE)
+#' \dontrun{
+#' read_conta_results("PeakAreas_Contaminants.csv")
+#' }
 #'
 #' @export
 read_conta_results <- function(file_report_skyline, simplify_ContaminantGroup = TRUE){

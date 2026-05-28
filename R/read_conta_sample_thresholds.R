@@ -7,7 +7,9 @@
 #' @return dataframe with annotated thresholds on sample level.
 #'
 #' @examples
-#' read_conta_sample_thresholds(file_report_howdirty)
+#' \dontrun{
+#' read_conta_sample_thresholds("reference_report.xlsx")
+#' }
 #'
 #' @export
 read_conta_sample_thresholds <- function(file_report_howdirty){

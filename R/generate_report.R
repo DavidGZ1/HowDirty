@@ -20,12 +20,14 @@
 #' @return Path to the generated HTML report (invisibly).
 #'
 #' @examples
+#' \dontrun{
 #' generate_howdirty_report(
 #'   dataset            = "Experiment1",
 #'   file_peak_areas    = "PeakAreas_Contaminants.csv",
 #'   file_annotation    = "samples_annotation.csv",
 #'   file_ref_thresholds = FALSE
 #' )
+#' }
 #'
 #' @export
 generate_howdirty_report <- function(dataset,
@@ -100,6 +102,7 @@ generate_howdirty_report <- function(dataset,
 #'   \code{output_file}, and \code{error} (NA on success, message on failure).
 #'
 #' @examples
+#' \dontrun{
 #' manifest <- data.frame(
 #'   dataset         = c("Exp1", "Exp2"),
 #'   file_peak_areas = c("exp1/PeakAreas.csv", "exp2/PeakAreas.csv"),
@@ -107,6 +110,7 @@ generate_howdirty_report <- function(dataset,
 #'   stringsAsFactors = FALSE
 #' )
 #' run_howdirty_batch(manifest, output_dir = "reports")
+#' }
 #'
 #' @export
 run_howdirty_batch <- function(datasets, output_dir = ".", ...){

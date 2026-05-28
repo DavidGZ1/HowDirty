@@ -2,14 +2,12 @@
 #'
 #' description
 #'
-#' @param x type of input object (e.g. numeric vector).
-#'
-#' @return type of output object (e.g. numeric vector).
+#' @return numeric; figure height in pixels for the current knitr chunk.
 #'
 #' @examples
-#' bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-#' *' bmi3(bmi.vals)
-#' #'
+#' \dontrun{
+#' get_h()
+#' }
 #' @export
 get_h <- function() {
   # Get the current figure height in pixels

@@ -10,7 +10,9 @@
 #' @return merged dataframe containing contaminated and annotated samples.
 #'
 #' @examples
+#' \dontrun{
 #' annotate_conta_samples(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE)
+#' }
 #'
 #' @export
 annotate_conta_samples <- function(df_conta, df_samples_annot, remove_missing = FALSE, multiply_dilution_factor = FALSE){

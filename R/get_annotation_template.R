@@ -13,8 +13,10 @@
 #' @return dataframe with annotation template columns.
 #'
 #' @examples
+#' \dontrun{
 #' get_annotation_template()
 #' get_annotation_template(extra_cols = c("Batch", "Instrument"))
+#' }
 #'
 #' @export
 get_annotation_template <- function(file_report_skyline = NULL, save = TRUE,

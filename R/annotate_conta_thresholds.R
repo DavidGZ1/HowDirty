@@ -9,7 +9,9 @@
 #' @return dataframe containing the risk level.
 #'
 #' @examples
+#' \dontrun{
 #' annotate_conta_thresholds(df_conta, ref_conta_tshd, Abundance)
+#' }
 #'
 #' @export
 annotate_conta_thresholds <- function(df_conta, df_threshold, var){

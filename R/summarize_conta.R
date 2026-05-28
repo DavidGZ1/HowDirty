@@ -8,8 +8,9 @@
 #' @return dataframe with the summarized contaminant groups.
 #'
 #' @examples
-#' summarize_conta(df_conta, ...)
-#' #'
+#' \dontrun{
+#' summarize_conta(df_conta, ContaminantGroup)
+#' }
 #' @export
 summarize_conta <- function(df_conta, ...){
   #summarize results by ...

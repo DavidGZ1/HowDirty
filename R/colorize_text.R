@@ -8,7 +8,9 @@
 #' @return html-formated string.
 #'
 #' @examples
+#' \dontrun{
 #' colorize_text("this text is red", "red")
+#' }
 #'
 #' @export
 colorize_text <- function(x, color) {

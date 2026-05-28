@@ -10,7 +10,9 @@
 #' @return dataframe with annotation columns; extra metadata columns are retained.
 #'
 #' @examples
+#' \dontrun{
 #' read_samples_annotation("samples_annotation.csv")
+#' }
 #'
 #' @export
 read_samples_annotation <- function(file_samples_annotation){

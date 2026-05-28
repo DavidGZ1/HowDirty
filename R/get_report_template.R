@@ -9,7 +9,9 @@
 #' @return None
 #'
 #' @examples
-#' get_report_template(file = "HorDirtyReportTemplate", edit = TRUE, create_dir = FALSE)
+#' \dontrun{
+#' get_report_template(file = "HowDirtyReportTemplate", edit = TRUE, create_dir = FALSE)
+#' }
 #'
 #' @export
 get_report_template <- function(file = "HowDirtyReportTemplate", edit = FALSE, create_dir = FALSE) {
