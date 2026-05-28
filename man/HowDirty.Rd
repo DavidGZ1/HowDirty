@@ -9,6 +9,15 @@
 More about what it does (maybe more than one line)
 Use four spaces when indenting paragraphs within the Description.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://davidgz1.github.io/HowDirty/}
+  \item \url{https://github.com/DavidGZ1/HowDirty}
+  \item Report bugs at \url{https://github.com/DavidGZ1/HowDirty/issues}
+}
+
+}
 \author{
 David Gomez-Zepeda \email{davidgz.science@gmail.com}
 }

@@ -6,17 +6,14 @@
 \usage{
 get_h()
 }
-\arguments{
-\item{x}{type of input object (e.g. numeric vector).}
-}
 \value{
-type of output object (e.g. numeric vector).
+numeric; figure height in pixels for the current knitr chunk.
 }
 \description{
 description
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+\dontrun{
+get_h()
+}
 }

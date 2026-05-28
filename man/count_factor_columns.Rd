@@ -7,16 +7,16 @@
 count_factor_columns(df)
 }
 \arguments{
-\item{x}{type of input object (e.g. numeric vector).}
+\item{df}{data frame whose factor columns are counted.}
 }
 \value{
-type of output object (e.g. numeric vector).
+data frame with one row per factor column and a Count column.
 }
 \description{
 description
 }
 \examples{
-bmi.vals <- rnorm(n = 50, mean = 25, sd = 3)
-*' bmi3(bmi.vals)
-#'
+\dontrun{
+count_factor_columns(my_df)
+}
 }
