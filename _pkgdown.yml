@@ -1,0 +1,63 @@
+url: https://davidgz1.github.io/HowDirty/
+
+template:
+  bootstrap: 5
+
+navbar:
+  right:
+    - icon: fa-github
+      href: https://github.com/DavidGZ1/HowDirty
+
+reference:
+  - title: Data import
+    contents:
+      - read_conta_results
+      - read_samples_annotation
+      - read_conta_thresholds
+      - read_conta_sample_thresholds
+      - read.csv_auto_sep
+
+  - title: Annotation
+    contents:
+      - annotate_conta_samples
+      - annotate_conta_thresholds
+      - annotate_conta_thresholds_samples
+      - annotate_contagroup_thresholds
+
+  - title: Summarisation
+    contents:
+      - summarize_conta
+      - summarize_conta_sampleset
+      - arrange_contagroup_levels
+
+  - title: Risk thresholds
+    contents:
+      - get_simple_thresholds_contaminant
+      - get_simple_thresholds_sample
+      - RISK_LABELS
+
+  - title: Plotting
+    contents:
+      - starts_with("plot_")
+      - starts_with("scale_")
+      - theme_hd
+      - layout_ggplotly_label_margin
+
+  - title: Report generation
+    contents:
+      - generate_howdirty_report
+      - run_howdirty_batch
+      - get_report_template
+      - compare_howdirty
+
+  - title: Utilities
+    contents:
+      - get_annotation_template
+      - check_conta_columns
+      - check_samples_in_results
+      - count_factor_columns
+      - min_no_zero
+      - get_h
+      - get_w
+      - get_maintainer
+      - colorize_text

@@ -9,10 +9,13 @@ Description: HowDirty facilitates the evaluation and reporting of molecular
     contaminants in LC-MS experiments by importing results from Skyline
     and generating a self-contained, interactive HTML report.
 License: GPL-3
+URL: https://davidgz1.github.io/HowDirty/, https://github.com/DavidGZ1/HowDirty
+BugReports: https://github.com/DavidGZ1/HowDirty/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
 Imports: ggplot2, ggpubr, readxl, mgsub, dplyr, tidyr, forcats, rmarkdown, knitr
-Suggests: testthat (>= 3.0.0), scales, plotly, openxlsx, DT
+Suggests: testthat (>= 3.0.0), scales, plotly, openxlsx, DT, pkgdown
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 
