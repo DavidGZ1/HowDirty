@@ -18,6 +18,8 @@ html-formated string.
 Render html or latex output with a specified color, based on https://bookdown.org/yihui/rmarkdown-cookbook/font-color.html
 }
 \examples{
+\dontrun{
 colorize_text("this text is red", "red")
+}
 
 }

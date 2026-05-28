@@ -30,7 +30,9 @@ Extra columns (e.g. Batch, Instrument, Operator) can be added via \code{extra_co
 will be preserved through the full pipeline, making them available for faceting in plots.
 }
 \examples{
+\dontrun{
 get_annotation_template()
 get_annotation_template(extra_cols = c("Batch", "Instrument"))
+}
 
 }

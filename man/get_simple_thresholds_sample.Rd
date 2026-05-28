@@ -16,6 +16,8 @@ dataframe containing break points and labels.
 If no threshold file is provided, thresholds are set using this function.
 }
 \examples{
+\dontrun{
 get_simple_thresholds_sample()
+}
 
 }

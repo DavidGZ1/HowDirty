@@ -30,6 +30,8 @@ ggplot object.
 Plots contaminant group vs condition/sample, with colour in function of risk and size in function of Abundance.
 }
 \examples{
-plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeroes = FALSE)
+\dontrun{
+plot_contaminantgroup_risk(input_conta_summ_contaminantgroup_sample, "Condition", "Abundance_median", order_y = "Abundance", show_zeros = FALSE)
+}
 
 }

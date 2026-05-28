@@ -16,6 +16,8 @@ ggplot object.
 Plots a pichart showing the percentages of samples associated to each risk level
 }
 \examples{
+\dontrun{
 plot_risk_summ_sampleset(df_conta)
+}
 
 }

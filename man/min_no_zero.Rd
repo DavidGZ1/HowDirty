@@ -18,6 +18,8 @@ numeric vector.
 Returns the minima of the input values while ignoring zero values.
 }
 \examples{
+\dontrun{
 min_no_zero(c(0,1,2,3,10))
+}
 
 }

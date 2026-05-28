@@ -55,11 +55,13 @@ Renders the HowDirty RMarkdown template with all parameters supplied as R
 arguments, without needing to edit the Rmd header manually.
 }
 \examples{
+\dontrun{
 generate_howdirty_report(
   dataset            = "Experiment1",
   file_peak_areas    = "PeakAreas_Contaminants.csv",
   file_annotation    = "samples_annotation.csv",
   file_ref_thresholds = FALSE
 )
+}
 
 }

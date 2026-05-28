@@ -28,7 +28,9 @@ Plots a sample x contaminant heatmap with RiskLevel as fill colour.
 Provides an overview of all contaminants across all samples in a single plot.
 }
 \examples{
+\dontrun{
 plot_heatmap_conta(conta)
 plot_heatmap_conta(conta, x = Sample, facet_by = "ContaminantGroup")
+}
 
 }

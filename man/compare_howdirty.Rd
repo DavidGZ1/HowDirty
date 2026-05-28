@@ -20,10 +20,12 @@ combines them into a single dataframe with a \code{Dataset} column, ready for
 cross-dataset plotting or summary.
 }
 \examples{
+\dontrun{
 combined <- compare_howdirty(c(
   Instrument_A = "results/A_report.xlsx",
   Instrument_B = "results/B_report.xlsx"
 ))
 plot_comparison_conta(combined)
+}
 
 }

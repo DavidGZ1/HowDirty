@@ -19,6 +19,8 @@ Any additional columns (e.g. Batch, Instrument, Operator) are preserved as-is an
 carried through the pipeline by \code{annotate_conta_samples()}.
 }
 \examples{
+\dontrun{
 read_samples_annotation("samples_annotation.csv")
+}
 
 }

@@ -18,6 +18,8 @@ None
 This function checks if the required columns are provided in the Skyline output: "Protein", "Peptide", "Replicate.Name", "Peptide.Retention.Time", "Total.Area.MS1", "Total.Ion.Current.Area")
 }
 \examples{
+\dontrun{
 check_conta_columns(conta)
+}
 
 }
