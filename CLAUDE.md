@@ -144,7 +144,19 @@ Prioritized improvement plan (full details in memory):
 | 8 | pkgdown site + quickstart vignette | ✅ Done |
 | 9 | Dockerize | ✅ Done |
 
-## Next: Shiny web app (v1 P10)
+## Next: Docker usage instructions (v1 P9.5)
+
+Write clear step-by-step Docker instructions for end users. Should cover:
+- Windows PATH fix (`$env:PATH += "...Docker\resources\bin"`)
+- `docker pull ghcr.io/davidgz1/howdirty:latest`
+- Step 1: get annotation template (`--get-template`)
+- Step 2: run report (`--dataset`, `--peak-areas`, `--annotation`)
+- Volume mount rules (`-v "C:\host\path:/data"`, all args use `/data/...`)
+- Troubleshooting tips (common errors, path issues)
+
+Target location: expand the Docker section in `README.md` and/or `vignettes/quickstart.Rmd`.
+
+## After that: Shiny web app (v1 P10)
 
 Plan saved at `plans/plan_minimal_shiny.md`. Goal: browser-based GUI for non-coders, distributed as `ghcr.io/davidgz1/howdirty:app`.
 
