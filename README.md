@@ -75,6 +75,36 @@ b)
 ![Screenshot of the parameters section of the .Rmd file, showing where the file names for the PeakAreasContaminantsFile, the AnnotationFile, and (if applicable) the RefThresholdsFile need to be added with examples.](https://github.com/DavidGZ1/HowDirty/assets/134387857/dff65428-d7d0-4e12-9039-49941954cafd)
 
 
+## Running with Docker
+
+If you don't have R installed, you can run HowDirty using Docker — no R setup required.
+
+```bash
+# Step 1 — generate a blank annotation template from your Skyline export
+docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
+  --get-template --peak-areas /data/PeakAreas_Contaminants.csv
+# → writes samples_annotation_template.csv to your working directory
+
+# Step 2 — fill in the annotation file, then generate the report
+docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
+  --dataset MyExperiment \
+  --peak-areas /data/PeakAreas_Contaminants.csv \
+  --annotation /data/samples_annotation.csv
+# → writes MyExperiment_HowDirtyReport.html and .xlsx to ./results/
+```
+
+To use a reference threshold file:
+
+```bash
+docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
+  --dataset MyExperiment \
+  --peak-areas /data/PeakAreas_Contaminants.csv \
+  --annotation /data/samples_annotation.csv \
+  --ref-thresholds /data/reference_report.xlsx
+```
+
+Run `docker run --rm ghcr.io/davidgz1/howdirty --help` for the full list of options.
+
 ## License
 
 [GPL-3.0](https://github.com/DavidGZ1/HowDirty/blob/main/LICENSE)

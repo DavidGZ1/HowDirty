@@ -165,6 +165,74 @@ run_howdirty_batch(
 )
 ```
 
+## Running with Docker
+
+If you don't have R installed, the official Docker image lets you run HowDirty
+with no local setup. All input files must be in a single directory that is
+mounted as `/data` inside the container.
+
+### Step 1 — generate an annotation template
+
+```bash
+docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
+  --get-template \
+  --peak-areas /data/PeakAreas_Contaminants.csv
+```
+
+This writes `samples_annotation_template.csv` to your working directory.
+Fill in the `Sample`, `Condition`, and `DilutionFactor` columns before the
+next step.
+
+### Step 2 — generate the report
+
+```bash
+docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
+  --dataset MyExperiment \
+  --peak-areas /data/PeakAreas_Contaminants.csv \
+  --annotation /data/samples_annotation.csv
+```
+
+Output is written to `./results/` by default:
+
+- `MyExperiment_HowDirtyReport.html` — self-contained interactive report
+- `MyExperiment_report_contaminants_<timestamp>.xlsx` — summary workbook
+
+### Using a reference threshold file
+
+```bash
+docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
+  --dataset MyExperiment \
+  --peak-areas /data/PeakAreas_Contaminants.csv \
+  --annotation /data/samples_annotation.csv \
+  --ref-thresholds /data/reference_report.xlsx
+```
+
+### All options
+
+| Flag | Default | Description |
+|---|---|---|
+| `--dataset` | — | Experiment name; used as output filename prefix |
+| `--peak-areas` | — | Path to Skyline PeakAreas_Contaminants CSV |
+| `--annotation` | — | Path to sample annotation CSV |
+| `--ref-thresholds` | none | Path to reference HowDirty Excel output |
+| `--output-dir` | `/data/results` | Output directory |
+| `--interactive-plots` | off | Enable interactive plotly plots |
+| `--user-names` | — | Analyst name(s) embedded in report header |
+| `--notes` | — | Notes embedded in report header |
+| `--get-template` | — | Generate blank annotation CSV only |
+
+Every flag has an equivalent environment variable (`DATASET`, `FILE_PEAK_AREAS`,
+`FILE_ANNOTATION`, etc.) — useful for scripting or CI pipelines:
+
+```bash
+docker run --rm \
+  -v $(pwd):/data \
+  -e DATASET=MyExperiment \
+  -e FILE_PEAK_AREAS=/data/PeakAreas_Contaminants.csv \
+  -e FILE_ANNOTATION=/data/samples_annotation.csv \
+  ghcr.io/davidgz1/howdirty
+```
+
 ## Further reading
 
 - Full function reference: `help(package = "HowDirty")`
