@@ -1,0 +1,11 @@
+.git
+.github
+renv
+*.Rcheck
+*.tar.gz
+*.Rproj
+docs
+example/results
+tutorial
+tests
+vignettes
