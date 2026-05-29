@@ -142,7 +142,15 @@ GitHub Pages on every push to `main` via
 [`pkgdown::build_site()`](https://pkgdown.r-lib.org/reference/build_site.html).
 Site URL: <https://davidgz1.github.io/HowDirty/>
 
-## v2 roadmap
+**Reference index completeness**: every exported topic (including the
+package-level `HowDirty` help page from `man/HowDirty.Rd`) must appear
+in the `reference:` section of `_pkgdown.yml`, or the pkgdown Action
+fails with `"topic missing from index: 'XYZ'"`. The only alternative is
+adding `@keywords internal` to suppress export from the site. When
+adding new exported functions, add them to `_pkgdown.yml` in the same
+PR.
+
+## v1 roadmap
 
 Prioritized improvement plan (full details in memory):
 
@@ -156,4 +164,4 @@ Prioritized improvement plan (full details in memory):
 | 6 | Batch processing (`run_howdirty_batch`) + programmatic render (`generate_howdirty_report`) | ✅ Done |
 | 7 | Longitudinal trend plot + multi-dataset comparison | ✅ Done |
 | 8 | pkgdown site + quickstart vignette | ✅ Done |
-| 9 | Dockerize | TODO |
+| 9 | Dockerize | ✅ Done |

@@ -132,10 +132,11 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 <div class="section level3">
 <h3 id="pkgdown-site">pkgdown site<a class="anchor" aria-label="anchor" href="#pkgdown-site"></a></h3>
 <p>The site is configured in <code>_pkgdown.yml</code> and deployed automatically to GitHub Pages on every push to <code>main</code> via <code>.github/workflows/pkgdown.yaml</code>. To build locally: <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code>. Site URL: <a href="https://davidgz1.github.io/HowDirty/" class="uri">https://davidgz1.github.io/HowDirty/</a></p>
+<p><strong>Reference index completeness</strong>: every exported topic (including the package-level <code>HowDirty</code> help page from <code>man/HowDirty.Rd</code>) must appear in the <code>reference:</code> section of <code>_pkgdown.yml</code>, or the pkgdown Action fails with <code>"topic missing from index: 'XYZ'"</code>. The only alternative is adding <code>@keywords internal</code> to suppress export from the site. When adding new exported functions, add them to <code>_pkgdown.yml</code> in the same PR.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="v2-roadmap">v2 roadmap<a class="anchor" aria-label="anchor" href="#v2-roadmap"></a></h2>
+<h2 id="v1-roadmap">v1 roadmap<a class="anchor" aria-label="anchor" href="#v1-roadmap"></a></h2>
 <p>Prioritized improvement plan (full details in memory):</p>
 <table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Priority</th>
 <th>Item</th>
@@ -166,7 +167,7 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 <td>✅ Done</td>
 </tr><tr><td>9</td>
 <td>Dockerize</td>
-<td>TODO</td>
+<td>✅ Done</td>
 </tr></tbody></table></div>
 </div>
 
