@@ -108,6 +108,26 @@ The site is configured in `_pkgdown.yml` and deployed automatically to GitHub Pa
 
 **Reference index completeness**: every exported topic (including the package-level `HowDirty` help page from `man/HowDirty.Rd`) must appear in the `reference:` section of `_pkgdown.yml`, or the pkgdown Action fails with `"topic missing from index: 'XYZ'"`. The only alternative is adding `@keywords internal` to suppress export from the site. When adding new exported functions, add them to `_pkgdown.yml` in the same PR.
 
+## Docker
+
+The CLI Docker image is published at `ghcr.io/davidgz1/howdirty:latest` and built automatically on push to `main` via `.github/workflows/docker.yaml`.
+
+Key files:
+- `Dockerfile` — `rocker/r-ver:4.2.0` base, `renv::restore()` from `renv.lock`, `R CMD INSTALL`
+- `docker/entrypoint.sh` — CLI with `--dataset`, `--peak-areas`, `--annotation`, `--get-template` flags
+- `docker/run_report.R` — calls `generate_howdirty_report()` or `get_annotation_template()`
+
+**Windows PowerShell usage** (add Docker to PATH first):
+```powershell
+$env:PATH += ";C:\Program Files\Docker\Docker\resources\bin"
+# Step 1 — annotation template
+docker run --rm -v "C:\path\to\data:/data" ghcr.io/davidgz1/howdirty --get-template --peak-areas /data/PeakAreas.csv
+# Step 2 — report
+docker run --rm -v "C:\path\to\data:/data" ghcr.io/davidgz1/howdirty --dataset MyExp --peak-areas /data/PeakAreas.csv --annotation /data/annotation.csv
+```
+
+Note: the `-v HOST:CONTAINER` mount maps a Windows folder to `/data` inside the container. All `--peak-areas` / `--annotation` paths must use the container path (`/data/...`).
+
 ## v1 roadmap
 
 Prioritized improvement plan (full details in memory):
@@ -123,3 +143,10 @@ Prioritized improvement plan (full details in memory):
 | 7 | Longitudinal trend plot + multi-dataset comparison | ✅ Done |
 | 8 | pkgdown site + quickstart vignette | ✅ Done |
 | 9 | Dockerize | ✅ Done |
+
+## Next: Shiny web app (v1 P10)
+
+Plan saved at `plans/plan_minimal_shiny.md`. Goal: browser-based GUI for non-coders, distributed as `ghcr.io/davidgz1/howdirty:app`.
+
+Files to create: `inst/shiny/app.R`, `R/run_app.R`, `Dockerfile.shiny`, `.github/workflows/docker-shiny.yaml`
+Files to modify: `DESCRIPTION` (add shiny + bslib to Suggests), `_pkgdown.yml`, `README.md`
