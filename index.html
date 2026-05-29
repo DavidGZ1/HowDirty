@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,6 +134,29 @@
 <div class="float">
 <img src="https://github.com/DavidGZ1/HowDirty/assets/134387857/dff65428-d7d0-4e12-9039-49941954cafd" alt="Screenshot of the parameters section of the .Rmd file, showing where the file names for the PeakAreasContaminantsFile, the AnnotationFile, and (if applicable) the RefThresholdsFile need to be added with examples."><div class="figcaption">Screenshot of the parameters section of the .Rmd file, showing where the file names for the PeakAreasContaminantsFile, the AnnotationFile, and (if applicable) the RefThresholdsFile need to be added with examples.</div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="running-with-docker">Running with Docker<a class="anchor" aria-label="anchor" href="#running-with-docker"></a>
+</h2>
+<p>If you don’t have R installed, you can run HowDirty using Docker — no R setup required.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Step 1 — generate a blank annotation template from your Skyline export</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">--get-template</span> <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># → writes samples_annotation_template.csv to your working directory</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co"># Step 2 — fill in the annotation file, then generate the report</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">--dataset</span> MyExperiment <span class="dt">\</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">--annotation</span> /data/samples_annotation.csv</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co"># → writes MyExperiment_HowDirtyReport.html and .xlsx to ./results/</span></span></code></pre></div>
+<p>To use a reference threshold file:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">--dataset</span> MyExperiment <span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">--annotation</span> /data/samples_annotation.csv <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">--ref-thresholds</span> /data/reference_report.xlsx</span></code></pre></div>
+<p>Run <code>docker run --rm ghcr.io/davidgz1/howdirty --help</code> for the full list of options.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>

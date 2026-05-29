@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -206,6 +206,119 @@ directory for customisation.</p>
 <span>  file_ref_thresholds <span class="op">=</span> <span class="st">"reference_report.xlsx"</span>,</span>
 <span>  output_dir          <span class="op">=</span> <span class="st">"results"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="running-with-docker">Running with Docker<a class="anchor" aria-label="anchor" href="#running-with-docker"></a>
+</h2>
+<p>If you don’t have R installed, the official Docker image lets you run
+HowDirty with no local setup. All input files must be in a single
+directory that is mounted as <code>/data</code> inside the
+container.</p>
+<div class="section level3">
+<h3 id="step-1-generate-an-annotation-template">Step 1 — generate an annotation template<a class="anchor" aria-label="anchor" href="#step-1-generate-an-annotation-template"></a>
+</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">--get-template</span> <span class="dt">\</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv</span></code></pre></div>
+<p>This writes <code>samples_annotation_template.csv</code> to your
+working directory. Fill in the <code>Sample</code>,
+<code>Condition</code>, and <code>DilutionFactor</code> columns before
+the next step.</p>
+</div>
+<div class="section level3">
+<h3 id="step-2-generate-the-report">Step 2 — generate the report<a class="anchor" aria-label="anchor" href="#step-2-generate-the-report"></a>
+</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="at">--dataset</span> MyExperiment <span class="dt">\</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  <span class="at">--annotation</span> /data/samples_annotation.csv</span></code></pre></div>
+<p>Output is written to <code>./results/</code> by default:</p>
+<ul>
+<li>
+<code>MyExperiment_HowDirtyReport.html</code> — self-contained
+interactive report</li>
+<li>
+<code>MyExperiment_report_contaminants_&lt;timestamp&gt;.xlsx</code>
+— summary workbook</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="using-a-reference-threshold-file">Using a reference threshold file<a class="anchor" aria-label="anchor" href="#using-a-reference-threshold-file"></a>
+</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="at">--dataset</span> MyExperiment <span class="dt">\</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">--annotation</span> /data/samples_annotation.csv <span class="dt">\</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="at">--ref-thresholds</span> /data/reference_report.xlsx</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="all-options">All options<a class="anchor" aria-label="anchor" href="#all-options"></a>
+</h3>
+<table class="table">
+<thead><tr class="header">
+<th>Flag</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>--dataset</code></td>
+<td>—</td>
+<td>Experiment name; used as output filename prefix</td>
+</tr>
+<tr class="even">
+<td><code>--peak-areas</code></td>
+<td>—</td>
+<td>Path to Skyline PeakAreas_Contaminants CSV</td>
+</tr>
+<tr class="odd">
+<td><code>--annotation</code></td>
+<td>—</td>
+<td>Path to sample annotation CSV</td>
+</tr>
+<tr class="even">
+<td><code>--ref-thresholds</code></td>
+<td>none</td>
+<td>Path to reference HowDirty Excel output</td>
+</tr>
+<tr class="odd">
+<td><code>--output-dir</code></td>
+<td><code>/data/results</code></td>
+<td>Output directory</td>
+</tr>
+<tr class="even">
+<td><code>--interactive-plots</code></td>
+<td>off</td>
+<td>Enable interactive plotly plots</td>
+</tr>
+<tr class="odd">
+<td><code>--user-names</code></td>
+<td>—</td>
+<td>Analyst name(s) embedded in report header</td>
+</tr>
+<tr class="even">
+<td><code>--notes</code></td>
+<td>—</td>
+<td>Notes embedded in report header</td>
+</tr>
+<tr class="odd">
+<td><code>--get-template</code></td>
+<td>—</td>
+<td>Generate blank annotation CSV only</td>
+</tr>
+</tbody>
+</table>
+<p>Every flag has an equivalent environment variable
+(<code>DATASET</code>, <code>FILE_PEAK_AREAS</code>,
+<code>FILE_ANNOTATION</code>, etc.) — useful for scripting or CI
+pipelines:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="dt">\</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">-e</span> DATASET=MyExperiment <span class="dt">\</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">-e</span> FILE_PEAK_AREAS=/data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="at">-e</span> FILE_ANNOTATION=/data/samples_annotation.csv <span class="dt">\</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  ghcr.io/davidgz1/howdirty</span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
