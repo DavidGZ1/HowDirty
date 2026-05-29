@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libtiff-dev \
     libjpeg-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    cmake \
+    pandoc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install package dependencies via renv (exact versions from lockfile)
