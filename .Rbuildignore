@@ -7,3 +7,7 @@
 ^CLAUDE\.md$
 ^samples_annotation_template\.csv$
 ^tutorial$
+^docker$
+^Dockerfile$
+^\.dockerignore$
+^\.gitattributes$
