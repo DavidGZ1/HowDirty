@@ -69,6 +69,8 @@ plot_*() functions          # ggplot2-based; wrapped with ggplotly() when
       │
       ▼
 write.xlsx()                # exports all summary tables to a multi-sheet Excel file
+                            # first sheet is always input_params (HowDirty version +
+                            # all Rmd params), followed by the summary result tables
 ```
 
 ### Key design decisions
