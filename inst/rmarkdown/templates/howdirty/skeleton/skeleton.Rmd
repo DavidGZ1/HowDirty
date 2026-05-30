@@ -58,9 +58,12 @@ params:
 }
 </style>
 
+
 # Report information
 
-## Data set information
+## Project information
+
+**Objective:** Evaluate the risk of possible contamination with polymers and small molecules in the samples from the data set.
 
 **Data set:** `r params$DataSet`
 
@@ -70,7 +73,19 @@ params:
 
 **Notes:** `r params$Notes`
 
-**Objective:** Evaluate the risk of possible contamination with polymers and small molecules in the samples from the data set.
+## Input 
+
+**PeakAreasContaminants**: `r params$PeakAreasContaminantsFile`
+
+**Annotation**: `r params$AnnotationFile`
+
+**Reference thresholds**: `r params$RefThresholdsFile`
+
+**Dilution factor multiplier**: `r params$MultiplyDilutionFactor`
+
+**Remove missing contaminants**: `r params$RemoveMissingContaminants`
+
+**Top n contaminant groups shown**: `r params$nTopContaminantGroups`
 
 ## HowDirty evaluation of LC-MS results
 
@@ -78,7 +93,7 @@ This report was generated using *HowDirty*. This is meant to help you evaluating
 
 **Code author:** David Gomez-Zepeda (HI-TRON)
 
-**Version:** 0.04
+**Version:** 0.5.1
 
 ```{r setup, include=FALSE, warning=FALSE}
 #General parameters for knitr
@@ -139,7 +154,7 @@ print_plot_or_plotly <- function(input, height_plotly = 450, width_plotly = 1000
 
 ## Data analysis
 
-* Raw data was imported into Skyline (MacLean *et al.*, 2010) to extract the features corresponding to possible contaminants (ToDo: add references)
+* Raw data was imported into Skyline (MacLean *et al.*, 2010) to extract the features corresponding to possible contaminants
 * For this purpose, the Molecular Contaminant List template was used (Rardin, 2018)
 * The feature area of extracted ion chromatograms was processed using *HowDirty* to generate this report (Gomez-Zepeda *et al.*, 2023)
 
@@ -457,7 +472,12 @@ if(params$PlotsInteractive == TRUE){
 * Result tables are exported in folder `r filedir_report`.
 
 ```{r echo=FALSE, warning=FALSE}
+input_params <- data.frame(parameter = c( "HowDirty version",
+                                          names(unlist(params))), 
+                           value = c(as.character(packageVersion("HowDirty")),
+                                     unlist(params, use.names = FALSE)))
 res_list<- list(
+  input_params = input_params,
   risk_summ_sampleset = risk_summ_sampleset,
   conta_summ_sampleset = conta_summ_sampleset,
   conta_summ_sample = conta_summ_sample,

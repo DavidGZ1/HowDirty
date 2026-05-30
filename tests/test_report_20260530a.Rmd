@@ -22,19 +22,19 @@ params:
     input: text
   PeakAreasContaminantsFile:
     label: "PeakAreaContaminants report from Skyline"  # PeaKAreas_Contaminants report (directory/name) resulting from Skyline
-    value: "data/PeakAreas_Contaminants_2021-231.csv"
+    value: "PeakAreas_Contaminants_2021-231.csv"
     input: text 
   AnnotationFile:
     label: "Sample annotation file"  # Samples Annotation directory/name
-    value: "data/samples_annotation_template.csv"
+    value: "samples_annotation_2021-231.csv"
     input: text 
   RefThresholdsFile:
     label: "Reference threshold file (or FALSE if not available)" # file directory/name or FALSE
-    value:  "data/reference_E480_report_contaminants_20230716_1138.xlsx"
+    value:  reference_E480_report_contaminants_20230716_1138.xlsx
     input: text
   OutputDirectory:
     label: "Directory where the report and the results are exported"
-    value: "results"
+    value: results
   RemoveMissingContaminants:
     label: "Remove contaminants that were not identified in any sample"
     value: TRUE
@@ -60,7 +60,9 @@ params:
 
 # Report information
 
-## Data set information
+## Project information
+
+**Objective:** Evaluate the risk of possible contamination with polymers and small molecules in the samples from the data set.
 
 **Data set:** `r params$DataSet`
 
@@ -70,7 +72,19 @@ params:
 
 **Notes:** `r params$Notes`
 
-**Objective:** Evaluate the risk of possible contamination with polymers and small molecules in the samples from the data set.
+## Input 
+
+**PeakAreasContaminants**: `r params$PeakAreasContaminantsFile`
+
+**Annotation**: `r params$AnnotationFile`
+
+**Reference thresholds**: `r params$RefThresholdsFile`
+
+**Dilution factor multiplier**: `r params$MultiplyDilutionFactor`
+
+**Remove missing contaminants**: `r params$RemoveMissingContaminants`
+
+**Top n contaminant groups shown**: `r params$nTopContaminantGroups`
 
 ## HowDirty evaluation of LC-MS results
 
@@ -104,6 +118,7 @@ if(any(!filecheck)){
 ```
 
 
+
 ```{r initialize, message=FALSE, include=FALSE}
 #Install required packages
 ##Test whether all required packages, install packages needed and install if needed
@@ -120,6 +135,7 @@ today_date <- gsub(patt ="-", rep="",paste0(gsub(patt ="-", rep="", Sys.Date()),
 filedir_report <- file.path(params$OutputDirectory,
                             paste0(params$DataSet, "_report_contaminants_", today_date, ".xlsx"))
 filedir_sessioninfo <- gsub(filedir_report, patt = ".xlsx", rep = "_RSessionInfo.txt", filedir_report)
+
 if(!dir.exists(params$OutputDirectory)) dir.create(params$OutputDirectory)
 # report-specific functions
 print_plot_or_plotly <- function(input, height_plotly = 450, width_plotly = 1000, interactive = params$PlotsInteractive){
@@ -273,7 +289,7 @@ plot_pie_risk_summ_sampleset
 
 * Statistical difference was assessed by a Wilcoxon signed-rank test
 
-```{r plot_conta_summ_condition_risk, warning=TRUE, fig.width=4, fig.height=2.5}
+```{r plot_conta_summ_condition_risk, warning=FALSE, fig.width=4, fig.height=2.5}
 plot_conta_summ_condition_risk <-
   plot_condition_risk_total_boxplot(conta_summ_sample,
                                     compare_means = (n_distinct(conta_summ_sample$Condition) > 1), # only if at least 2 conditions
@@ -457,7 +473,12 @@ if(params$PlotsInteractive == TRUE){
 * Result tables are exported in folder `r filedir_report`.
 
 ```{r echo=FALSE, warning=FALSE}
+input_params <- data.frame(parameter = c( "HowDirty version",
+                                          names(unlist(params))), 
+                            value = c(as.character(packageVersion("HowDirty")),
+                                                   unlist(params, use.names = FALSE)))
 res_list<- list(
+  input_params = input_params,
   risk_summ_sampleset = risk_summ_sampleset,
   conta_summ_sampleset = conta_summ_sampleset,
   conta_summ_sample = conta_summ_sample,
@@ -471,6 +492,7 @@ res_list<- list(
 write.xlsx(res_list,
            file = filedir_report)
 writeLines(capture.output(sessionInfo()), filedir_sessioninfo)
+
 ```
 
 ## References - please cite:

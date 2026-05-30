@@ -1,7 +1,7 @@
 Package: HowDirty
 Type: Package
 Title: Evaluate How Dirty are LC-MS Samples
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: person("David", "Gomez-Zepeda",
     email = "davidgz.science@gmail.com",
     role = c("aut", "cre"))
