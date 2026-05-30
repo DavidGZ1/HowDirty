@@ -1,5 +1,7 @@
 .git
 .github
+.Rproj.user
+*.Rproj
 renv
 *.Rcheck
 *.tar.gz
