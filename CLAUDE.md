@@ -152,7 +152,35 @@ adding `@keywords internal` to suppress export from the site. When
 adding new exported functions, add them to `_pkgdown.yml` in the same
 PR.
 
-## Docker
+## Shiny web app
+
+The browser-based GUI is distributed as `ghcr.io/davidgz1/howdirty:app`
+and built automatically on push to `main` via
+`.github/workflows/docker-shiny.yaml`.
+
+Key files: - `inst/shiny/app.R` —
+[`bslib::page_sidebar()`](https://rstudio.github.io/bslib/reference/page_sidebar.html)
+UI + server; exposes all parameters that the Docker CLI offers -
+`R/run_app.R` —
+[`run_howdirty_app()`](https://davidgz1.github.io/HowDirty/reference/run_howdirty_app.md)
+for launching from an installed R session - `Dockerfile.shiny` — extends
+`:latest`, installs shiny/bslib/DT, serves on port 3838 -
+`.github/workflows/docker-shiny.yaml` — builds and pushes `:app` tag on
+push to `main`
+
+**Usage:**
+
+``` bash
+docker run --rm -p 3838:3838 ghcr.io/davidgz1/howdirty:app
+# open http://localhost:3838
+```
+
+`shiny` and `bslib` are in **Suggests** (not Imports). The app uses
+`system.file("shiny", package = "HowDirty")` to locate itself; the
+Docker image copies `inst/shiny/` directly to
+`/usr/local/lib/howdirty_app/` and references that path in CMD.
+
+## Docker (CLI)
 
 The CLI Docker image is published at `ghcr.io/davidgz1/howdirty:latest`
 and built automatically on push to `main` via

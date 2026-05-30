@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,7 +136,16 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="running-with-docker">Running with Docker<a class="anchor" aria-label="anchor" href="#running-with-docker"></a>
+<h2 id="web-app-no-coding-required">Web app (no coding required)<a class="anchor" aria-label="anchor" href="#web-app-no-coding-required"></a>
+</h2>
+<p>The easiest way to use HowDirty — upload your files in a browser and download the results. No R, no command line, no volume mounts.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 ghcr.io/davidgz1/howdirty:app</span></code></pre></div>
+<p>Then open <strong><a href="http://localhost:3838" class="external-link uri">http://localhost:3838</a></strong> in your browser.</p>
+<p>The app walks you through uploading your peak areas file, generating and filling the annotation template, and downloading the HTML report and Excel workbook. All parameters available in the Docker CLI (reference thresholds, top-n groups, dilution factor, interactive plots, etc.) can also be set in the interface under <strong>Advanced options</strong>.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="running-with-docker-cli">Running with Docker (CLI)<a class="anchor" aria-label="anchor" href="#running-with-docker-cli"></a>
 </h2>
 <p>If you don’t have R installed, you can run HowDirty using Docker — no R setup required.</p>
 <div class="section level3">
@@ -149,48 +158,48 @@
 <li>Add the Docker CLI to your PATH so you can run <code>docker</code> commands from any terminal:</li>
 </ol>
 <p><strong>Windows (PowerShell) — current session only:</strong></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+=</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+=</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span></span></code></pre></div>
 <p><strong>Windows (PowerShell) — permanent (all future sessions):</strong></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="op">[</span>System<span class="op">.</span><span class="fu">Environment</span><span class="op">]::</span>SetEnvironmentVariable<span class="op">(</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="st">"PATH"</span><span class="op">,</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span><span class="op">,</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="st">"User"</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="op">[</span>System<span class="op">.</span><span class="fu">Environment</span><span class="op">]::</span>SetEnvironmentVariable<span class="op">(</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="st">"PATH"</span><span class="op">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span><span class="op">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="st">"User"</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="op">)</span></span></code></pre></div>
 <p>Then restart PowerShell for the change to take effect.</p>
 <p><strong>macOS / Linux:</strong> Docker Desktop adds the CLI to PATH automatically during installation. If <code>docker</code> is not found, restart your terminal or log out and back in.</p>
 <p>Verify the installation:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">docker</span> <span class="at">--version</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">docker</span> <span class="at">--version</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-1--pull-the-image">Step 1 — Pull the image<a class="anchor" aria-label="anchor" href="#step-1--pull-the-image"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="ex">docker</span> pull ghcr.io/davidgz1/howdirty:latest</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">docker</span> pull ghcr.io/davidgz1/howdirty:latest</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-2--generate-an-annotation-template">Step 2 — Generate an annotation template<a class="anchor" aria-label="anchor" href="#step-2--generate-an-annotation-template"></a>
 </h3>
 <p>Navigate to your data folder first, then run:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Linux / macOS</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">--get-template</span> <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv</span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Windows (PowerShell)</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"</span><span class="pp">${</span><span class="va">PWD</span><span class="pp">}</span><span class="st">:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty `</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="op">--</span>get-template <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas_Contaminants<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Linux / macOS</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">--get-template</span> <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Windows (PowerShell)</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"</span><span class="pp">${</span><span class="va">PWD</span><span class="pp">}</span><span class="st">:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty `</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="op">--</span>get-template <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas_Contaminants<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
 <p>This writes <code>samples_annotation_template.csv</code> to your current directory. Fill it in before the next step.</p>
 </div>
 <div class="section level3">
 <h3 id="step-3--generate-the-report">Step 3 — Generate the report<a class="anchor" aria-label="anchor" href="#step-3--generate-the-report"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Linux / macOS</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">--dataset</span> MyExperiment <span class="dt">\</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">--annotation</span> /data/samples_annotation.csv</span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Windows (PowerShell)</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"</span><span class="pp">${</span><span class="va">PWD</span><span class="pp">}</span><span class="st">:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty `</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="op">--</span>dataset MyExperiment `</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas_Contaminants<span class="op">.</span><span class="fu">csv</span> `</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="op">--</span>annotation <span class="op">/</span><span class="kw">data</span><span class="op">/</span>samples_annotation<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Linux / macOS</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-v</span> <span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>:/data ghcr.io/davidgz1/howdirty <span class="dt">\</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">--dataset</span> MyExperiment <span class="dt">\</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">--peak-areas</span> /data/PeakAreas_Contaminants.csv <span class="dt">\</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">--annotation</span> /data/samples_annotation.csv</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Windows (PowerShell)</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"</span><span class="pp">${</span><span class="va">PWD</span><span class="pp">}</span><span class="st">:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty `</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="op">--</span>dataset MyExperiment `</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas_Contaminants<span class="op">.</span><span class="fu">csv</span> `</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="op">--</span>annotation <span class="op">/</span><span class="kw">data</span><span class="op">/</span>samples_annotation<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
 <p>This writes <code>MyExperiment_HowDirtyReport.html</code> and <code>.xlsx</code> to a <code>results/</code> subfolder in your data directory.</p>
 </div>
 <div class="section level3">

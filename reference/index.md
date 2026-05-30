@@ -90,6 +90,8 @@
   : Generate a HowDirty report programmatically
 - [`run_howdirty_batch()`](https://davidgz1.github.io/HowDirty/reference/run_howdirty_batch.md)
   : Batch-generate HowDirty reports
+- [`run_howdirty_app()`](https://davidgz1.github.io/HowDirty/reference/run_howdirty_app.md)
+  : Launch the HowDirty Shiny web app
 - [`get_report_template()`](https://davidgz1.github.io/HowDirty/reference/get_report_template.md)
   : Get the HowDirtyReport template
 - [`compare_howdirty()`](https://davidgz1.github.io/HowDirty/reference/compare_howdirty.md)

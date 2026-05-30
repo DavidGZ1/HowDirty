@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,15 +138,24 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 </div>
 </div>
 <div class="section level2">
-<h2 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a></h2>
+<h2 id="shiny-web-app">Shiny web app<a class="anchor" aria-label="anchor" href="#shiny-web-app"></a></h2>
+<p>The browser-based GUI is distributed as <code>ghcr.io/davidgz1/howdirty:app</code> and built automatically on push to <code>main</code> via <code>.github/workflows/docker-shiny.yaml</code>.</p>
+<p>Key files: - <code>inst/shiny/app.R</code> — <code><a href="https://rstudio.github.io/bslib/reference/page_sidebar.html" class="external-link">bslib::page_sidebar()</a></code> UI + server; exposes all parameters that the Docker CLI offers - <code>R/run_app.R</code> — <code><a href="reference/run_howdirty_app.html">run_howdirty_app()</a></code> for launching from an installed R session - <code>Dockerfile.shiny</code> — extends <code>:latest</code>, installs shiny/bslib/DT, serves on port 3838 - <code>.github/workflows/docker-shiny.yaml</code> — builds and pushes <code>:app</code> tag on push to <code>main</code></p>
+<p><strong>Usage:</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-p</span> 3838:3838 ghcr.io/davidgz1/howdirty:app</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># open http://localhost:3838</span></span></code></pre></div>
+<p><code>shiny</code> and <code>bslib</code> are in <strong>Suggests</strong> (not Imports). The app uses <code>system.file("shiny", package = "HowDirty")</code> to locate itself; the Docker image copies <code>inst/shiny/</code> directly to <code>/usr/local/lib/howdirty_app/</code> and references that path in CMD.</p>
+</div>
+<div class="section level2">
+<h2 id="docker-cli">Docker (CLI)<a class="anchor" aria-label="anchor" href="#docker-cli"></a></h2>
 <p>The CLI Docker image is published at <code>ghcr.io/davidgz1/howdirty:latest</code> and built automatically on push to <code>main</code> via <code>.github/workflows/docker.yaml</code>.</p>
 <p>Key files: - <code>Dockerfile</code> — <code>rocker/r-ver:4.2.0</code> base, <code>renv::restore()</code> from <code>renv.lock</code>, <code>R CMD INSTALL</code> - <code>docker/entrypoint.sh</code> — CLI with <code>--dataset</code>, <code>--peak-areas</code>, <code>--annotation</code>, <code>--ref-thresholds</code>, <code>--output-dir</code>, <code>--interactive-plots</code>, <code>--user-names</code>, <code>--notes</code>, <code>--keep-missing-contaminants</code>, <code>--top-n</code>, <code>--multiply-dilution-factor</code>, <code>--get-template</code> flags - <code>docker/run_report.R</code> — calls <code><a href="reference/generate_howdirty_report.html">generate_howdirty_report()</a></code> or <code><a href="reference/get_annotation_template.html">get_annotation_template()</a></code></p>
 <p><strong>Windows PowerShell usage</strong> (add Docker to PATH first):</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+=</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># Step 1 — annotation template</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"C:\path\to\data:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty <span class="op">--</span>get-template <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas<span class="op">.</span><span class="fu">csv</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Step 2 — report</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"C:\path\to\data:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty <span class="op">--</span>dataset MyExp <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas<span class="op">.</span><span class="fu">csv</span> <span class="op">--</span>annotation <span class="op">/</span><span class="kw">data</span><span class="op">/</span>annotation<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+=</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># Step 1 — annotation template</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"C:\path\to\data:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty <span class="op">--</span>get-template <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas<span class="op">.</span><span class="fu">csv</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># Step 2 — report</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"C:\path\to\data:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty <span class="op">--</span>dataset MyExp <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas<span class="op">.</span><span class="fu">csv</span> <span class="op">--</span>annotation <span class="op">/</span><span class="kw">data</span><span class="op">/</span>annotation<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
 <p>Note: the <code>-v HOST:CONTAINER</code> mount maps a Windows folder to <code>/data</code> inside the container. All <code>--peak-areas</code> / <code>--annotation</code> paths must use the container path (<code>/data/...</code>).</p>
 </div>
 <div class="section level2">
