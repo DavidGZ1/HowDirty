@@ -51,6 +51,7 @@ reference:
     contents:
       - generate_howdirty_report
       - run_howdirty_batch
+      - run_howdirty_app
       - get_report_template
       - compare_howdirty
 
