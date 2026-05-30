@@ -91,9 +91,9 @@ params:
 
 This report was generated using *HowDirty*. This is meant to help you evaluating *How Dirty* are your samples (or system) in LC-MS analyses. The possible contaminants reported hereby could impact the quality of the results (e.g. contaminant IDs and reproducibility) and, in extreme cases, even damage the column or instruments. The raw data are previously analyzed using Skyline to extract LC-MS peaks possibly corresponding to contaminants. Then, a Risk level is assigned to each contaminant by comparing against the reference threshold (see Procedures for details). Finally, the Risk is similarly assessed at the Sample and whole Sample Set levels. These are indicative of the level of possible contamination.
 
-**Code author:** David Gomez-Zepeda (HI-TRON)
+**Code author:** David Gomez-Zepeda (HI-TRON Mainz, a Helmholtz-Institute of the DKFZ)
 
-**Version:** 0.5.1
+**Version:** `r as.character(packageVersion("HowDirty"))`
 
 ```{r setup, include=FALSE, warning=FALSE}
 #General parameters for knitr
