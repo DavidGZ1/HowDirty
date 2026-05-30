@@ -135,32 +135,103 @@ file names for the PeakAreasContaminantsFile, the AnnotationFile, and
 If you don’t have R installed, you can run HowDirty using Docker — no R
 setup required.
 
+### Step 0 — Install Docker and add it to PATH
+
+1.  Download and install **Docker Desktop** from
+    <https://www.docker.com/products/docker-desktop>
+2.  Launch Docker Desktop and wait until it shows “Docker is running”
+3.  Add the Docker CLI to your PATH so you can run `docker` commands
+    from any terminal:
+
+**Windows (PowerShell) — current session only:**
+
+``` powershell
+$env:PATH += ";C:\Program Files\Docker\Docker\resources\bin"
+```
+
+**Windows (PowerShell) — permanent (all future sessions):**
+
+``` powershell
+[System.Environment]::SetEnvironmentVariable(
+    "PATH",
+    $env:PATH + ";C:\Program Files\Docker\Docker\resources\bin",
+    "User"
+)
+```
+
+Then restart PowerShell for the change to take effect.
+
+**macOS / Linux:** Docker Desktop adds the CLI to PATH automatically
+during installation. If `docker` is not found, restart your terminal or
+log out and back in.
+
+Verify the installation:
+
 ``` bash
-# Step 1 — generate a blank annotation template from your Skyline export
+docker --version
+```
+
+### Step 1 — Pull the image
+
+``` bash
+docker pull ghcr.io/davidgz1/howdirty:latest
+```
+
+### Step 2 — Generate an annotation template
+
+Navigate to your data folder first, then run:
+
+``` bash
+# Linux / macOS
 docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
   --get-template --peak-areas /data/PeakAreas_Contaminants.csv
-# → writes samples_annotation_template.csv to your working directory
+```
 
-# Step 2 — fill in the annotation file, then generate the report
+``` powershell
+# Windows (PowerShell)
+docker run --rm -v "${PWD}:/data" ghcr.io/davidgz1/howdirty `
+  --get-template --peak-areas /data/PeakAreas_Contaminants.csv
+```
+
+This writes `samples_annotation_template.csv` to your current directory.
+Fill it in before the next step.
+
+### Step 3 — Generate the report
+
+``` bash
+# Linux / macOS
 docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
   --dataset MyExperiment \
   --peak-areas /data/PeakAreas_Contaminants.csv \
   --annotation /data/samples_annotation.csv
-# → writes MyExperiment_HowDirtyReport.html and .xlsx to ./results/
 ```
 
-To use a reference threshold file:
-
-``` bash
-docker run --rm -v $(pwd):/data ghcr.io/davidgz1/howdirty \
-  --dataset MyExperiment \
-  --peak-areas /data/PeakAreas_Contaminants.csv \
-  --annotation /data/samples_annotation.csv \
-  --ref-thresholds /data/reference_report.xlsx
+``` powershell
+# Windows (PowerShell)
+docker run --rm -v "${PWD}:/data" ghcr.io/davidgz1/howdirty `
+  --dataset MyExperiment `
+  --peak-areas /data/PeakAreas_Contaminants.csv `
+  --annotation /data/samples_annotation.csv
 ```
 
-Run `docker run --rm ghcr.io/davidgz1/howdirty --help` for the full list
-of options.
+This writes `MyExperiment_HowDirtyReport.html` and `.xlsx` to a
+`results/` subfolder in your data directory.
+
+### Optional flags
+
+| Flag | Description | Default |
+|----|----|----|
+| `--ref-thresholds FILE` | Reference HowDirty Excel output for threshold comparison | none |
+| `--output-dir DIR` | Output directory inside the container | `/data/results` |
+| `--interactive-plots` | Enable interactive plotly plots | static |
+| `--user-names TEXT` | Analyst name(s) shown in the report header | — |
+| `--notes TEXT` | Notes shown in the report header | — |
+| `--keep-missing-contaminants` | Keep contaminants not detected in any sample | removed |
+| `--top-n INT` | Number of top contaminant groups shown in plots | 10 |
+| `--multiply-dilution-factor` | Multiply abundance by the DilutionFactor column | off |
+
+Run `docker run --rm ghcr.io/davidgz1/howdirty --help` for the full
+reference.
 
 ## License
 

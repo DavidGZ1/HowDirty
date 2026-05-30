@@ -75,6 +75,8 @@ self-contained HTML contamination report.
           │
           ▼
     write.xlsx()                # exports all summary tables to a multi-sheet Excel file
+                                # first sheet is always input_params (HowDirty version +
+                                # all Rmd params), followed by the summary result tables
 
 ### Key design decisions
 
@@ -158,8 +160,10 @@ and built automatically on push to `main` via
 
 Key files: - `Dockerfile` — `rocker/r-ver:4.2.0` base, `renv::restore()`
 from `renv.lock`, `R CMD INSTALL` - `docker/entrypoint.sh` — CLI with
-`--dataset`, `--peak-areas`, `--annotation`, `--get-template` flags -
-`docker/run_report.R` — calls
+`--dataset`, `--peak-areas`, `--annotation`, `--ref-thresholds`,
+`--output-dir`, `--interactive-plots`, `--user-names`, `--notes`,
+`--keep-missing-contaminants`, `--top-n`, `--multiply-dilution-factor`,
+`--get-template` flags - `docker/run_report.R` — calls
 [`generate_howdirty_report()`](https://davidgz1.github.io/HowDirty/reference/generate_howdirty_report.md)
 or
 [`get_annotation_template()`](https://davidgz1.github.io/HowDirty/reference/get_annotation_template.md)

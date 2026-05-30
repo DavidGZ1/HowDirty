@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +100,9 @@ plot_*() functions          # ggplot2-based; wrapped with ggplotly() when
 
       │
       ▼
-write.xlsx()                # exports all summary tables to a multi-sheet Excel file</code></pre>
+write.xlsx()                # exports all summary tables to a multi-sheet Excel file
+                            # first sheet is always input_params (HowDirty version +
+                            # all Rmd params), followed by the summary result tables</code></pre>
 </div>
 <div class="section level3">
 <h3 id="key-design-decisions">Key design decisions<a class="anchor" aria-label="anchor" href="#key-design-decisions"></a></h3>
@@ -138,7 +140,7 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 <div class="section level2">
 <h2 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a></h2>
 <p>The CLI Docker image is published at <code>ghcr.io/davidgz1/howdirty:latest</code> and built automatically on push to <code>main</code> via <code>.github/workflows/docker.yaml</code>.</p>
-<p>Key files: - <code>Dockerfile</code> — <code>rocker/r-ver:4.2.0</code> base, <code>renv::restore()</code> from <code>renv.lock</code>, <code>R CMD INSTALL</code> - <code>docker/entrypoint.sh</code> — CLI with <code>--dataset</code>, <code>--peak-areas</code>, <code>--annotation</code>, <code>--get-template</code> flags - <code>docker/run_report.R</code> — calls <code><a href="reference/generate_howdirty_report.html">generate_howdirty_report()</a></code> or <code><a href="reference/get_annotation_template.html">get_annotation_template()</a></code></p>
+<p>Key files: - <code>Dockerfile</code> — <code>rocker/r-ver:4.2.0</code> base, <code>renv::restore()</code> from <code>renv.lock</code>, <code>R CMD INSTALL</code> - <code>docker/entrypoint.sh</code> — CLI with <code>--dataset</code>, <code>--peak-areas</code>, <code>--annotation</code>, <code>--ref-thresholds</code>, <code>--output-dir</code>, <code>--interactive-plots</code>, <code>--user-names</code>, <code>--notes</code>, <code>--keep-missing-contaminants</code>, <code>--top-n</code>, <code>--multiply-dilution-factor</code>, <code>--get-template</code> flags - <code>docker/run_report.R</code> — calls <code><a href="reference/generate_howdirty_report.html">generate_howdirty_report()</a></code> or <code><a href="reference/get_annotation_template.html">get_annotation_template()</a></code></p>
 <p><strong>Windows PowerShell usage</strong> (add Docker to PATH first):</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+=</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># Step 1 — annotation template</span></span>
