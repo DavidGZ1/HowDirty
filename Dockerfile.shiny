@@ -1,0 +1,13 @@
+# Extends the CLI image so all R package layers are reused.
+# Adds shiny, bslib, and DT, then serves the app on port 3838.
+FROM ghcr.io/davidgz1/howdirty:latest
+
+RUN Rscript -e "install.packages(c('shiny', 'bslib', 'DT'), repos = 'https://cloud.r-project.org')"
+
+# Copy the app from the build context (current repo checkout) so this image
+# always reflects the latest app code, even if :latest was built earlier.
+COPY inst/shiny/ /usr/local/lib/howdirty_app/
+
+EXPOSE 3838
+ENTRYPOINT []
+CMD ["Rscript", "-e", "shiny::runApp('/usr/local/lib/howdirty_app', host='0.0.0.0', port=3838, launch.browser=FALSE)"]

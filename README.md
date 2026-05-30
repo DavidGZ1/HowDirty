@@ -75,7 +75,21 @@ b)
 ![Screenshot of the parameters section of the .Rmd file, showing where the file names for the PeakAreasContaminantsFile, the AnnotationFile, and (if applicable) the RefThresholdsFile need to be added with examples.](https://github.com/DavidGZ1/HowDirty/assets/134387857/dff65428-d7d0-4e12-9039-49941954cafd)
 
 
-## Running with Docker
+## Web app (no coding required)
+
+The easiest way to use HowDirty — upload your files in a browser and download the results. No R, no command line, no volume mounts.
+
+```bash
+docker run --rm -p 3838:3838 ghcr.io/davidgz1/howdirty:app
+```
+
+Then open **http://localhost:3838** in your browser.
+
+The app walks you through uploading your peak areas file, generating and filling the annotation template, and downloading the HTML report and Excel workbook. All parameters available in the Docker CLI (reference thresholds, top-n groups, dilution factor, interactive plots, etc.) can also be set in the interface under **Advanced options**.
+
+---
+
+## Running with Docker (CLI)
 
 If you don't have R installed, you can run HowDirty using Docker — no R setup required.
 

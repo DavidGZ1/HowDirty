@@ -15,7 +15,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.3
 Imports: ggplot2, ggpubr, readxl, mgsub, dplyr, tidyr, forcats, rmarkdown, knitr
-Suggests: testthat (>= 3.0.0), scales, plotly, openxlsx, DT, pkgdown
+Suggests: testthat (>= 3.0.0), scales, plotly, openxlsx, DT, pkgdown, shiny, bslib
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 
