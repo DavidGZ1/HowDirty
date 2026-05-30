@@ -114,7 +114,7 @@ The CLI Docker image is published at `ghcr.io/davidgz1/howdirty:latest` and buil
 
 Key files:
 - `Dockerfile` — `rocker/r-ver:4.2.0` base, `renv::restore()` from `renv.lock`, `R CMD INSTALL`
-- `docker/entrypoint.sh` — CLI with `--dataset`, `--peak-areas`, `--annotation`, `--get-template` flags
+- `docker/entrypoint.sh` — CLI with `--dataset`, `--peak-areas`, `--annotation`, `--ref-thresholds`, `--output-dir`, `--interactive-plots`, `--user-names`, `--notes`, `--keep-missing-contaminants`, `--top-n`, `--multiply-dilution-factor`, `--get-template` flags
 - `docker/run_report.R` — calls `generate_howdirty_report()` or `get_annotation_template()`
 
 **Windows PowerShell usage** (add Docker to PATH first):
