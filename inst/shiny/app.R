@@ -37,11 +37,14 @@ ui <- page_sidebar(
         checkboxInput("multiply_dilution",
                       "Multiply by dilution factor", FALSE),
         checkboxInput("interactive_plots",
-                      "Interactive plots (slower)", FALSE),
+                      "Interactive plots (slower)", TRUE),
         textInput("user_names", "Analyst name(s)"),
         textAreaInput("notes", "Notes", rows = 2)
       )
     ),
+
+    textInput("output_path", "Output directory", value = "results",
+              placeholder = "e.g. results or /data/results"),
 
     hr(),
     actionButton("run", "Generate Report",
@@ -86,24 +89,22 @@ server <- function(input, output, session) {
   })
 
   # ---- Results state ------------------------------------------------------
-  rv <- reactiveValues(html_path = NULL, xlsx_path = NULL, error = NULL)
+  rv <- reactiveValues(out_dir = NULL, error = NULL)
 
   observeEvent(list(input$peaks, input$annot, input$ref), {
-    rv$html_path <- NULL
-    rv$xlsx_path <- NULL
-    rv$error     <- NULL
+    rv$out_dir <- NULL
+    rv$error   <- NULL
   }, ignoreInit = TRUE)
 
   # ---- Run report ---------------------------------------------------------
   observeEvent(input$run, {
     req(input$peaks, input$annot, nzchar(input$dataset))
 
-    rv$html_path <- NULL
-    rv$xlsx_path <- NULL
-    rv$error     <- NULL
+    rv$out_dir <- NULL
+    rv$error   <- NULL
 
-    tmpdir <- tempfile()
-    dir.create(tmpdir)
+    out_dir <- trimws(input$output_path)
+    dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
     withProgress(message = "Generating report, please wait…", value = 0.5, {
       tryCatch({
@@ -112,8 +113,8 @@ server <- function(input, output, session) {
           file_peak_areas             = input$peaks$datapath,
           file_annotation             = input$annot$datapath,
           file_ref_thresholds         = if (!is.null(input$ref)) input$ref$datapath else FALSE,
-          output_directory            = tmpdir,
-          output_dir                  = tmpdir,
+          output_directory            = out_dir,
+          output_dir                  = out_dir,
           remove_missing_contaminants = input$remove_missing,
           n_top_contaminant_groups    = input$n_top,
           multiply_dilution_factor    = input$multiply_dilution,
@@ -122,23 +123,17 @@ server <- function(input, output, session) {
           notes                       = input$notes
         )
         setProgress(1)
-        rv$html_path <- list.files(tmpdir, pattern = "\\.html$", full.names = TRUE)[1]
-        rv$xlsx_path <- list.files(tmpdir, pattern = "\\.xlsx$", full.names = TRUE)[1]
+        rv$out_dir <- normalizePath(out_dir, mustWork = FALSE)
+        showNotification(
+          paste("Report saved to:", rv$out_dir),
+          type     = "message",
+          duration = 8
+        )
       }, error = function(e) {
         rv$error <- conditionMessage(e)
       })
     })
   })
-
-  # ---- Downloads ----------------------------------------------------------
-  output$dl_html <- downloadHandler(
-    filename = function() paste0(input$dataset, "_HowDirtyReport.html"),
-    content  = function(f) file.copy(rv$html_path, f)
-  )
-  output$dl_xlsx <- downloadHandler(
-    filename = function() paste0(input$dataset, "_HowDirtyReport.xlsx"),
-    content  = function(f) file.copy(rv$xlsx_path, f)
-  )
 
   # ---- Table previews -----------------------------------------------------
   output$template_dt <- DT::renderDT(
@@ -160,15 +155,12 @@ server <- function(input, output, session) {
           tags$strong("Error: "), rv$error)
       ))
 
-    } else if (!is.null(rv$html_path)) {
+    } else if (!is.null(rv$out_dir)) {
       card(card_body(
-        div(class = "alert alert-success mb-3",
-          tags$strong("Report generated successfully!")),
-        tags$p("Download your results:"),
-        tags$div(
-          class = "d-flex gap-2",
-          downloadButton("dl_html", "HTML report",    class = "btn-primary"),
-          downloadButton("dl_xlsx", "Excel workbook", class = "btn-success")
+        div(class = "alert alert-success mb-0",
+          tags$strong("Report saved to:"),
+          tags$br(),
+          tags$code(rv$out_dir)
         )
       ))
 
@@ -197,7 +189,7 @@ server <- function(input, output, session) {
           tags$li("Download the annotation template, fill it in, then upload it"),
           tags$li("Optionally upload a reference thresholds file"),
           tags$li("Enter an experiment name and click Generate Report"),
-          tags$li("Download the HTML report and Excel workbook")
+          tags$li("Reports are saved to the output directory you specified")
         )
       ))
     }
