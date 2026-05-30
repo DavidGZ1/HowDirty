@@ -150,6 +150,34 @@ adding `@keywords internal` to suppress export from the site. When
 adding new exported functions, add them to `_pkgdown.yml` in the same
 PR.
 
+## Docker
+
+The CLI Docker image is published at `ghcr.io/davidgz1/howdirty:latest`
+and built automatically on push to `main` via
+`.github/workflows/docker.yaml`.
+
+Key files: - `Dockerfile` — `rocker/r-ver:4.2.0` base, `renv::restore()`
+from `renv.lock`, `R CMD INSTALL` - `docker/entrypoint.sh` — CLI with
+`--dataset`, `--peak-areas`, `--annotation`, `--get-template` flags -
+`docker/run_report.R` — calls
+[`generate_howdirty_report()`](https://davidgz1.github.io/HowDirty/reference/generate_howdirty_report.md)
+or
+[`get_annotation_template()`](https://davidgz1.github.io/HowDirty/reference/get_annotation_template.md)
+
+**Windows PowerShell usage** (add Docker to PATH first):
+
+``` powershell
+$env:PATH += ";C:\Program Files\Docker\Docker\resources\bin"
+# Step 1 — annotation template
+docker run --rm -v "C:\path\to\data:/data" ghcr.io/davidgz1/howdirty --get-template --peak-areas /data/PeakAreas.csv
+# Step 2 — report
+docker run --rm -v "C:\path\to\data:/data" ghcr.io/davidgz1/howdirty --dataset MyExp --peak-areas /data/PeakAreas.csv --annotation /data/annotation.csv
+```
+
+Note: the `-v HOST:CONTAINER` mount maps a Windows folder to `/data`
+inside the container. All `--peak-areas` / `--annotation` paths must use
+the container path (`/data/...`).
+
 ## v1 roadmap
 
 Prioritized improvement plan (full details in memory):
@@ -165,3 +193,25 @@ Prioritized improvement plan (full details in memory):
 | 7 | Longitudinal trend plot + multi-dataset comparison | ✅ Done |
 | 8 | pkgdown site + quickstart vignette | ✅ Done |
 | 9 | Dockerize | ✅ Done |
+
+## Next: Docker usage instructions (v1 P9.5)
+
+Write clear step-by-step Docker instructions for end users. Should
+cover: - Windows PATH fix (`$env:PATH += "...Docker\resources\bin"`) -
+`docker pull ghcr.io/davidgz1/howdirty:latest` - Step 1: get annotation
+template (`--get-template`) - Step 2: run report (`--dataset`,
+`--peak-areas`, `--annotation`) - Volume mount rules
+(`-v "C:\host\path:/data"`, all args use `/data/...`) - Troubleshooting
+tips (common errors, path issues)
+
+Target location: expand the Docker section in `README.md` and/or
+`vignettes/quickstart.Rmd`.
+
+## After that: Shiny web app (v1 P10)
+
+Plan saved at `plans/plan_minimal_shiny.md`. Goal: browser-based GUI for
+non-coders, distributed as `ghcr.io/davidgz1/howdirty:app`.
+
+Files to create: `inst/shiny/app.R`, `R/run_app.R`, `Dockerfile.shiny`,
+`.github/workflows/docker-shiny.yaml` Files to modify: `DESCRIPTION`
+(add shiny + bslib to Suggests), `_pkgdown.yml`, `README.md`

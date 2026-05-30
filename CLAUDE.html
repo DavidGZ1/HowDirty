@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,6 +136,18 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 </div>
 </div>
 <div class="section level2">
+<h2 id="docker">Docker<a class="anchor" aria-label="anchor" href="#docker"></a></h2>
+<p>The CLI Docker image is published at <code>ghcr.io/davidgz1/howdirty:latest</code> and built automatically on push to <code>main</code> via <code>.github/workflows/docker.yaml</code>.</p>
+<p>Key files: - <code>Dockerfile</code> — <code>rocker/r-ver:4.2.0</code> base, <code>renv::restore()</code> from <code>renv.lock</code>, <code>R CMD INSTALL</code> - <code>docker/entrypoint.sh</code> — CLI with <code>--dataset</code>, <code>--peak-areas</code>, <code>--annotation</code>, <code>--get-template</code> flags - <code>docker/run_report.R</code> — calls <code><a href="reference/generate_howdirty_report.html">generate_howdirty_report()</a></code> or <code><a href="reference/get_annotation_template.html">get_annotation_template()</a></code></p>
+<p><strong>Windows PowerShell usage</strong> (add Docker to PATH first):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">$env</span><span class="op">:</span><span class="va">PATH</span> <span class="op">+=</span> <span class="st">";C:\Program Files\Docker\Docker\resources\bin"</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># Step 1 — annotation template</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"C:\path\to\data:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty <span class="op">--</span>get-template <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas<span class="op">.</span><span class="fu">csv</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Step 2 — report</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">-</span>v <span class="st">"C:\path\to\data:/data"</span> ghcr<span class="op">.</span><span class="fu">io</span><span class="op">/</span>davidgz1<span class="op">/</span>howdirty <span class="op">--</span>dataset MyExp <span class="op">--</span>peak-areas <span class="op">/</span><span class="kw">data</span><span class="op">/</span>PeakAreas<span class="op">.</span><span class="fu">csv</span> <span class="op">--</span>annotation <span class="op">/</span><span class="kw">data</span><span class="op">/</span>annotation<span class="op">.</span><span class="fu">csv</span></span></code></pre></div>
+<p>Note: the <code>-v HOST:CONTAINER</code> mount maps a Windows folder to <code>/data</code> inside the container. All <code>--peak-areas</code> / <code>--annotation</code> paths must use the container path (<code>/data/...</code>).</p>
+</div>
+<div class="section level2">
 <h2 id="v1-roadmap">v1 roadmap<a class="anchor" aria-label="anchor" href="#v1-roadmap"></a></h2>
 <p>Prioritized improvement plan (full details in memory):</p>
 <table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Priority</th>
@@ -169,6 +181,16 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 <td>Dockerize</td>
 <td>✅ Done</td>
 </tr></tbody></table></div>
+<div class="section level2">
+<h2 id="next-docker-usage-instructions-v1-p95">Next: Docker usage instructions (v1 P9.5)<a class="anchor" aria-label="anchor" href="#next-docker-usage-instructions-v1-p95"></a></h2>
+<p>Write clear step-by-step Docker instructions for end users. Should cover: - Windows PATH fix (<code>$env:PATH += "...Docker\resources\bin"</code>) - <code>docker pull ghcr.io/davidgz1/howdirty:latest</code> - Step 1: get annotation template (<code>--get-template</code>) - Step 2: run report (<code>--dataset</code>, <code>--peak-areas</code>, <code>--annotation</code>) - Volume mount rules (<code>-v "C:\host\path:/data"</code>, all args use <code>/data/...</code>) - Troubleshooting tips (common errors, path issues)</p>
+<p>Target location: expand the Docker section in <code>README.md</code> and/or <code>vignettes/quickstart.Rmd</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="after-that-shiny-web-app-v1-p10">After that: Shiny web app (v1 P10)<a class="anchor" aria-label="anchor" href="#after-that-shiny-web-app-v1-p10"></a></h2>
+<p>Plan saved at <code>plans/plan_minimal_shiny.md</code>. Goal: browser-based GUI for non-coders, distributed as <code>ghcr.io/davidgz1/howdirty:app</code>.</p>
+<p>Files to create: <code>inst/shiny/app.R</code>, <code>R/run_app.R</code>, <code>Dockerfile.shiny</code>, <code>.github/workflows/docker-shiny.yaml</code> Files to modify: <code>DESCRIPTION</code> (add shiny + bslib to Suggests), <code>_pkgdown.yml</code>, <code>README.md</code></p>
+</div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
