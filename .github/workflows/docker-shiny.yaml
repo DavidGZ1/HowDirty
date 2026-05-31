@@ -30,6 +30,6 @@ jobs:
           context: .
           file: Dockerfile.shiny
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/howdirty:app
+          tags: ghcr.io/davidgz1/howdirty:app
           cache-from: type=gha
           cache-to: type=gha,mode=max
