@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -191,16 +191,15 @@ write.xlsx()                # exports all summary tables to a multi-sheet Excel 
 </tr><tr><td>9</td>
 <td>Dockerize</td>
 <td>✅ Done</td>
+</tr><tr><td>9.5</td>
+<td>Docker CLI: expose all parameters + README usage instructions</td>
+<td>✅ Done</td>
+</tr><tr><td>10</td>
+<td>Shiny web app (<code>ghcr.io/davidgz1/howdirty:app</code>)</td>
+<td>✅ Done</td>
 </tr></tbody></table></div>
 <div class="section level2">
-<h2 id="next-docker-usage-instructions-v1-p95">Next: Docker usage instructions (v1 P9.5)<a class="anchor" aria-label="anchor" href="#next-docker-usage-instructions-v1-p95"></a></h2>
-<p>Write clear step-by-step Docker instructions for end users. Should cover: - Windows PATH fix (<code>$env:PATH += "...Docker\resources\bin"</code>) - <code>docker pull ghcr.io/davidgz1/howdirty:latest</code> - Step 1: get annotation template (<code>--get-template</code>) - Step 2: run report (<code>--dataset</code>, <code>--peak-areas</code>, <code>--annotation</code>) - Volume mount rules (<code>-v "C:\host\path:/data"</code>, all args use <code>/data/...</code>) - Troubleshooting tips (common errors, path issues)</p>
-<p>Target location: expand the Docker section in <code>README.md</code> and/or <code>vignettes/quickstart.Rmd</code>.</p>
-</div>
-<div class="section level2">
-<h2 id="after-that-shiny-web-app-v1-p10">After that: Shiny web app (v1 P10)<a class="anchor" aria-label="anchor" href="#after-that-shiny-web-app-v1-p10"></a></h2>
-<p>Plan saved at <code>plans/plan_minimal_shiny.md</code>. Goal: browser-based GUI for non-coders, distributed as <code>ghcr.io/davidgz1/howdirty:app</code>.</p>
-<p>Files to create: <code>inst/shiny/app.R</code>, <code>R/run_app.R</code>, <code>Dockerfile.shiny</code>, <code>.github/workflows/docker-shiny.yaml</code> Files to modify: <code>DESCRIPTION</code> (add shiny + bslib to Suggests), <code>_pkgdown.yml</code>, <code>README.md</code></p>
+<h2 id="v1-complete--current-version-080">v1 complete — current version: 0.8.0<a class="anchor" aria-label="anchor" href="#v1-complete--current-version-080"></a></h2>
 </div>
 </div>
 
