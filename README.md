@@ -26,7 +26,21 @@ Detailed instructions can be found in the [tutorial](https://github.com/DavidGZ1
     -	Create the PeakAreas_Contaminants report: containing the columns: 
     -	Settings / Document Settings / Report / Add, then add a name and select the columns: "Protein", "Peptide", "Replicate Name", "Peptide Retention Time", "Total Area MS1", "Total Ion Current Area"
     -	Enable the report form by ticking the box next to its name, then click OK
--  R software for data analysis and the R packages Rmarkdown, knitr, and HowDirty
+-  Run HowDirty through any of these options:
+   - **Windows launcher** *(easiest — no coding or terminal required)*: download
+      [`launch_howdirty.bat`](https://github.com/DavidGZ1/HowDirty/releases/latest)
+      and double-click it. Docker Desktop is started automatically if needed and
+      the app opens in your browser. Windows only.
+   - **Browser app** *(easy — no coding required, any OS)*: start the Shiny web
+      interface with one Docker command (`docker run --rm -p 3838:3838 ghcr.io/davidgz1/howdirty:app`)
+      and open `http://localhost:3838`. Upload your files and download the results
+      without writing any code.
+   - **Docker CLI** *(intermediate — basic terminal knowledge required)*: run the
+      full report pipeline from the command line using `docker run`. Useful for
+      batch processing or scripting. Requires Docker Desktop.
+   - **R package** *(advanced — R knowledge required)*: install HowDirty directly
+      in R for maximum flexibility, programmatic batch processing, and integration
+      with existing R workflows.
 
 ## Installation
 
