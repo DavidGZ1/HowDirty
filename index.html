@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">HowDirty</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +84,18 @@
 <li>Enable the report form by ticking the box next to its name, then click OK</li>
 </ul>
 </li>
-<li>R software for data analysis and the R packages Rmarkdown, knitr, and HowDirty</li>
+<li>Run HowDirty through any of these options:
+<ul>
+<li>
+<strong>Windows launcher</strong> <em>(easiest — no coding or terminal required)</em>: download <a href="https://github.com/DavidGZ1/HowDirty/releases/latest" class="external-link"><code>launch_howdirty.bat</code></a> and double-click it. Docker Desktop is started automatically if needed and the app opens in your browser. Windows only.</li>
+<li>
+<strong>Browser app</strong> <em>(easy — no coding required, any OS)</em>: start the Shiny web interface with one Docker command (<code>docker run --rm -p 3838:3838 ghcr.io/davidgz1/howdirty:app</code>) and open <code>http://localhost:3838</code>. Upload your files and download the results without writing any code.</li>
+<li>
+<strong>Docker CLI</strong> <em>(intermediate — basic terminal knowledge required)</em>: run the full report pipeline from the command line using <code>docker run</code>. Useful for batch processing or scripting. Requires Docker Desktop.</li>
+<li>
+<strong>R package</strong> <em>(advanced — R knowledge required)</em>: install HowDirty directly in R for maximum flexibility, programmatic batch processing, and integration with existing R workflows.</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section level2">
