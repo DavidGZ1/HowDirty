@@ -3,7 +3,15 @@ library(bslib)
 library(HowDirty)
 
 ui <- page_sidebar(
-  title = "HowDirty — Contamination Report Generator",
+  title = tags$span(
+    tags$img(src = "HowDirtyLogo.png", height = "38px",
+             style = "margin-right:10px; vertical-align:middle;"),
+    "HowDirty — LC-MS Contamination Report Generator"
+  ),
+  theme = bs_theme(
+    primary   = "#F7941D",
+    secondary = "#8B2FC9"
+  ),
   sidebar = sidebar(
     width = 380,
 
