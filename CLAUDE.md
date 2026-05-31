@@ -166,4 +166,4 @@ Prioritized improvement plan (full details in memory):
 | 9.5 | Docker CLI: expose all parameters + README usage instructions | ✅ Done |
 | 10 | Shiny web app (`ghcr.io/davidgz1/howdirty:app`) | ✅ Done |
 
-## v1 complete — current version: 0.7.0
+## v1 complete — current version: 0.8.0
